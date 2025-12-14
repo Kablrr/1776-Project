@@ -310,4 +310,82 @@ button:hover {
   }
 }
 
+/* ===== Full-Width Games ===== */
+.full-width-game {
+  width: 100%;
+  max-width: 100%;
+  margin: 40px 0;
+  text-align: center;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.card-grid .card {
+  background: #2a231f;
+  border: 2px solid #b08a57;
+  border-radius: 12px;
+  height: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.1rem;
+  color: #d8c9b4;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+  transition: transform 0.2s ease;
+}
+
+.card-grid .card.flipped {
+  background: #b08a57;
+  color: #1c1714;
+  transform: rotateY(180deg);
+}
+
+#sentenceDisplay {
+  width: 100%;
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  color: #bfae97;
+}
+
+#typingInput {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 12px auto;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #6e4b2f;
+  background: #1f1a17;
+  color: #d8c9b4;
+}
+
+.classroom-board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.classroom-board .item {
+  width: 80px;
+  height: 80px;
+  background: #2a231f;
+  border: 2px solid #b08a57;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d8c9b4;
+  cursor: grab;
+  user-select: none;
+}
+
 
