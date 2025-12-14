@@ -245,12 +245,14 @@ function checkMatch() {
 }
 
 initMemoryGame();
-
 /* ===== Typing Challenge ===== */
 const typingQuote = "Learn your lessons well in the colonial classroom."; // fixed quote
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingInput = document.getElementById('typingInput');
 const typingScore = document.getElementById('typingScore');
+
+// Sound effect for correct typing
+const correctSound = new Audio('correct.mp3');
 
 let typingStart = 0;
 
@@ -275,6 +277,7 @@ typingInput.addEventListener('input', () => {
     const time = ((Date.now() - typingStart) / 1000).toFixed(2);
     typingInput.value = ''; // clear input immediately
     typingScore.textContent = `✅ Perfect! Time: ${time} seconds`;
+    correctSound.play(); // play sound effect
   } 
   // Typing error
   else if (!typingQuote.startsWith(typed)) {
@@ -313,6 +316,7 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
 
 
 
