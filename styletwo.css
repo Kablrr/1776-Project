@@ -145,8 +145,54 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
 /* ===== Cursor Glow ===== */
 #cursorGlow { position: fixed; width: 180px; height: 180px; pointer-events: none; border-radius: 50%; background: radial-gradient(circle, rgba(176,138,87,0.25), transparent); mix-blend-mode: screen; transform: translate(-50%, -50%); }
 
+/* ===== Typing Challenge Enhancements ===== */
+#sentenceDisplay {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #bfae97;
+  text-align: center;
+  margin: 20px 0;
+  padding: 12px 18px;
+  border: 2px solid #b08a57;
+  border-radius: 12px;
+  background: rgba(42,35,31,0.85);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.5), inset 0 0 12px rgba(255,255,255,0.05);
+}
+
+#typingInput {
+  font-size: 1.3rem;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #6e4b2f;
+  background: #1f1a17;
+  color: #d8c9b4;
+  width: 90%;
+  max-width: 500px;
+  margin: 10px auto 0 auto;
+  display: block;
+  text-align: left;
+}
+
+#typingInput:focus {
+  outline: none;
+  box-shadow: 0 0 12px #b08a57, inset 0 0 6px rgba(255,255,255,0.1);
+}
+
+#typingScore {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4f7c4a;
+  margin-top: 12px;
+  text-align: center;
+}
+
+#typingScore.error {
+  color: #8c3a2b;
+}
+
 /* ===== Utility ===== */
 .hidden { display: none !important; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ===== Responsive ===== */
