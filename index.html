@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kabir Malhi - 1776 Project</title>
+  <title>1776 Student Project</title>
   <link rel="stylesheet" href="styletwo.css">
 </head>
 <body>
@@ -23,24 +23,21 @@
     </div>
   </div>
 
-  <!-- Center Column: Apps -->
+  <!-- Apps Column -->
   <div class="apps-column">
     <div class="container">
 
       <!-- Text to Image Generator -->
       <div class="section">
-        <h1>1776 Scene Generator</h1>
-        <p>Convert your ideas into a colonial scene.</p>
+        <h1>Image Generator</h1>
         <input id="promptInput" type="text" placeholder="Enter a colonial scene...">
         <button id="generateBtn">Generate Image</button>
-        <div id="loadingText" class="spinner hidden"></div>
         <div id="imageContainer" class="image-container"></div>
       </div>
 
       <!-- Avatar Generator -->
       <div class="section">
         <h1>1776 Avatar Generator</h1>
-        <p>Create your colonial student avatar.</p>
 
         <div class="dropdowns">
           <div class="dropdown-group">
@@ -50,7 +47,6 @@
               <option>Female</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="backgroundSelect">Background:</label>
             <select id="backgroundSelect">
@@ -64,7 +60,6 @@
               <option>Ship Deck</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="outfitSelect">Outfit:</label>
             <select id="outfitSelect">
@@ -78,7 +73,6 @@
               <option>Apprentice Outfit</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="hatSelect">Hat:</label>
             <select id="hatSelect">
@@ -90,7 +84,6 @@
               <option>Bandana</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="accessorySelect">Accessory:</label>
             <select id="accessorySelect">
@@ -103,7 +96,6 @@
               <option>Lantern</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="hairSelect">Hair Style:</label>
             <select id="hairSelect">
@@ -116,7 +108,6 @@
               <option>Braided</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="ageSelect">Age:</label>
             <select id="ageSelect">
@@ -126,7 +117,6 @@
               <option>Elderly</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="raceSelect">Heritage:</label>
             <select id="raceSelect">
@@ -141,35 +131,22 @@
         </div>
 
         <button id="generateAvatarBtn">Generate Avatar</button>
-        <div id="avatarLoading" class="spinner hidden"></div>
         <div id="avatarContainer" class="image-container"></div>
       </div>
 
-<!-- ===== 1776 History Quiz ===== -->
-<div class="section" id="quizSection">
-    <h1>1776 History Quiz</h1>
-
-    <!-- Progress Bar -->
-    <div id="progressContainer"></div>
-
-    <!-- Question -->
-    <div id="question"></div>
-
-    <!-- Answer Buttons -->
-    <div id="answers"></div>
-
-    <!-- Submit / Next Buttons -->
-    <div class="button-wrapper">
-        <button id="submitBtn" disabled>Submit Answer</button>
-        <button id="nextBtn" class="hidden">Next Question</button>
-    </div>
-
-    <!-- Take Again & Score -->
-    <button id="takeAgainBtn" class="hidden">Take Again</button>
-    <div id="score" class="hidden"></div>
-</div>
-
-
+      <!-- Quiz (will add later) -->
+      <div class="section">
+        <h1>1776 History Quiz</h1>
+        <div id="progressContainer"></div>
+        <div id="question"></div>
+        <div id="answers"></div>
+        <div class="button-wrapper">
+          <button id="submitBtn" disabled>Submit</button>
+          <button id="nextBtn" class="hidden">Next</button>
+        </div>
+        <button id="takeAgainBtn" class="hidden">Take Again</button>
+        <div id="score" class="hidden"></div>
+      </div>
 
     </div>
   </div>
@@ -188,8 +165,5 @@
 </div>
 
 <script src="scripttwo.js"></script>
-<script src="quiz.js"></script>
 </body>
 </html>
-
-
