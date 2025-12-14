@@ -59,29 +59,13 @@ const quizData = [
 let currentQuestion = 0;
 let score = 0;
 
-const progressContainer = document.getElementById('progressContainer');
+const progressFill = document.getElementById('progressFill');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
 const submitBtn = document.getElementById('submitBtn');
 const nextBtn = document.getElementById('nextBtn');
 const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
-
-// ===== Initialize Progress Bar =====
-function initProgress() {
-  progressContainer.innerHTML = '';
-  quizData.forEach(() => {
-    const seg = document.createElement('div');
-    seg.classList.add('progress-segment');
-
-    const fill = document.createElement('div');
-    fill.classList.add('fill');
-    fill.style.width = '0%'; // start empty
-    seg.appendChild(fill);
-
-    progressContainer.appendChild(seg);
-  });
-}
 
 // ===== Load Question =====
 function loadQuestion() {
@@ -105,11 +89,8 @@ function loadQuestion() {
 
 // ===== Update Progress Bar =====
 function updateProgress() {
-  const fills = document.querySelectorAll('.progress-segment .fill');
-  fills.forEach((fill, i) => {
-    if (i <= currentQuestion) fill.style.width = '100%';
-    else fill.style.width = '0%';
-  });
+  const progress = ((currentQuestion + 1) / quizData.length) * 100;
+  progressFill.style.width = `${progress}%`;
 }
 
 // ===== Submit Answer =====
@@ -152,10 +133,9 @@ takeAgainBtn.addEventListener('click', () => {
   score = 0;
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
-  initProgress();
+  progressFill.style.width = '0%';
   loadQuestion();
 });
 
 // ===== Initialize =====
-initProgress();
 loadQuestion();
