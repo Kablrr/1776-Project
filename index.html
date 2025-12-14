@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kabir Malhi - 1776 Project</title>
+  <link rel="stylesheet" href="styletwo.css">
+</head>
+<body>
+
+<div id="cursorGlow"></div>
+
+<div class="main-layout">
+
+  <!-- Left Column: 1776 Images -->
+  <div class="image-column left-column">
+    <h2>1776</h2>
+    <div class="image-wrapper">
+      <img src="https://via.placeholder.com/300x200?text=1776+Scene+1" alt="1776 Image 1">
+    </div>
+    <div class="image-wrapper">
+      <img src="https://via.placeholder.com/300x200?text=1776+Scene+2" alt="1776 Image 2">
+    </div>
+  </div>
+
+  <!-- Apps Column -->
+  <div class="apps-column">
+    <div class="container">
+
+      <!-- Text to Image Generator -->
+      <div class="section">
+        <h1>Image Generator</h1>
+        <p>Convert your ideas into a colonial scene (May take 30-60 seconds)</p>
+        <input id="promptInput" type="text" placeholder="Enter a colonial scene...">
+        <button id="generateBtn">Generate Image</button>
+        <div id="loadingText" class="hidden"></div>
+        <div id="imageContainer" class="image-container"></div>
+      </div>
+
+      <!-- Avatar Generator -->
+      <div class="section">
+        <h1>1776 Avatar Generator</h1>
+        <p>Customize your colonial student avatar (May take 30-60 seconds)</p>
+
+        <div class="dropdowns">
+          <div class="dropdown-group">
+            <label for="genderSelect">Gender:</label>
+            <select id="genderSelect">
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
+
+          <div class="dropdown-group">
+            <label for="backgroundSelect">Background:</label>
+            <select id="backgroundSelect">
+              <option>Classroom</option>
+              <option>Library</option>
+              <option>Town Square</option>
+              <option>Tavern</option>
+              <option>Courtyard</option>
+              <option>Market</option>
+              <option>Garden</option>
+              <option>Ship Deck</option>
+            </select>
+          </div>
+
+          <div class="dropdown-group">
+            <label for="outfitSelect">Outfit:</label>
+            <select id="outfitSelect">
+              <option>Blue Coat</option>
+              <option>Brown Coat</option>
+              <option>Formal Suit</option>
+              <option>Farmer Clothes</option>
+              <option>Plain Clothes</option>
+              <option>Merchant Clothes</option>
+              <option>Military Uniform</option>
+              <option>Apprentice Outfit</option>
+            </select>
+          </div>
+
+          <div class="dropdown-group">
+            <label for="hatSelect">Hat:</label>
+            <select id="hatSelect">
+              <option>Tricorn Hat</option>
+              <option>Cap</option>
+              <option>Bonnet</option>
+              <option>No Hat</option>
+              <option>Wide Brim Hat</option>
+              <option>Bandana</option>
+            </select>
+          </div>
+
+          <div class="dropdown-group">
+            <label for="accessorySelect">Accessory:</label>
+            <select id="accessorySelect">
+              <option>Book</option>
+              <option>Quill</option>
+              <option>Scroll</option>
+              <option>None</option>
+              <option>Sword</option>
+              <option>Basket</option>
+              <option>Lantern</option>
+            </select>
+          </div>
+
+          <div class="dropdown-group">
+            <label for="hairSelect">Hair Style:</label>
+            <select id="hairSelect">
+              <option>Long</option>
+              <option>Short</option>
+              <option>Curly</option>
+              <option>Bun</option>
+              <option>None</option>
+              <option>Ponytail</option>
+              <option>Braided</option>
+            </select>
+          </div>
+
+          <div class="dropdown-group">
+            <label for="ageSelect">Age:</label>
+            <select id="ageSelect">
+              <option>Young</option>
+              <option>Teenage</option>
+              <option>Adult</option>
+              <option>Elderly</option>
+            </select>
+          </div>
+
+          <div class="dropdown-group">
+            <label for="raceSelect">Heritage:</label>
+            <select id="raceSelect">
+              <option>European</option>
+              <option>African</option>
+              <option>Native American</option>
+              <option>Mixed Heritage</option>
+              <option>Asian</option>
+              <option>Middle Eastern</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="generateAvatarBtn">Generate Avatar</button>
+        <div id="avatarLoading" class="hidden"></div>
+        <div id="avatarContainer" class="image-container"></div>
+      </div>
+
+      <!-- Quiz -->
+      <div class="section">
+        <h1>1776 History Quiz</h1>
+
+        <div id="progressContainer"></div>
+        <div id="question"></div>
+        <div id="answers"></div>
+
+        <div class="button-wrapper">
+          <button id="submitBtn" disabled>Submit</button>
+          <button id="nextBtn" class="hidden">Next</button>
+        </div>
+
+        <button id="takeAgainBtn" class="hidden">Take Again</button>
+        <div id="score" class="hidden"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Right Column: 2025 Images -->
+  <div class="image-column right-column">
+    <h2>2025</h2>
+    <div class="image-wrapper">
+      <img src="https://via.placeholder.com/300x200?text=2025+Scene+1" alt="2025 Image 1">
+    </div>
+    <div class="image-wrapper">
+      <img src="https://via.placeholder.com/300x200?text=2025+Scene+2" alt="2025 Image 2">
+    </div>
+  </div>
+
+</div>
+
+<script src="scripttwo.js"></script>
+</body>
+</html>
