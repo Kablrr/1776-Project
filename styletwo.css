@@ -177,8 +177,13 @@ button:disabled {
   z-index: 1;
 }
 
-#submitBtn:hover { background: #b07d62; }
-#nextBtn:hover { background: #45a049; }
+#submitBtn:hover {
+  background: #b07d62;
+}
+
+#nextBtn:hover {
+  background: #45a049;
+}
 
 #takeAgainBtn {
   width: 100%;
@@ -268,11 +273,12 @@ button:disabled {
 }
 
 /* ===== Responsive ===== */
-@media(max-width: 1200px) {
+@media (max-width: 1200px) {
   .main-layout {
     flex-direction: column;
     align-items: center;
   }
+
   .apps-column,
   .image-column {
     flex: none;
@@ -281,10 +287,11 @@ button:disabled {
   }
 }
 
-@media(max-width: 900px) {
+@media (max-width: 900px) {
   .dropdowns {
     grid-template-columns: 1fr;
   }
+
   #answers button {
     width: 95%;
   }
