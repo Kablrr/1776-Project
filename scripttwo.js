@@ -29,18 +29,36 @@ const avatarContainer = document.getElementById('avatarContainer');
 
 generateAvatarBtn.addEventListener('click', () => {
   avatarContainer.innerHTML = '';
+
   const gender = document.getElementById('genderSelect').value;
   const background = document.getElementById('backgroundSelect').value;
   const outfit = document.getElementById('outfitSelect').value;
-  const prompt = `1776 student avatar, gender: ${gender}, background: ${background}, outfit: ${outfit}`;
+  const hat = document.getElementById('hatSelect').value;
+  const accessory = document.getElementById('accessorySelect').value;
+  const hair = document.getElementById('hairSelect').value;
+  const age = document.getElementById('ageSelect').value;
+  const heritage = document.getElementById('raceSelect').value;
+
+  const prompt = `
+  Colonial American style portrait, year 1776.
+  ${age} ${gender} person of ${heritage} heritage.
+  Wearing ${outfit}, ${hat}.
+  Hairstyle: ${hair}.
+  Accessory: ${accessory}.
+  Background setting: ${background}.
+  Painted realism, warm parchment tones, 18th century oil painting style.
+  `;
+
   const img = new Image();
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-  img.alt = 'Avatar';
-  img.style.width = '200px';
+  img.alt = '1776 Avatar';
+  img.style.width = '220px';
   img.style.border = '2px solid #4b2e2a';
-  img.style.borderRadius = '12px';
+  img.style.borderRadius = '14px';
+
   avatarContainer.appendChild(img);
 });
+
 
 // ===== Quiz =====
 const quizData = [
@@ -139,3 +157,4 @@ takeAgainBtn.addEventListener('click', () => {
 
 // ===== Initialize =====
 loadQuestion();
+
