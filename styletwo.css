@@ -5,6 +5,7 @@
   padding: 0;
   font-family: 'Georgia', serif;
 }
+
 body {
   background: #edc4b3;
   color: #4b2e2a;
@@ -33,12 +34,15 @@ body {
   flex-direction: column;
   align-items: center;
 }
+
 .left-column { order: 0; }
 .right-column { order: 2; }
+
 .image-wrapper {
   margin-bottom: 20px;
   width: 100%;
 }
+
 .image-wrapper img {
   width: 100%;
   height: auto;
@@ -52,6 +56,7 @@ body {
   display: flex;
   justify-content: center;
 }
+
 .apps-column .container {
   width: 100%;
   display: flex;
@@ -59,6 +64,7 @@ body {
   align-items: center;
   text-align: center;
 }
+
 .section {
   margin-bottom: 60px;
   width: 100%;
@@ -68,10 +74,18 @@ body {
 }
 
 /* ===== Headings ===== */
+h1, h2 {
+  color: #4b2e2a;
+}
+
 h1 {
   font-size: 2.2rem;
   margin-bottom: 10px;
-  color: #4b2e2a;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
 }
 
 /* ===== Inputs & Buttons ===== */
@@ -85,6 +99,7 @@ input[type="text"], select {
   width: 90%;
   max-width: 420px;
 }
+
 button {
   padding: 12px 20px;
   border: none;
@@ -94,7 +109,10 @@ button {
   transition: all 0.2s ease;
   margin: 5px 0;
 }
-button:hover { transform: scale(1.05); }
+
+button:hover {
+  transform: scale(1.05);
+}
 
 /* ===== Avatar Dropdowns ===== */
 .dropdowns {
@@ -103,8 +121,16 @@ button:hover { transform: scale(1.05); }
   gap: 15px;
   margin-bottom: 20px;
 }
-.dropdown-group { display: flex; flex-direction: column; }
-.dropdown-group label { font-weight: bold; margin-bottom: 5px; }
+
+.dropdown-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
 
 /* ===== Quiz ===== */
 #progressContainer {
@@ -114,6 +140,7 @@ button:hover { transform: scale(1.05); }
   margin-bottom: 15px;
   border-radius: 8px;
 }
+
 .progress-segment {
   flex: 1;
   margin: 0 2px;
@@ -121,20 +148,47 @@ button:hover { transform: scale(1.05); }
   background: rgba(255,255,255,0.15);
   transition: background 0.4s ease;
 }
-#question { font-size: 1.4rem; font-weight: bold; margin-bottom: 10px; }
-#answers { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; }
+
+#question {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#answers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
 #answers button {
-  width: 100%;
-  max-width: 420px;
-  margin: 6px 0;
+  flex: 1 1 45%;
+  max-width: 200px;
+  margin: 5px;
   border-radius: 10px;
   border: 1px solid #9d6b53;
   background: #f5e6dc;
   color: #4b2e2a;
 }
-#answers button.selected { background: #c38e70; color: #fff; border: 2px solid #b07d62; transform: scale(1.05); }
-#answers button.correct { background: #4CAF50; color: #fff; }
-#answers button.wrong { background: #e74c3c; color: #fff; }
+
+#answers button.selected {
+  background: #c38e70;
+  color: #fff;
+  border: 2px solid #b07d62;
+  transform: scale(1.05);
+}
+
+#answers button.correct {
+  background: #4CAF50;
+  color: #fff;
+}
+
+#answers button.wrong {
+  background: #e74c3c;
+  color: #fff;
+}
 
 /* ===== Buttons Layout ===== */
 .button-wrapper {
@@ -143,10 +197,26 @@ button:hover { transform: scale(1.05); }
   gap: 10px;
   margin-bottom: 10px;
 }
-#submitBtn { background: #c38e70; color: #fff; }
-#nextBtn { background: #4CAF50; color: #fff; }
-#takeAgainBtn { background: #4b2e2a; color: #fff; margin-top: 10px; }
-.hidden { display: none !important; }
+
+#submitBtn {
+  background: #c38e70;
+  color: #fff;
+}
+
+#nextBtn {
+  background: #4CAF50;
+  color: #fff;
+}
+
+#takeAgainBtn {
+  background: #4b2e2a;
+  color: #fff;
+  margin-top: 10px;
+}
+
+.hidden {
+  display: none !important;
+}
 
 /* ===== Cursor Glow ===== */
 #cursorGlow {
@@ -164,7 +234,16 @@ button:hover { transform: scale(1.05); }
 
 /* ===== Responsive ===== */
 @media(max-width: 900px) {
-  .dropdowns { grid-template-columns: 1fr; }
-  #answers button { width: 95%; }
-  .button-wrapper { flex-direction: column; }
+  .dropdowns {
+    grid-template-columns: 1fr;
+  }
+
+  #answers button {
+    flex: 1 1 90%;
+    max-width: 100%;
+  }
+
+  .button-wrapper {
+    flex-direction: column;
+  }
 }
