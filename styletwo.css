@@ -139,14 +139,18 @@ button:hover {
   box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 
-/* ===== Avatar Dropdown Grid ===== */
+/* ===== Avatar Dropdown Grid FIX ===== */
 .dropdowns {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
   gap: 15px 20px;
-  margin-bottom: 20px;
+
+  /* 🔒 IMPORTANT */
+  max-width: 520px;
   width: 100%;
+  margin: 0 auto 20px auto;
 }
+
 
 .dropdown-group {
   display: flex;
@@ -273,4 +277,5 @@ button:hover {
     flex-direction: column;
   }
 }
+
 
