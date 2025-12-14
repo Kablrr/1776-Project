@@ -7,10 +7,22 @@ document.addEventListener('mousemove', e => {
 
 // ===== Spinner Helper =====
 function createSpinner() {
+  const wrapper = document.createElement('div');
+  wrapper.classList.add('spinner-wrapper');
+
   const spinner = document.createElement('div');
   spinner.classList.add('spinner');
-  return spinner;
+
+  const text = document.createElement('div');
+  text.classList.add('spinner-text');
+  text.textContent = 'May take up to a minute to generate';
+
+  wrapper.appendChild(spinner);
+  wrapper.appendChild(text);
+
+  return wrapper;
 }
+
 
 // ===== Text-to-Image Generator =====
 const generateBtn = document.getElementById('generateBtn');
@@ -219,3 +231,4 @@ takeAgainBtn.addEventListener('click', () => {
 // ===== Initialize =====
 initProgressBar();
 loadQuestion();
+
