@@ -110,6 +110,10 @@ h1 {
   color: #e6d8c5;
   letter-spacing: 0.6px;
 }
+/* ===== Section Text Spacing FIX ===== */
+.section p {
+  margin-bottom: 25px;
+}
 
 /* ===== Inputs ===== */
 input[type="text"],
@@ -300,5 +304,6 @@ button:hover {
     flex-direction: column;
   }
 }
+
 
 
