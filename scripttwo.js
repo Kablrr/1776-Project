@@ -70,7 +70,7 @@ generateAvatarBtn.addEventListener('click', () => {
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
-// ===== Quiz =====
+// ===== Quiz with Sound Effects =====
 const quizData = [
   {q:"Year Declaration of Independence was signed?", o:["1775","1776","1777","1781"], a:"1776"},
   {q:"Commander of Continental Army?", o:["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], a:"George Washington"},
@@ -93,9 +93,14 @@ const nextBtn = document.getElementById('nextBtn');
 const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
 
+// Sound effects
+const correctSound = new Audio('correct.mp3');
+const wrongSound = new Audio('wrong.mp3');
+const completeSound = new Audio('complete.mp3');
+
 function initProgressBar() {
   progressContainer.innerHTML = '';
-  quizData.forEach(()=> {
+  quizData.forEach(() => {
     const segment = document.createElement('div');
     segment.className = 'progress-segment';
     progressContainer.appendChild(segment);
@@ -106,16 +111,16 @@ function loadQuestion() {
   submitBtn.disabled = true;
   submitBtn.classList.remove('hidden');
   nextBtn.classList.add('hidden');
-  
+
   const q = quizData[currentQuestion];
   questionEl.textContent = q.q;
   answersEl.innerHTML = '';
 
-  [...q.o].sort(()=>Math.random()-0.5).forEach(opt=>{
+  [...q.o].sort(() => Math.random() - 0.5).forEach(opt => {
     const btn = document.createElement('button');
     btn.textContent = opt;
-    btn.addEventListener('click', ()=>{
-      document.querySelectorAll('#answers button').forEach(b=>b.classList.remove('selected'));
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#answers button').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       submitBtn.disabled = false;
     });
@@ -128,23 +133,30 @@ function markProgress(isCorrect){
   if(segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4f7c4a' : '#8c3a2b';
 }
 
-submitBtn.addEventListener('click', ()=>{
+submitBtn.addEventListener('click', () => {
   const selected = document.querySelector('#answers button.selected');
   if(!selected) return;
   const isCorrect = selected.textContent === quizData[currentQuestion].a;
 
-  Array.from(document.querySelectorAll('#answers button')).forEach(btn=>{
+  Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
     btn.disabled = true;
     if(btn.textContent === quizData[currentQuestion].a) btn.classList.add('correct');
   });
-  if(!isCorrect) selected.classList.add('wrong'); else score++;
+
+  if(isCorrect){
+    score++;
+    correctSound.play();
+  } else {
+    selected.classList.add('wrong');
+    wrongSound.play();
+  }
 
   markProgress(isCorrect);
   submitBtn.classList.add('hidden');
   nextBtn.classList.remove('hidden');
 });
 
-nextBtn.addEventListener('click', ()=>{
+nextBtn.addEventListener('click', () => {
   currentQuestion++;
   if(currentQuestion >= quizData.length) showScore();
   else loadQuestion();
@@ -158,10 +170,13 @@ function showScore(){
   takeAgainBtn.classList.remove('hidden');
   scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
   scoreEl.classList.remove('hidden');
+
+  completeSound.play();
 }
 
-takeAgainBtn.addEventListener('click', ()=>{
-  currentQuestion = 0; score = 0;
+takeAgainBtn.addEventListener('click', () => {
+  currentQuestion = 0;
+  score = 0;
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
   initProgressBar();
@@ -289,3 +304,4 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
