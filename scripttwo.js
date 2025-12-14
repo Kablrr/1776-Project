@@ -290,29 +290,76 @@ function checkMatch() {
 
 initMemoryGame();
 
-// ===== Classroom Cleanup Game =====
-const cleanupBoard = document.querySelector('.classroom-board');
-const cleanupItems = ['Book','Quill','Scroll','Lantern','Hat','Sword'];
+const cleanupBoard = document.getElementById('classroomBoard');
+const cleanupScore = document.getElementById('cleanupScore');
+const cleanupTimer = document.getElementById('cleanupTimer');
+const resetBtn = document.getElementById('resetCleanupBtn');
+const basket = document.getElementById('basket');
 
-cleanupItems.forEach(item => {
-  const div = document.createElement('div');
-  div.className = 'item';
-  div.textContent = item;
-  div.draggable = true;
-  div.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', item); });
-  cleanupBoard.appendChild(div);
-});
+let clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
+let startTime = 0;
+let timerInterval;
 
+// Initialize game
+function initCleanupGame() {
+  cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
+  cleanupScore.textContent = '';
+  clearInterval(timerInterval);
+  startTime = Date.now();
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 50);
+
+  clutterItems.forEach(emoji => {
+    const div = document.createElement('div');
+    div.className = 'clutter-item';
+    div.textContent = emoji;
+
+    // Random position inside the board
+    const maxX = cleanupBoard.clientWidth - 40;
+    const maxY = cleanupBoard.clientHeight - 40;
+    div.style.left = Math.random() * maxX + 'px';
+    div.style.top = Math.random() * maxY + 'px';
+
+    div.draggable = true;
+    div.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', emoji);
+    });
+
+    cleanupBoard.appendChild(div);
+  });
+}
+
+// Timer update
+function updateTimer() {
+  const time = ((Date.now() - startTime) / 1000).toFixed(2);
+  cleanupTimer.textContent = `Time: ${time}s`;
+}
+
+// Drag & Drop
 cleanupBoard.addEventListener('dragover', e => e.preventDefault());
 cleanupBoard.addEventListener('drop', e => {
   e.preventDefault();
-  const item = e.dataTransfer.getData('text/plain');
-  const divs = Array.from(cleanupBoard.querySelectorAll('.item'));
-  const target = divs.find(d => d.textContent === item && !d.classList.contains('dropped'));
-  if(target){
-    target.classList.add('dropped');
-    target.style.background = '#4f7c4a';
-    target.style.color = '#fff';
-    document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
+  const emoji = e.dataTransfer.getData('text/plain');
+  const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item'))
+                     .find(d => d.textContent === emoji);
+  if(target) {
+    target.remove(); // Remove emoji from board
+    checkCompletion();
   }
 });
+
+// Check if all clutter removed
+function checkCompletion() {
+  if(cleanupBoard.querySelectorAll('.clutter-item').length === 0) {
+    clearInterval(timerInterval);
+    const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+    cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
+  }
+}
+
+// Reset button
+resetBtn.addEventListener('click', initCleanupGame);
+
+// Start the game on page load
+initCleanupGame();
+
