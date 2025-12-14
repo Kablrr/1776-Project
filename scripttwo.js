@@ -5,6 +5,13 @@ document.addEventListener('mousemove', e => {
   cursorGlow.style.left = e.clientX + 'px';
 });
 
+// ===== Spinner Helper =====
+function createSpinner() {
+  const spinner = document.createElement('div');
+  spinner.classList.add('spinner');
+  return spinner;
+}
+
 // ===== Text to Image =====
 const generateBtn = document.getElementById('generateBtn');
 const promptInput = document.getElementById('promptInput');
@@ -21,25 +28,30 @@ generateBtn.addEventListener('click', () => {
     Historical realism, 18th century atmosphere, parchment tones, oil painting style.
   `;
 
+  imageContainer.innerHTML = '';
+  const spinner = createSpinner();
+  imageContainer.appendChild(spinner);
+
   if (!textImg) {
     textImg = new Image();
     textImg.style.width = '100%';
     textImg.style.maxWidth = '300px';
     textImg.style.border = '2px solid #4b2e2a';
     textImg.style.borderRadius = '12px';
-    imageContainer.innerHTML = '';
-    imageContainer.appendChild(textImg);
   }
 
-  // Show loading indicator
-  textImg.src = '';
-  textImg.alt = 'Loading...';
-  
   const temp = new Image();
-  temp.onload = () => textImg.src = temp.src;
-  temp.onerror = () => alert('Failed to generate image. Try again.');
+  temp.onload = () => {
+    spinner.remove();
+    textImg.src = temp.src;
+    textImg.alt = prompt;
+    imageContainer.appendChild(textImg);
+  };
+  temp.onerror = () => {
+    spinner.remove();
+    alert('Failed to generate image. Try again.');
+  };
   temp.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-  textImg.alt = prompt;
 });
 
 // ===== Avatar Generator =====
@@ -67,24 +79,30 @@ generateAvatarBtn.addEventListener('click', () => {
     Painted realism, warm parchment tones, 18th century oil painting style.
   `;
 
+  avatarContainer.innerHTML = '';
+  const spinner = createSpinner();
+  avatarContainer.appendChild(spinner);
+
   if (!avatarImg) {
     avatarImg = new Image();
     avatarImg.style.width = '100%';
     avatarImg.style.maxWidth = '220px';
     avatarImg.style.border = '2px solid #4b2e2a';
     avatarImg.style.borderRadius = '14px';
-    avatarContainer.innerHTML = '';
-    avatarContainer.appendChild(avatarImg);
   }
 
-  avatarImg.src = '';
-  avatarImg.alt = 'Loading...';
-
   const temp = new Image();
-  temp.onload = () => avatarImg.src = temp.src;
-  temp.onerror = () => alert('Failed to generate avatar. Try again.');
+  temp.onload = () => {
+    spinner.remove();
+    avatarImg.src = temp.src;
+    avatarImg.alt = '1776 Avatar';
+    avatarContainer.appendChild(avatarImg);
+  };
+  temp.onerror = () => {
+    spinner.remove();
+    alert('Failed to generate avatar. Try again.');
+  };
   temp.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-  avatarImg.alt = '1776 Avatar';
 });
 
 // ===== Quiz =====
@@ -196,3 +214,4 @@ takeAgainBtn.addEventListener('click', () => {
 // ===== Initialize =====
 initProgressBar();
 loadQuestion();
+
