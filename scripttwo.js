@@ -172,8 +172,8 @@ takeAgainBtn.addEventListener('click', ()=>{
 // Initialize
 initProgressBar();
 loadQuestion();
-/* ===== Colonial Memory Match with Emojis ===== */
-const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️']; // emojis instead of text
+/* ===== Colonial Memory Match with Emojis & Working 3D Flip ===== */
+const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
 let memoryDeck = [...memoryEmojis, ...memoryEmojis];
 let memoryGrid = document.querySelector('#memoryGame .card-grid');
 let memoryFlipped = [];
@@ -191,7 +191,15 @@ function initMemoryGame() {
     const card = document.createElement('div');
     card.className = 'card';
     card.dataset.value = emoji;
-    card.textContent = ''; // start face down
+
+    // inner front/back for 3D flip
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front">?</div>
+        <div class="card-back">${emoji}</div>
+      </div>
+    `;
+
     card.addEventListener('click', () => flipCard(card));
     memoryGrid.appendChild(card);
   });
@@ -200,10 +208,9 @@ function initMemoryGame() {
 }
 
 function flipCard(card) {
-  if (memoryFlipped.length >= 2 || card.classList.contains('flipped')) return;
+  if (memoryFlipped.length >= 2 || card.classList.contains('matched') || card.classList.contains('flipped')) return;
 
   card.classList.add('flipped');
-  card.textContent = card.dataset.value;
   memoryFlipped.push(card);
 
   if (memoryFlipped.length === 2) {
@@ -214,11 +221,14 @@ function flipCard(card) {
 function checkMatch() {
   const [c1, c2] = memoryFlipped;
   if (c1.dataset.value === c2.dataset.value) {
+    c1.classList.add('matched');
+    c2.classList.add('matched');
     memoryMatches++;
   } else {
-    c1.classList.remove('flipped'); c1.textContent = '';
-    c2.classList.remove('flipped'); c2.textContent = '';
+    c1.classList.remove('flipped');
+    c2.classList.remove('flipped');
   }
+
   memoryFlipped = [];
 
   if (memoryMatches === memoryEmojis.length) {
@@ -228,6 +238,7 @@ function checkMatch() {
 
 // Initialize Memory Game
 initMemoryGame();
+
 
 /* ===== Typing Challenge ===== */
 const sentences = [
@@ -286,5 +297,6 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
 
 
