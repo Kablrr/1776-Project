@@ -246,37 +246,40 @@ function checkMatch() {
 
 initMemoryGame();
 
-// ===== Typing Challenge =====
-const sentences = [
-  "Learn your lessons well in the colonial classroom.",
-  "Quills and ink were the tools of every student.",
-  "1776 was a year of revolution and learning.",
-  "Books were rare and treasured in colonial schools."
-];
-let typingIndex = 0;
-let typingStart = 0;
+/* ===== Typing Challenge ===== */
+const typingQuote = "Learn your lessons well in the colonial classroom."; // fixed quote
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingInput = document.getElementById('typingInput');
 const typingScore = document.getElementById('typingScore');
 
-function loadTypingSentence(){
-  const sentence = sentences[typingIndex];
-  sentenceDisplay.textContent = sentence;
+let typingStart = 0;
+
+function loadTypingQuote() {
+  sentenceDisplay.textContent = typingQuote;
   typingInput.value = '';
+  typingInput.focus();
   typingStart = Date.now();
+  typingScore.textContent = '';
 }
 
-typingInput.addEventListener('input', ()=>{
-  const sentence = sentences[typingIndex];
-  if(typingInput.value === sentence){
-    const time = ((Date.now()-typingStart)/1000).toFixed(2);
-    typingScore.textContent = `Correct! Time: ${time} seconds`;
-    typingIndex = (typingIndex+1)%sentences.length;
-    setTimeout(loadTypingSentence, 800);
+typingInput.addEventListener('input', () => {
+  const typed = typingInput.value;
+  
+  // If typed text matches exactly
+  if (typed === typingQuote) {
+    const time = ((Date.now() - typingStart) / 1000).toFixed(2);
+    typingScore.textContent = `✅ Perfect! Time: ${time} seconds`;
+  } 
+  // If typed text diverges from the quote
+  else if (!typingQuote.startsWith(typed)) {
+    typingScore.textContent = `❌ Typing error! Check your spelling and punctuation.`;
+  } else {
+    typingScore.textContent = '';
   }
 });
 
-loadTypingSentence();
+// Initialize
+loadTypingQuote();
 
 // ===== Classroom Cleanup Game =====
 const cleanupBoard = document.querySelector('.classroom-board');
@@ -304,4 +307,5 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
 
