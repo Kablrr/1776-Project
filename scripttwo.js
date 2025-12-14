@@ -332,6 +332,32 @@ function setupBoard() {
   cleanupTimer.textContent = `Time: 0.00s`;
   gameStarted = false;
 }
+// Basket highlight effect
+basket.addEventListener('dragenter', e => {
+  e.preventDefault();
+  if(!gameStarted) return;
+  basket.style.backgroundColor = '#b08a57'; // highlight color
+});
+
+basket.addEventListener('dragleave', e => {
+  e.preventDefault();
+  if(!gameStarted) return;
+  basket.style.backgroundColor = '#6e4b2f'; // normal color
+});
+
+basket.addEventListener('dragover', e => e.preventDefault());
+basket.addEventListener('drop', e => {
+  e.preventDefault();
+  if(!gameStarted) return;
+
+  const emoji = e.dataTransfer.getData('text/plain');
+  const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item'))
+                     .find(d => d.textContent === emoji);
+  if(target) target.remove();
+
+  basket.style.backgroundColor = '#6e4b2f'; // reset after drop
+  checkCompletion();
+});
 
 // Start the cleanup game
 function startCleanupGame() {
@@ -395,5 +421,6 @@ startBtn.addEventListener('click', startCleanupGame);
 
 // Initialize board on page load
 setupBoard();
+
 
 
