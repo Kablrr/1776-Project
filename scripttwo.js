@@ -172,56 +172,61 @@ takeAgainBtn.addEventListener('click', ()=>{
 // Initialize
 initProgressBar();
 loadQuestion();
-/* ===== Colonial Memory Match ===== */
-const memoryCards = ['Book','Quill','Scroll','Inkwell','Map','Lantern','Hat','Sword'];
-let memoryDeck = [...memoryCards, ...memoryCards];
+/* ===== Colonial Memory Match with Emojis ===== */
+const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️']; // emojis instead of text
+let memoryDeck = [...memoryEmojis, ...memoryEmojis];
 let memoryGrid = document.querySelector('#memoryGame .card-grid');
 let memoryFlipped = [];
 let memoryMatches = 0;
 
-function shuffle(array){ return array.sort(()=>Math.random()-0.5); }
+function shuffle(array){ return array.sort(() => Math.random() - 0.5); }
 
-function initMemoryGame(){
+function initMemoryGame() {
   memoryGrid.innerHTML = '';
   memoryDeck = shuffle(memoryDeck);
-  memoryMatches = 0;
   memoryFlipped = [];
-  memoryDeck.forEach((item)=>{
+  memoryMatches = 0;
+
+  memoryDeck.forEach((emoji) => {
     const card = document.createElement('div');
     card.className = 'card';
-    card.dataset.value = item;
-    card.textContent = '?';
+    card.dataset.value = emoji;
+    card.textContent = ''; // start face down
     card.addEventListener('click', () => flipCard(card));
     memoryGrid.appendChild(card);
   });
+
   document.getElementById('memoryScore').textContent = '';
 }
 
-function flipCard(card){
-  if(memoryFlipped.length >=2 || card.classList.contains('flipped')) return;
+function flipCard(card) {
+  if (memoryFlipped.length >= 2 || card.classList.contains('flipped')) return;
+
   card.classList.add('flipped');
   card.textContent = card.dataset.value;
   memoryFlipped.push(card);
 
-  if(memoryFlipped.length === 2){
-    setTimeout(()=>checkMatch(), 600);
+  if (memoryFlipped.length === 2) {
+    setTimeout(checkMatch, 800);
   }
 }
 
-function checkMatch(){
+function checkMatch() {
   const [c1, c2] = memoryFlipped;
-  if(c1.dataset.value === c2.dataset.value){
+  if (c1.dataset.value === c2.dataset.value) {
     memoryMatches++;
   } else {
-    c1.classList.remove('flipped'); c1.textContent='?';
-    c2.classList.remove('flipped'); c2.textContent='?';
+    c1.classList.remove('flipped'); c1.textContent = '';
+    c2.classList.remove('flipped'); c2.textContent = '';
   }
   memoryFlipped = [];
-  if(memoryMatches === memoryCards.length){
-    document.getElementById('memoryScore').textContent = 'You matched all cards!';
+
+  if (memoryMatches === memoryEmojis.length) {
+    document.getElementById('memoryScore').textContent = '🎉 You matched all cards! 🎉';
   }
 }
 
+// Initialize Memory Game
 initMemoryGame();
 
 /* ===== Typing Challenge ===== */
@@ -281,4 +286,5 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
 
