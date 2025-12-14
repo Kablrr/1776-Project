@@ -20,12 +20,20 @@ generateBtn.addEventListener('click', () => {
   loadingText.textContent = 'Generating image...';
 
   const img = new Image();
-  img.src = `https://image.pollinations.ai/prompt/1776+colonial+scene,+${encodeURIComponent(prompt)}?width=400&height=300`;
+  // Add random seed to prevent caching and force a new image
+  img.src = `https://image.pollinations.ai/prompt/1776+colonial+scene,+${encodeURIComponent(prompt)}?width=400&height=300&seed=${Date.now()}`;
   img.alt = prompt;
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
-  img.onload = () => loadingText.classList.add('hidden');
-  img.onerror = () => { loadingText.classList.add('hidden'); alert('Failed to generate image.'); };
+
+  // Only hide loading when image finishes loading or errors
+  img.onload = () => {
+    loadingText.classList.add('hidden');
+  };
+  img.onerror = () => {
+    loadingText.classList.add('hidden');
+    alert('Failed to generate image. Try again.');
+  };
 
   imageContainer.appendChild(img);
 });
@@ -52,12 +60,18 @@ generateAvatarBtn.addEventListener('click', () => {
   const prompt = `Colonial avatar, gender: ${gender}, background: ${background}, outfit: ${outfit}, hat: ${hat}, accessory: ${accessory}, hair: ${hair}, age: ${age}, heritage: ${race}`;
 
   const img = new Image();
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=250&height=250`;
+  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=250&height=250&seed=${Date.now()}`;
   img.alt = 'Colonial Avatar';
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
-  img.onload = () => avatarLoading.classList.add('hidden');
-  img.onerror = () => { avatarLoading.classList.add('hidden'); alert('Failed to generate avatar.'); };
+
+  img.onload = () => {
+    avatarLoading.classList.add('hidden');
+  };
+  img.onerror = () => {
+    avatarLoading.classList.add('hidden');
+    alert('Failed to generate avatar. Try again.');
+  };
 
   avatarContainer.appendChild(img);
 });
