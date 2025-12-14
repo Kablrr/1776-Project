@@ -6,17 +6,17 @@ document.addEventListener('mousemove', e => {
 });
 
 // ===== Text to Image =====
+const generateBtn = document.getElementById('generateBtn');
+const promptInput = document.getElementById('promptInput');
+const imageContainer = document.getElementById('imageContainer');
+
 generateBtn.addEventListener('click', () => {
-  const userPrompt = promptInput.value.trim();
-  if (!userPrompt) return alert('Enter a prompt!');
+  const prompt = promptInput.value.trim();
+  if(!prompt) return alert('Enter a colonial scene!');
   imageContainer.innerHTML = '';
-
-  // Reframe prompt to colonial America style
-  const prompt = `${userPrompt}, in the style of colonial America, historically accurate, 18th century, vintage painting`;
-
   const img = new Image();
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-  img.alt = userPrompt;
+  img.alt = prompt;
   img.style.width = '300px';
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
@@ -67,15 +67,23 @@ const nextBtn = document.getElementById('nextBtn');
 const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
 
+// ===== Initialize Progress Bar =====
 function initProgress() {
   progressContainer.innerHTML = '';
   quizData.forEach(() => {
     const seg = document.createElement('div');
     seg.classList.add('progress-segment');
+
+    const fill = document.createElement('div');
+    fill.classList.add('fill');
+    fill.style.width = '0%'; // start empty
+    seg.appendChild(fill);
+
     progressContainer.appendChild(seg);
   });
 }
 
+// ===== Load Question =====
 function loadQuestion() {
   submitBtn.disabled = true;
   submitBtn.classList.remove('hidden');
@@ -95,11 +103,16 @@ function loadQuestion() {
   });
 }
 
+// ===== Update Progress Bar =====
 function updateProgress() {
-  const segments = document.querySelectorAll('.progress-segment');
-  segments.forEach((s,i) => s.style.background = i<currentQuestion ? '#4CAF50':'rgba(255,255,255,0.15)');
+  const fills = document.querySelectorAll('.progress-segment .fill');
+  fills.forEach((fill, i) => {
+    if (i <= currentQuestion) fill.style.width = '100%';
+    else fill.style.width = '0%';
+  });
 }
 
+// ===== Submit Answer =====
 submitBtn.addEventListener('click', () => {
   const selected = document.querySelector('#answers button.selected');
   if(!selected) return;
@@ -115,12 +128,14 @@ submitBtn.addEventListener('click', () => {
   updateProgress();
 });
 
+// ===== Next Question =====
 nextBtn.addEventListener('click', () => {
   currentQuestion++;
   if(currentQuestion >= quizData.length) showScore();
   else loadQuestion();
 });
 
+// ===== Show Final Score =====
 function showScore() {
   questionEl.textContent = 'Quiz Completed!';
   answersEl.innerHTML = '';
@@ -131,6 +146,7 @@ function showScore() {
   scoreEl.classList.remove('hidden');
 }
 
+// ===== Take Quiz Again =====
 takeAgainBtn.addEventListener('click', () => {
   currentQuestion = 0;
   score = 0;
@@ -140,7 +156,6 @@ takeAgainBtn.addEventListener('click', () => {
   loadQuestion();
 });
 
-// Initialize
+// ===== Initialize =====
 initProgress();
 loadQuestion();
-
