@@ -7,8 +7,8 @@
 }
 
 body {
-  background: #edc4b3;
-  color: #4b2e2a;
+  background: #edc4b3; /* Almond Silk */
+  color: #774936; /* Clay Soil for text */
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -25,6 +25,7 @@ body {
   gap: 40px;
   width: 100%;
   max-width: 1600px;
+  flex-wrap: wrap;
 }
 
 /* ===== Columns ===== */
@@ -46,8 +47,15 @@ body {
 .image-wrapper img {
   width: 100%;
   height: auto;
-  border-radius: 12px;
-  border: 2px solid #4b2e2a;
+  border-radius: 16px;
+  border: 2px solid #b07d62; /* Faded Copper */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-wrapper img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
 }
 
 /* ===== Apps Column ===== */
@@ -63,55 +71,58 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  background: #f5e6dc; /* light cream background for app area */
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
-.section {
-  margin-bottom: 60px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* ===== Headings ===== */
-h1, h2 {
-  color: #4b2e2a;
-}
-
+/* ===== Section Headings ===== */
 h1 {
-  font-size: 2.2rem;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #774936; /* Clay Soil */
+  text-shadow: 1px 1px 2px #cd9777; /* subtle vintage glow */
 }
 
 h2 {
-  font-size: 1.8rem;
-  margin-bottom: 15px;
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+  color: #cd9777; /* Light Bronze */
 }
 
 /* ===== Inputs & Buttons ===== */
 input[type="text"], select {
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 10px;
-  border: 1px solid #b07d62;
-  background: #f5e6dc;
-  color: #4b2e2a;
+  padding: 12px 16px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: 1px solid #b07d62; /* Faded Copper */
+  background: #e6b8a2; /* Peach Fuzz */
+  color: #774936;
   width: 90%;
   max-width: 420px;
+  font-size: 1rem;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
 }
 
 button {
-  padding: 12px 20px;
+  padding: 12px 22px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   margin: 5px 0;
+  font-size: 1rem;
+  background: #c38e70; /* Toasted Almond */
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 button:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px) scale(1.05);
+  background: #b07d62; /* Faded Copper hover */
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
 }
 
 /* ===== Avatar Dropdowns ===== */
@@ -119,7 +130,7 @@ button:hover {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .dropdown-group {
@@ -129,7 +140,8 @@ button:hover {
 
 .dropdown-group label {
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
+  color: #774936;
 }
 
 /* ===== Quiz ===== */
@@ -139,44 +151,49 @@ button:hover {
   height: 16px;
   margin-bottom: 15px;
   border-radius: 8px;
+  background: #deab90; /* Light Bronze */
 }
 
 .progress-segment {
   flex: 1;
-  margin: 0 2px;
+  margin: 0 3px;
   border-radius: 4px;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.25);
   transition: background 0.4s ease;
 }
 
 #question {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  color: #774936;
 }
 
 #answers {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 15px;
 }
 
 #answers button {
   flex: 1 1 45%;
   max-width: 200px;
   margin: 5px;
-  border-radius: 10px;
-  border: 1px solid #9d6b53;
-  background: #f5e6dc;
-  color: #4b2e2a;
+  border-radius: 12px;
+  border: 1px solid #9d6b53; /* Cinnamon Wood */
+  background: #e6b8a2; /* Peach Fuzz */
+  color: #774936;
+  font-weight: bold;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 #answers button.selected {
-  background: #c38e70;
+  background: #c38e70; /* Toasted Almond */
   color: #fff;
-  border: 2px solid #b07d62;
+  border: 2px solid #b07d62; /* Faded Copper */
   transform: scale(1.05);
 }
 
@@ -194,29 +211,15 @@ button:hover {
 .button-wrapper {
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-#submitBtn {
-  background: #c38e70;
-  color: #fff;
-}
+#submitBtn { background: #c38e70; }
+#nextBtn { background: #b07d62; }
+#takeAgainBtn { background: #9d6b53; }
 
-#nextBtn {
-  background: #4CAF50;
-  color: #fff;
-}
-
-#takeAgainBtn {
-  background: #4b2e2a;
-  color: #fff;
-  margin-top: 10px;
-}
-
-.hidden {
-  display: none !important;
-}
+.hidden { display: none !important; }
 
 /* ===== Cursor Glow ===== */
 #cursorGlow {
@@ -245,5 +248,11 @@ button:hover {
 
   .button-wrapper {
     flex-direction: column;
+  }
+}
+
+@media(max-width: 650px) {
+  .apps-column {
+    flex: 1 1 100%;
   }
 }
