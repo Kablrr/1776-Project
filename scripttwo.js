@@ -257,11 +257,8 @@ const correctSound = new Audio('correct.mp3');
 let typingStart = 0;
 
 function loadTypingQuote() {
-  // Make the quote more prominent with quotes around it
-  sentenceDisplay.textContent = `"${typingQuote}"`;
-  sentenceDisplay.style.fontSize = '1.5rem';
-  sentenceDisplay.style.fontWeight = 'bold';
-  sentenceDisplay.style.color = '#bfae97';
+  // Add quotation marks around the quote and style it for prominence
+  sentenceDisplay.innerHTML = `<span style="font-size: 1.5rem; font-weight: bold; color: #bfae97;">"${typingQuote}"</span>`;
   
   typingInput.value = '';
   typingInput.focus();
@@ -277,8 +274,8 @@ typingInput.addEventListener('input', () => {
     const time = ((Date.now() - typingStart) / 1000).toFixed(2);
     typingInput.value = ''; // clear input immediately
     typingScore.textContent = `✅ Perfect! Time: ${time} seconds`;
-    correctSound.play(); // play sound effect
-    loadTypingQuote(); // reset for next run
+    correctSound.play(); // play correct.mp3
+    typingStart = Date.now(); // reset timer immediately for next run
   } 
   // Typing error
   else if (!typingQuote.startsWith(typed)) {
@@ -317,6 +314,7 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
 
 
 
