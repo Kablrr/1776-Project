@@ -17,6 +17,19 @@ body {
   overflow-x: hidden;
 }
 
+/* ===== Large Main Container ===== */
+.main-content-container {
+  background: #f5e6dc; /* light parchment */
+  padding: 40px;
+  border-radius: 24px;
+  border: 4px solid #cd9777; /* Light Bronze frame */
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+}
+
 /* ===== Layout ===== */
 .main-layout {
   display: flex;
@@ -48,19 +61,19 @@ body {
   width: 100%;
   height: auto;
   border-radius: 16px;
-  border: 2px solid #b07d62; /* Faded Copper */
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  border: 3px solid #9d6b53; /* Cinnamon Wood frame */
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 6px 12px rgba(0,0,0,0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .image-wrapper img:hover {
   transform: scale(1.05);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.25);
 }
 
 /* ===== Apps Column ===== */
 .apps-column {
-  flex: 0 0 650px;
+  flex: 0 0 700px;
   display: flex;
   justify-content: center;
 }
@@ -71,10 +84,26 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  background: #f5e6dc; /* light cream background */
+  background: #f3e0d2; /* parchment tone */
   padding: 30px;
   border-radius: 20px;
+  border: 3px solid #cd9777; /* Light Bronze frame */
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  gap: 50px;
+}
+
+/* ===== Inner Generator & Quiz Containers ===== */
+.section {
+  background: #ffeeda; /* lighter parchment */
+  padding: 25px;
+  border-radius: 16px;
+  border: 2px solid #b07d62; /* Faded Copper */
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
 /* ===== Section Headings ===== */
@@ -169,7 +198,7 @@ button:hover {
   color: #774936;
 }
 
-/* ===== Quiz Buttons Grid Fix ===== */
+/* ===== Quiz Buttons Grid ===== */
 #answers {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -243,7 +272,6 @@ button:hover {
   }
 
   #answers button {
-    flex: none;
     width: 90%;
     max-width: 100%;
   }
