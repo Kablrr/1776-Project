@@ -1,8 +1,10 @@
 // ===== Cursor Glow =====
 const cursorGlow = document.getElementById('cursorGlow');
 document.addEventListener('mousemove', e => {
-  cursorGlow.style.top = `${e.clientY}px`;
-  cursorGlow.style.left = `${e.clientX}px`;
+  if(cursorGlow){
+    cursorGlow.style.top = `${e.clientY}px`;
+    cursorGlow.style.left = `${e.clientX}px`;
+  }
 });
 
 // ===== Spinner Helper =====
@@ -18,57 +20,61 @@ const generateBtn = document.getElementById('generateBtn');
 const promptInput = document.getElementById('promptInput');
 const imageContainer = document.getElementById('imageContainer');
 
-generateBtn.addEventListener('click', () => {
-  const userPrompt = promptInput.value.trim();
-  if(!userPrompt) return alert('Enter a colonial scene!');
-  
-  const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
-  
-  imageContainer.innerHTML = '';
-  const spinner = createSpinner();
-  imageContainer.appendChild(spinner);
+if(generateBtn){
+  generateBtn.addEventListener('click', () => {
+    const userPrompt = promptInput.value.trim();
+    if(!userPrompt) return alert('Enter a colonial scene!');
 
-  const img = new Image();
-  img.alt = prompt;
-  img.style.maxWidth = '300px';
-  img.style.width = '100%';
-  img.style.border = '2px solid #4b2e2a';
-  img.style.borderRadius = '12px';
+    const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
 
-  img.onload = () => {
-    spinner.remove();
-    imageContainer.appendChild(img);
-  };
-  img.onerror = () => { spinner.remove(); alert('Failed to generate image. Try again.'); };
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-});
+    imageContainer.innerHTML = '';
+    const spinner = createSpinner();
+    imageContainer.appendChild(spinner);
+
+    const img = new Image();
+    img.alt = prompt;
+    img.style.maxWidth = '300px';
+    img.style.width = '100%';
+    img.style.border = '2px solid #4b2e2a';
+    img.style.borderRadius = '12px';
+
+    img.onload = () => {
+      spinner.remove();
+      imageContainer.appendChild(img);
+    };
+    img.onerror = () => { spinner.remove(); alert('Failed to generate image. Try again.'); };
+    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+  });
+}
 
 // ===== Avatar Generator =====
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
 
-generateAvatarBtn.addEventListener('click', () => {
-  const fields = ['gender','background','outfit','hat','accessory','hair','age','race'];
-  const values = fields.map(f => document.getElementById(f+'Select').value);
-  const [gender,background,outfit,hat,accessory,hair,age,heritage] = values;
+if(generateAvatarBtn){
+  generateAvatarBtn.addEventListener('click', () => {
+    const fields = ['gender','background','outfit','hat','accessory','hair','age','race'];
+    const values = fields.map(f => document.getElementById(f+'Select').value);
+    const [gender,background,outfit,hat,accessory,hair,age,heritage] = values;
 
-  const prompt = `Colonial American portrait 1776. ${age} ${gender} of ${heritage} heritage, wearing ${outfit} and ${hat}. Hairstyle: ${hair}. Accessory: ${accessory}. Background: ${background}. Oil painting style.`;
+    const prompt = `Colonial American portrait 1776. ${age} ${gender} of ${heritage} heritage, wearing ${outfit} and ${hat}. Hairstyle: ${hair}. Accessory: ${accessory}. Background: ${background}. Oil painting style.`;
 
-  avatarContainer.innerHTML = '';
-  const spinner = createSpinner();
-  avatarContainer.appendChild(spinner);
+    avatarContainer.innerHTML = '';
+    const spinner = createSpinner();
+    avatarContainer.appendChild(spinner);
 
-  const img = new Image();
-  img.alt = '1776 Avatar';
-  img.style.maxWidth = '220px';
-  img.style.width = '100%';
-  img.style.border = '2px solid #4b2e2a';
-  img.style.borderRadius = '14px';
+    const img = new Image();
+    img.alt = '1776 Avatar';
+    img.style.maxWidth = '220px';
+    img.style.width = '100%';
+    img.style.border = '2px solid #4b2e2a';
+    img.style.borderRadius = '14px';
 
-  img.onload = () => { spinner.remove(); avatarContainer.appendChild(img); };
-  img.onerror = () => { spinner.remove(); alert('Failed to generate avatar. Try again.'); };
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-});
+    img.onload = () => { spinner.remove(); avatarContainer.appendChild(img); };
+    img.onerror = () => { spinner.remove(); alert('Failed to generate avatar. Try again.'); };
+    img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+  });
+}
 
 // ===== Quiz with Sound Effects =====
 const quizData = [
@@ -94,11 +100,12 @@ const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
 
 // Sound effects
-const correctSound = new Audio('correct.mp3');
-const wrongSound = new Audio('wrong.mp3');
-const completeSound = new Audio('complete.mp3');
+const quizCorrectSound = new Audio('correct.mp3');
+const quizWrongSound = new Audio('wrong.mp3');
+const quizCompleteSound = new Audio('complete.mp3');
 
 function initProgressBar() {
+  if(!progressContainer) return;
   progressContainer.innerHTML = '';
   quizData.forEach(() => {
     const segment = document.createElement('div');
@@ -108,6 +115,8 @@ function initProgressBar() {
 }
 
 function loadQuestion() {
+  if(!submitBtn || !nextBtn || !questionEl || !answersEl) return;
+
   submitBtn.disabled = true;
   submitBtn.classList.remove('hidden');
   nextBtn.classList.add('hidden');
@@ -133,57 +142,64 @@ function markProgress(isCorrect){
   if(segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4f7c4a' : '#8c3a2b';
 }
 
-submitBtn.addEventListener('click', () => {
-  const selected = document.querySelector('#answers button.selected');
-  if(!selected) return;
-  const isCorrect = selected.textContent === quizData[currentQuestion].a;
+if(submitBtn){
+  submitBtn.addEventListener('click', () => {
+    const selected = document.querySelector('#answers button.selected');
+    if(!selected) return;
+    const isCorrect = selected.textContent === quizData[currentQuestion].a;
 
-  Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
-    btn.disabled = true;
-    if(btn.textContent === quizData[currentQuestion].a) btn.classList.add('correct');
+    Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
+      btn.disabled = true;
+      if(btn.textContent === quizData[currentQuestion].a) btn.classList.add('correct');
+    });
+
+    if(isCorrect){
+      score++;
+      quizCorrectSound.play();
+    } else {
+      selected.classList.add('wrong');
+      quizWrongSound.play();
+    }
+
+    markProgress(isCorrect);
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
   });
+}
 
-  if(isCorrect){
-    score++;
-    correctSound.play();
-  } else {
-    selected.classList.add('wrong');
-    wrongSound.play();
-  }
-
-  markProgress(isCorrect);
-  submitBtn.classList.add('hidden');
-  nextBtn.classList.remove('hidden');
-});
-
-nextBtn.addEventListener('click', () => {
-  currentQuestion++;
-  if(currentQuestion >= quizData.length) showScore();
-  else loadQuestion();
-});
+if(nextBtn){
+  nextBtn.addEventListener('click', () => {
+    currentQuestion++;
+    if(currentQuestion >= quizData.length) showScore();
+    else loadQuestion();
+  });
+}
 
 function showScore(){
+  if(!questionEl || !answersEl || !takeAgainBtn || !scoreEl) return;
   questionEl.textContent = 'Quiz Completed!';
   answersEl.innerHTML = '';
-  submitBtn.classList.add('hidden');
-  nextBtn.classList.add('hidden');
+  submitBtn?.classList.add('hidden');
+  nextBtn?.classList.add('hidden');
   takeAgainBtn.classList.remove('hidden');
   scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
   scoreEl.classList.remove('hidden');
 
-  completeSound.play();
+  quizCompleteSound.play();
 }
 
-takeAgainBtn.addEventListener('click', () => {
-  currentQuestion = 0;
-  score = 0;
-  scoreEl.classList.add('hidden');
-  takeAgainBtn.classList.add('hidden');
-  initProgressBar();
-  loadQuestion();
-});
+if(takeAgainBtn){
+  takeAgainBtn.addEventListener('click', () => {
+    currentQuestion = 0;
+    score = 0;
+    scoreEl.classList.add('hidden');
+    takeAgainBtn.classList.add('hidden');
+    initProgressBar();
+    loadQuestion();
+  });
+}
 
-// ===== Initialize Quiz =====
+// Initialize Quiz
 initProgressBar();
 loadQuestion();
 
@@ -197,6 +213,7 @@ let memoryMatches = 0;
 function shuffle(array){ return array.sort(() => Math.random() - 0.5); }
 
 function initMemoryGame() {
+  if(!memoryGrid) return;
   memoryGrid.innerHTML = '';
   memoryDeck = shuffle(memoryDeck);
   memoryFlipped = [];
@@ -216,7 +233,7 @@ function initMemoryGame() {
     memoryGrid.appendChild(card);
   });
 
-  document.getElementById('memoryScore').textContent = '';
+  document.getElementById('memoryScore')?.textContent = '';
 }
 
 function flipCard(card) {
@@ -240,85 +257,78 @@ function checkMatch() {
   memoryFlipped = [];
 
   if (memoryMatches === memoryEmojis.length) {
-    document.getElementById('memoryScore').textContent = '🎉 You matched all cards! 🎉';
+    document.getElementById('memoryScore')?.textContent = '🎉 You matched all cards! 🎉';
   }
 }
 
 initMemoryGame();
-/* ===== Typing Challenge ===== */
-const typingQuote = "Learn your lessons well in the colonial classroom."; // fixed quote
+
+// ===== Typing Challenge =====
+const typingQuote = "Learn your lessons well in the colonial classroom.";
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingInput = document.getElementById('typingInput');
 const typingScore = document.getElementById('typingScore');
 
-// Sound effect for correct typing
-const correctSound = new Audio('correct.mp3');
+// Sound for typing challenge
+const typingCorrectSound = new Audio('correct.mp3');
 
 let typingStart = 0;
 
 function loadTypingQuote() {
-  // Add quotation marks around the quote and style it for prominence
+  if(!sentenceDisplay || !typingInput || !typingScore) return;
   sentenceDisplay.innerHTML = `<span style="font-size: 1.5rem; font-weight: bold; color: #bfae97;">"${typingQuote}"</span>`;
-  
   typingInput.value = '';
   typingInput.focus();
-  typingStart = Date.now(); // reset timer
+  typingStart = Date.now();
   typingScore.textContent = '';
 }
 
-typingInput.addEventListener('input', () => {
-  const typed = typingInput.value;
+if(typingInput){
+  typingInput.addEventListener('input', () => {
+    const typed = typingInput.value;
 
-  // Perfect match
-  if (typed === typingQuote) {
-    const time = ((Date.now() - typingStart) / 1000).toFixed(2);
-    typingInput.value = ''; // clear input immediately
-    typingScore.textContent = `✅ Perfect! Time: ${time} seconds`;
-    correctSound.play(); // play correct.mp3
-    typingStart = Date.now(); // reset timer immediately for next run
-  } 
-  // Typing error
-  else if (!typingQuote.startsWith(typed)) {
-    typingScore.textContent = `❌ Typing error! Check your spelling and punctuation.`;
-  } else {
-    typingScore.textContent = '';
-  }
+    if(typed === typingQuote){
+      const time = ((Date.now() - typingStart)/1000).toFixed(2);
+      typingInput.value = '';
+      typingScore.textContent = `✅ Perfect! Time: ${time} seconds`;
+      typingCorrectSound.play();
+      typingStart = Date.now();
+    } else if (!typingQuote.startsWith(typed)){
+      typingScore.textContent = `❌ Typing error! Check your spelling and punctuation.`;
+    } else {
+      typingScore.textContent = '';
+    }
+  });
 }
 
-// Initialize
+// Initialize Typing
 loadTypingQuote();
 
 // ===== Classroom Cleanup Game =====
 const cleanupBoard = document.querySelector('.classroom-board');
 const cleanupItems = ['Book','Quill','Scroll','Lantern','Hat','Sword'];
 
-cleanupItems.forEach(item=>{
-  const div = document.createElement('div');
-  div.className = 'item';
-  div.textContent = item;
-  div.draggable = true;
-  div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', item); });
-  cleanupBoard.appendChild(div);
-});
+if(cleanupBoard){
+  cleanupItems.forEach(item=>{
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.textContent = item;
+    div.draggable = true;
+    div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', item); });
+    cleanupBoard.appendChild(div);
+  });
 
-cleanupBoard.addEventListener('dragover', e=> e.preventDefault());
-cleanupBoard.addEventListener('drop', e=>{
-  e.preventDefault();
-  const item = e.dataTransfer.getData('text/plain');
-  const divs = Array.from(cleanupBoard.querySelectorAll('.item'));
-  const target = divs.find(d=>d.textContent === item && !d.classList.contains('dropped'));
-  if(target){
-    target.classList.add('dropped');
-    target.style.background = '#4f7c4a';
-    target.style.color = '#fff';
-    document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
-  }
-});
-
-
-
-
-
-
-
-
+  cleanupBoard.addEventListener('dragover', e=> e.preventDefault());
+  cleanupBoard.addEventListener('drop', e=>{
+    e.preventDefault();
+    const item = e.dataTransfer.getData('text/plain');
+    const divs = Array.from(cleanupBoard.querySelectorAll('.item'));
+    const target = divs.find(d=>d.textContent === item && !d.classList.contains('dropped'));
+    if(target){
+      target.classList.add('dropped');
+      target.style.background = '#4f7c4a';
+      target.style.color = '#fff';
+      document.getElementById('cleanupScore')?.textContent = 'Item placed correctly!';
+    }
+  });
+}
