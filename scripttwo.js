@@ -257,15 +257,15 @@ const correctSound = new Audio('correct.mp3');
 let typingStart = 0;
 
 function loadTypingQuote() {
-  // Make the quote larger and more prominent
-  sentenceDisplay.textContent = typingQuote;
+  // Make the quote more prominent with quotes around it
+  sentenceDisplay.textContent = `"${typingQuote}"`;
   sentenceDisplay.style.fontSize = '1.5rem';
   sentenceDisplay.style.fontWeight = 'bold';
   sentenceDisplay.style.color = '#bfae97';
   
   typingInput.value = '';
   typingInput.focus();
-  typingStart = Date.now();
+  typingStart = Date.now(); // reset timer
   typingScore.textContent = '';
 }
 
@@ -278,6 +278,7 @@ typingInput.addEventListener('input', () => {
     typingInput.value = ''; // clear input immediately
     typingScore.textContent = `✅ Perfect! Time: ${time} seconds`;
     correctSound.play(); // play sound effect
+    loadTypingQuote(); // reset for next run
   } 
   // Typing error
   else if (!typingQuote.startsWith(typed)) {
@@ -285,7 +286,7 @@ typingInput.addEventListener('input', () => {
   } else {
     typingScore.textContent = '';
   }
-});
+}
 
 // Initialize
 loadTypingQuote();
@@ -316,6 +317,7 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
 
 
 
