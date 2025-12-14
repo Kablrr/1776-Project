@@ -6,17 +6,17 @@ document.addEventListener('mousemove', e => {
 });
 
 // ===== Text to Image =====
-const generateBtn = document.getElementById('generateBtn');
-const promptInput = document.getElementById('promptInput');
-const imageContainer = document.getElementById('imageContainer');
-
 generateBtn.addEventListener('click', () => {
-  const prompt = promptInput.value.trim();
-  if(!prompt) return alert('Enter a colonial scene!');
+  const userPrompt = promptInput.value.trim();
+  if (!userPrompt) return alert('Enter a prompt!');
   imageContainer.innerHTML = '';
+
+  // Reframe prompt to colonial America style
+  const prompt = `${userPrompt}, in the style of colonial America, historically accurate, 18th century, vintage painting`;
+
   const img = new Image();
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent("1776 student: " + prompt)}`;
-  img.alt = prompt;
+  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+  img.alt = userPrompt;
   img.style.width = '300px';
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
@@ -143,3 +143,4 @@ takeAgainBtn.addEventListener('click', () => {
 // Initialize
 initProgress();
 loadQuestion();
+
