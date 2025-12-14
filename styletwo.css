@@ -21,17 +21,20 @@ html, body {
   height: 100%;
 }
 
-/* ===== Body ===== */
 body {
   min-height: 100vh;
   padding: 30px;
   color: #e6d8c5;
   overflow-x: hidden;
 
+  /* TRUE dark-mode base */
+  background-color: #14110e;
+
+  /* Dark parchment texture overlay */
   background-image:
     linear-gradient(
-      rgba(28,23,20,0.92),
-      rgba(28,23,20,0.92)
+      rgba(20,17,14,0.96),
+      rgba(20,17,14,0.96)
     ),
     url("https://images.unsplash.com/photo-1691415780200-76eb077e1ea7?fm=jpg&q=60&w=3000");
 
@@ -292,3 +295,4 @@ button:hover {
     flex-direction: column;
   }
 }
+
