@@ -9,8 +9,7 @@ document.addEventListener('mousemove', e => {
 const generateBtn = document.getElementById('generateBtn');
 const promptInput = document.getElementById('promptInput');
 const imageContainer = document.getElementById('imageContainer');
-
-let textImg = null; // Reuse the same image element
+let textImg = null;
 
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
@@ -24,15 +23,21 @@ generateBtn.addEventListener('click', () => {
 
   if (!textImg) {
     textImg = new Image();
-    textImg.style.width = '300px';
+    textImg.style.width = '100%';
+    textImg.style.maxWidth = '300px';
     textImg.style.border = '2px solid #4b2e2a';
     textImg.style.borderRadius = '12px';
+    imageContainer.innerHTML = '';
     imageContainer.appendChild(textImg);
   }
 
-  // Preload to make image appear faster
+  // Show loading indicator
+  textImg.src = '';
+  textImg.alt = 'Loading...';
+  
   const temp = new Image();
   temp.onload = () => textImg.src = temp.src;
+  temp.onerror = () => alert('Failed to generate image. Try again.');
   temp.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
   textImg.alt = prompt;
 });
@@ -40,11 +45,9 @@ generateBtn.addEventListener('click', () => {
 // ===== Avatar Generator =====
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
-
-let avatarImg = null; // Reuse the same image element
+let avatarImg = null;
 
 generateAvatarBtn.addEventListener('click', () => {
-  // Grab all dropdowns
   const gender = document.getElementById('genderSelect').value;
   const background = document.getElementById('backgroundSelect').value;
   const outfit = document.getElementById('outfitSelect').value;
@@ -66,15 +69,20 @@ generateAvatarBtn.addEventListener('click', () => {
 
   if (!avatarImg) {
     avatarImg = new Image();
-    avatarImg.style.width = '220px';
+    avatarImg.style.width = '100%';
+    avatarImg.style.maxWidth = '220px';
     avatarImg.style.border = '2px solid #4b2e2a';
     avatarImg.style.borderRadius = '14px';
+    avatarContainer.innerHTML = '';
     avatarContainer.appendChild(avatarImg);
   }
 
-  // Preload to make generation feel instant
+  avatarImg.src = '';
+  avatarImg.alt = 'Loading...';
+
   const temp = new Image();
   temp.onload = () => avatarImg.src = temp.src;
+  temp.onerror = () => alert('Failed to generate avatar. Try again.');
   temp.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
   avatarImg.alt = '1776 Avatar';
 });
@@ -104,17 +112,16 @@ const nextBtn = document.getElementById('nextBtn');
 const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
 
-// ===== Initialize Segmented Progress Bar =====
 function initProgressBar() {
   progressContainer.innerHTML = '';
   quizData.forEach(() => {
     const segment = document.createElement('div');
     segment.classList.add('progress-segment');
+    segment.style.backgroundColor = '#ccc'; // default unattempted color
     progressContainer.appendChild(segment);
   });
 }
 
-// ===== Load Question =====
 function loadQuestion() {
   submitBtn.disabled = true;
   submitBtn.classList.remove('hidden');
@@ -124,9 +131,7 @@ function loadQuestion() {
   questionEl.textContent = q.q;
   answersEl.innerHTML = '';
 
-  // Shuffle answers for variety
   const options = [...q.o].sort(() => Math.random() - 0.5);
-
   options.forEach(opt => {
     const btn = document.createElement('button');
     btn.textContent = opt;
@@ -139,43 +144,36 @@ function loadQuestion() {
   });
 }
 
-// ===== Mark Progress Segment =====
 function markProgress(isCorrect) {
   const segments = document.querySelectorAll('.progress-segment');
-  const currentSegment = segments[currentQuestion];
-  if (!currentSegment) return;
-  currentSegment.style.backgroundColor = isCorrect ? '#4CAF50' : '#e74c3c';
+  if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4CAF50' : '#e74c3c';
 }
 
-// ===== Submit Answer =====
 submitBtn.addEventListener('click', () => {
   const selected = document.querySelector('#answers button.selected');
-  if(!selected) return;
+  if (!selected) return;
 
   const correct = quizData[currentQuestion].a;
   const isCorrect = selected.textContent === correct;
 
   Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
     btn.disabled = true;
-    if(btn.textContent === correct) btn.classList.add('correct');
+    if (btn.textContent === correct) btn.classList.add('correct');
   });
-  if(!isCorrect) selected.classList.add('wrong');
+  if (!isCorrect) selected.classList.add('wrong');
   else score++;
 
   markProgress(isCorrect);
-
   submitBtn.classList.add('hidden');
   nextBtn.classList.remove('hidden');
 });
 
-// ===== Next Question =====
 nextBtn.addEventListener('click', () => {
   currentQuestion++;
-  if(currentQuestion >= quizData.length) showScore();
+  if (currentQuestion >= quizData.length) showScore();
   else loadQuestion();
 });
 
-// ===== Show Final Score =====
 function showScore() {
   questionEl.textContent = 'Quiz Completed!';
   answersEl.innerHTML = '';
@@ -186,7 +184,6 @@ function showScore() {
   scoreEl.classList.remove('hidden');
 }
 
-// ===== Take Quiz Again =====
 takeAgainBtn.addEventListener('click', () => {
   currentQuestion = 0;
   score = 0;
