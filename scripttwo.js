@@ -10,33 +10,40 @@ const generateBtn = document.getElementById('generateBtn');
 const promptInput = document.getElementById('promptInput');
 const imageContainer = document.getElementById('imageContainer');
 
+let textImg = null; // Reuse the same image element
+
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return alert('Enter a colonial scene!');
-  
+
   const prompt = `
     Colonial American scene, set in the year 1776.
     ${userPrompt}.
     Historical realism, 18th century atmosphere, parchment tones, oil painting style.
   `;
-  
-  imageContainer.innerHTML = '';
-  const img = new Image();
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-  img.alt = prompt;
-  img.style.width = '300px';
-  img.style.border = '2px solid #4b2e2a';
-  img.style.borderRadius = '12px';
-  imageContainer.appendChild(img);
+
+  if (!textImg) {
+    textImg = new Image();
+    textImg.style.width = '300px';
+    textImg.style.border = '2px solid #4b2e2a';
+    textImg.style.borderRadius = '12px';
+    imageContainer.appendChild(textImg);
+  }
+
+  // Preload to make image appear faster
+  const temp = new Image();
+  temp.onload = () => textImg.src = temp.src;
+  temp.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+  textImg.alt = prompt;
 });
 
 // ===== Avatar Generator =====
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
 
-generateAvatarBtn.addEventListener('click', () => {
-  avatarContainer.innerHTML = '';
+let avatarImg = null; // Reuse the same image element
 
+generateAvatarBtn.addEventListener('click', () => {
   // Grab all dropdowns
   const gender = document.getElementById('genderSelect').value;
   const background = document.getElementById('backgroundSelect').value;
@@ -57,14 +64,19 @@ generateAvatarBtn.addEventListener('click', () => {
     Painted realism, warm parchment tones, 18th century oil painting style.
   `;
 
-  const img = new Image();
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
-  img.alt = '1776 Avatar';
-  img.style.width = '220px';
-  img.style.border = '2px solid #4b2e2a';
-  img.style.borderRadius = '14px';
+  if (!avatarImg) {
+    avatarImg = new Image();
+    avatarImg.style.width = '220px';
+    avatarImg.style.border = '2px solid #4b2e2a';
+    avatarImg.style.borderRadius = '14px';
+    avatarContainer.appendChild(avatarImg);
+  }
 
-  avatarContainer.appendChild(img);
+  // Preload to make generation feel instant
+  const temp = new Image();
+  temp.onload = () => avatarImg.src = temp.src;
+  temp.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+  avatarImg.alt = '1776 Avatar';
 });
 
 // ===== Quiz =====
@@ -107,11 +119,15 @@ function loadQuestion() {
   submitBtn.disabled = true;
   submitBtn.classList.remove('hidden');
   nextBtn.classList.add('hidden');
+
   const q = quizData[currentQuestion];
   questionEl.textContent = q.q;
   answersEl.innerHTML = '';
-  
-  q.o.forEach(opt => {
+
+  // Shuffle answers for variety
+  const options = [...q.o].sort(() => Math.random() - 0.5);
+
+  options.forEach(opt => {
     const btn = document.createElement('button');
     btn.textContent = opt;
     btn.addEventListener('click', () => {
@@ -139,7 +155,6 @@ submitBtn.addEventListener('click', () => {
   const correct = quizData[currentQuestion].a;
   const isCorrect = selected.textContent === correct;
 
-  // Disable buttons and show correct/wrong
   Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
     btn.disabled = true;
     if(btn.textContent === correct) btn.classList.add('correct');
@@ -147,7 +162,6 @@ submitBtn.addEventListener('click', () => {
   if(!isCorrect) selected.classList.add('wrong');
   else score++;
 
-  // Update segmented progress
   markProgress(isCorrect);
 
   submitBtn.classList.add('hidden');
