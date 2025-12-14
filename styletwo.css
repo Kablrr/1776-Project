@@ -311,3 +311,25 @@ button:hover {
     flex: 1 1 100%;
   }
 }
+
+.progress-segment {
+  flex: 1;
+  margin: 0 3px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.25);
+  transition: all 0.6s ease; /* smooth fill animation */
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-segment::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: #4CAF50; /* Green fill for answered questions */
+  transition: width 0.6s ease;
+}
+
