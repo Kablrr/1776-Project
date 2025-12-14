@@ -29,28 +29,23 @@ body {
   background-attachment: fixed;
 }
 
-/* ===== Layout ===== */
+/* ===== Main Layout (GRID – perfect centering) ===== */
 .main-layout {
-  display: flex;
+  display: grid;
+  grid-template-columns: 300px minmax(600px, 650px) 300px;
   justify-content: center;
-  align-items: flex-start;
+  align-items: start;
   gap: 40px;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
 }
 
-/* ===== Side Image Columns ===== */
+/* ===== Image Columns ===== */
 .image-column {
-  flex: 0 0 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.image-column h2 {
-  margin-bottom: 10px;
-  font-size: 1.6rem;
 }
 
 .image-wrapper {
@@ -62,21 +57,32 @@ body {
   width: 100%;
   height: auto;
   border-radius: 12px;
-  border: 2px solid #774936;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  border: 2px solid #4b2e2a;
 }
 
-/* ===== Apps Column ===== */
+/* ===== Apps Column (locked center) ===== */
 .apps-column {
-  flex: 0 0 650px;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .apps-column .container {
   width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
   padding: 30px;
+
+  background: rgba(237, 196, 179, 0.75);
+  border: 2px solid #c38e70;
+  border-radius: 16px;
+
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.15),
+    inset 0 0 40px rgba(255, 255, 255, 0.2);
+
   text-align: center;
+}
 
   /* Raised parchment panel */
   background: rgba(237, 196, 179, 0.75);
@@ -245,11 +251,19 @@ button:hover {
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
   .main-layout {
-    flex-direction: column;
-    align-items: center;
+    grid-template-columns: 1fr;
   }
+
+  .image-column {
+    order: 2;
+  }
+
+  .apps-column {
+    order: 1;
+  }
+}
 
   .dropdowns {
     grid-template-columns: 1fr;
@@ -259,3 +273,4 @@ button:hover {
     flex-direction: column;
   }
 }
+
