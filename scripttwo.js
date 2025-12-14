@@ -5,7 +5,7 @@ document.addEventListener('mousemove', e => {
   cursorGlow.style.left = e.clientX + 'px';
 });
 
-// ===== Text-to-Image Generator =====
+// ===== Text-to-Image Generator (1776 Scene) =====
 const generateBtn = document.getElementById('generateBtn');
 const promptInput = document.getElementById('promptInput');
 const imageContainer = document.getElementById('imageContainer');
@@ -13,37 +13,45 @@ const loadingText = document.getElementById('loadingText');
 
 generateBtn.addEventListener('click', () => {
   const prompt = promptInput.value.trim();
-  if(!prompt) return alert('Enter a colonial scene!');
+  if (!prompt) return alert('Enter a colonial scene!');
 
-  imageContainer.innerHTML = '';
-  loadingText.innerHTML = `<div class="spinner"></div>`; // show spinner
-  loadingText.classList.remove('hidden');
+  imageContainer.innerHTML = ''; // clear previous image
 
+  // Add spinner
+  const spinner = document.createElement('div');
+  spinner.classList.add('spinner');
+  imageContainer.appendChild(spinner);
+
+  // Create image
   const img = new Image();
-  img.src = `https://image.pollinations.ai/prompt/1776+colonial+scene,+${encodeURIComponent(prompt)}?width=400&height=300&seed=${Date.now()}`;
+  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
   img.alt = prompt;
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
-
-  img.onload = () => loadingText.classList.add('hidden');
+  img.style.marginTop = '15px';
+  img.onload = () => {
+    spinner.remove();
+    imageContainer.appendChild(img);
+  };
   img.onerror = () => {
-    loadingText.classList.add('hidden');
+    spinner.remove();
     alert('Failed to generate image. Try again.');
   };
-
-  imageContainer.appendChild(img);
 });
 
-// ===== Avatar Generator =====
+// ===== Avatar Generator (1776 Student) =====
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
-const avatarLoading = document.getElementById('avatarLoading');
 
 generateAvatarBtn.addEventListener('click', () => {
-  avatarContainer.innerHTML = '';
-  avatarLoading.innerHTML = `<div class="spinner"></div>`; // show spinner
-  avatarLoading.classList.remove('hidden');
+  avatarContainer.innerHTML = ''; // clear previous avatar
 
+  // Add spinner
+  const spinner = document.createElement('div');
+  spinner.classList.add('spinner');
+  avatarContainer.appendChild(spinner);
+
+  // Collect avatar options
   const gender = document.getElementById('genderSelect').value;
   const background = document.getElementById('backgroundSelect').value;
   const outfit = document.getElementById('outfitSelect').value;
@@ -53,19 +61,23 @@ generateAvatarBtn.addEventListener('click', () => {
   const age = document.getElementById('ageSelect').value;
   const race = document.getElementById('raceSelect').value;
 
-  const prompt = `Colonial avatar, gender: ${gender}, background: ${background}, outfit: ${outfit}, hat: ${hat}, accessory: ${accessory}, hair: ${hair}, age: ${age}, heritage: ${race}`;
+  // Build Pollinations prompt
+  const prompt = `Colonial student avatar, gender: ${gender}, background: ${background}, outfit: ${outfit}, hat: ${hat}, accessory: ${accessory}, hair: ${hair}, age: ${age}, heritage: ${race}`;
 
+  // Create avatar image
   const img = new Image();
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=250&height=250&seed=${Date.now()}`;
+  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
   img.alt = 'Colonial Avatar';
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
+  img.style.marginTop = '15px';
 
-  img.onload = () => avatarLoading.classList.add('hidden');
+  img.onload = () => {
+    spinner.remove();
+    avatarContainer.appendChild(img);
+  };
   img.onerror = () => {
-    avatarLoading.classList.add('hidden');
+    spinner.remove();
     alert('Failed to generate avatar. Try again.');
   };
-
-  avatarContainer.appendChild(img);
 });
