@@ -263,20 +263,20 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
 }
 
 #basket {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  width: 100px;
-  height: 100px;
-  background: #b08a57;
+  width: 120px;
+  height: 120px;
+  background-color: #6e4b2f;
+  border: 3px solid #b08a57;
   border-radius: 12px;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   font-size: 2rem;
-  color: #1c1714;
-  z-index: 100;
+  transition: background-color 0.3s ease;
+  margin: 20px auto 0 auto;
+  cursor: pointer;
 }
+
 
 .clutter-item {
   position: absolute;
@@ -286,5 +286,6 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
 }
 
 }
+
 
 
