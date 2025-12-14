@@ -302,6 +302,7 @@ let timerInterval;
 
 // Initialize game
 function initCleanupGame() {
+  // Clear previous clutter
   cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
   cleanupScore.textContent = '';
   clearInterval(timerInterval);
@@ -309,6 +310,7 @@ function initCleanupGame() {
   updateTimer();
   timerInterval = setInterval(updateTimer, 50);
 
+  // Add clutter emojis
   clutterItems.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
@@ -321,8 +323,14 @@ function initCleanupGame() {
     div.style.top = Math.random() * maxY + 'px';
 
     div.draggable = true;
+
+    // Drag events
     div.addEventListener('dragstart', e => {
       e.dataTransfer.setData('text/plain', emoji);
+      // save offset for smoother dragging
+      const rect = div.getBoundingClientRect();
+      e.dataTransfer.setData('offsetX', e.clientX - rect.left);
+      e.dataTransfer.setData('offsetY', e.clientY - rect.top);
     });
 
     cleanupBoard.appendChild(div);
@@ -335,15 +343,15 @@ function updateTimer() {
   cleanupTimer.textContent = `Time: ${time}s`;
 }
 
-// Drag & Drop
-cleanupBoard.addEventListener('dragover', e => e.preventDefault());
-cleanupBoard.addEventListener('drop', e => {
+// Drag & Drop logic for basket
+basket.addEventListener('dragover', e => e.preventDefault());
+basket.addEventListener('drop', e => {
   e.preventDefault();
   const emoji = e.dataTransfer.getData('text/plain');
   const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item'))
                      .find(d => d.textContent === emoji);
   if(target) {
-    target.remove(); // Remove emoji from board
+    target.remove(); // remove from board
     checkCompletion();
   }
 });
@@ -360,6 +368,6 @@ function checkCompletion() {
 // Reset button
 resetBtn.addEventListener('click', initCleanupGame);
 
-// Start the game on page load
+// Start the game
 initCleanupGame();
 
