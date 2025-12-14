@@ -12,13 +12,14 @@ const imageContainer = document.getElementById('imageContainer');
 
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
-    const prompt = `
+  if (!userPrompt) return alert('Enter a colonial scene!');
+  
+  const prompt = `
     Colonial American scene, set in the year 1776.
     ${userPrompt}.
     Historical realism, 18th century atmosphere, parchment tones, oil painting style.
-    `;
-
-  if(!prompt) return alert('Enter a colonial scene!');
+  `;
+  
   imageContainer.innerHTML = '';
   const img = new Image();
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
@@ -36,6 +37,7 @@ const avatarContainer = document.getElementById('avatarContainer');
 generateAvatarBtn.addEventListener('click', () => {
   avatarContainer.innerHTML = '';
 
+  // Grab all dropdowns
   const gender = document.getElementById('genderSelect').value;
   const background = document.getElementById('backgroundSelect').value;
   const outfit = document.getElementById('outfitSelect').value;
@@ -46,13 +48,13 @@ generateAvatarBtn.addEventListener('click', () => {
   const heritage = document.getElementById('raceSelect').value;
 
   const prompt = `
-  Colonial American style portrait, year 1776.
-  ${age} ${gender} person of ${heritage} heritage.
-  Wearing ${outfit}, ${hat}.
-  Hairstyle: ${hair}.
-  Accessory: ${accessory}.
-  Background setting: ${background}.
-  Painted realism, warm parchment tones, 18th century oil painting style.
+    Colonial American style portrait, year 1776.
+    ${age} ${gender} person of ${heritage} heritage.
+    Wearing ${outfit}, ${hat}.
+    Hairstyle: ${hair}.
+    Accessory: ${accessory}.
+    Background setting: ${background}.
+    Painted realism, warm parchment tones, 18th century oil painting style.
   `;
 
   const img = new Image();
@@ -64,7 +66,6 @@ generateAvatarBtn.addEventListener('click', () => {
 
   avatarContainer.appendChild(img);
 });
-
 
 // ===== Quiz =====
 const quizData = [
@@ -83,13 +84,23 @@ const quizData = [
 let currentQuestion = 0;
 let score = 0;
 
-const progressFill = document.getElementById('progressFill');
+const progressContainer = document.getElementById('progressContainer');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
 const submitBtn = document.getElementById('submitBtn');
 const nextBtn = document.getElementById('nextBtn');
 const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
+
+// ===== Initialize Segmented Progress Bar =====
+function initProgressBar() {
+  progressContainer.innerHTML = '';
+  quizData.forEach(() => {
+    const segment = document.createElement('div');
+    segment.classList.add('progress-segment');
+    progressContainer.appendChild(segment);
+  });
+}
 
 // ===== Load Question =====
 function loadQuestion() {
@@ -99,6 +110,7 @@ function loadQuestion() {
   const q = quizData[currentQuestion];
   questionEl.textContent = q.q;
   answersEl.innerHTML = '';
+  
   q.o.forEach(opt => {
     const btn = document.createElement('button');
     btn.textContent = opt;
@@ -111,26 +123,35 @@ function loadQuestion() {
   });
 }
 
-// ===== Update Progress Bar =====
-function updateProgress() {
-  const progress = ((currentQuestion + 1) / quizData.length) * 100;
-  progressFill.style.width = `${progress}%`;
+// ===== Mark Progress Segment =====
+function markProgress(isCorrect) {
+  const segments = document.querySelectorAll('.progress-segment');
+  const currentSegment = segments[currentQuestion];
+  if (!currentSegment) return;
+  currentSegment.style.backgroundColor = isCorrect ? '#4CAF50' : '#e74c3c';
 }
 
 // ===== Submit Answer =====
 submitBtn.addEventListener('click', () => {
   const selected = document.querySelector('#answers button.selected');
   if(!selected) return;
+
   const correct = quizData[currentQuestion].a;
+  const isCorrect = selected.textContent === correct;
+
+  // Disable buttons and show correct/wrong
   Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
     btn.disabled = true;
     if(btn.textContent === correct) btn.classList.add('correct');
   });
-  if(selected.textContent !== correct) selected.classList.add('wrong');
+  if(!isCorrect) selected.classList.add('wrong');
   else score++;
+
+  // Update segmented progress
+  markProgress(isCorrect);
+
   submitBtn.classList.add('hidden');
   nextBtn.classList.remove('hidden');
-  updateProgress();
 });
 
 // ===== Next Question =====
@@ -157,11 +178,10 @@ takeAgainBtn.addEventListener('click', () => {
   score = 0;
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
-  progressFill.style.width = '0%';
+  initProgressBar();
   loadQuestion();
 });
 
 // ===== Initialize =====
+initProgressBar();
 loadQuestion();
-
-
