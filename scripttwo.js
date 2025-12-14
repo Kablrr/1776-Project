@@ -289,79 +289,66 @@ function checkMatch() {
 }
 
 initMemoryGame();
-
+// ===== Classroom Cleanup Game =====
 const cleanupBoard = document.getElementById('classroomBoard');
 const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
 const resetBtn = document.getElementById('resetCleanupBtn');
 const basket = document.getElementById('basket');
 
+// Create Start button
 const startBtn = document.createElement('button');
 startBtn.textContent = 'Start Cleanup';
 startBtn.id = 'startCleanupBtn';
 startBtn.style.marginBottom = '10px';
 cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
 
-let clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
+// Clutter items
+const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
+
 let startTime = 0;
 let timerInterval;
 let gameStarted = false;
 
-// Initialize board only (items will be inactive until start)
+// ===== Initialize Board =====
 function setupBoard() {
-  cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
+  // Clear previous items
+  cleanupBoard.innerHTML = '';
   cleanupScore.textContent = '';
+  cleanupTimer.textContent = `Time: 0.00s`;
   clearInterval(timerInterval);
+  gameStarted = false;
 
+  // Place clutter items randomly
   clutterItems.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
+    div.style.position = 'absolute';
+    div.style.cursor = 'grab';
 
     const maxX = cleanupBoard.clientWidth - 40;
     const maxY = cleanupBoard.clientHeight - 40;
     div.style.left = Math.random() * maxX + 'px';
     div.style.top = Math.random() * maxY + 'px';
 
-    // Initially disable dragging
-    div.draggable = false;
-
+    div.draggable = false; // will enable on start
     cleanupBoard.appendChild(div);
   });
 
-  cleanupTimer.textContent = `Time: 0.00s`;
-  gameStarted = false;
+  startBtn.style.display = 'inline-block';
 }
-// Basket highlight effect
-basket.addEventListener('dragenter', e => {
-  e.preventDefault();
-  if(!gameStarted) return;
-  basket.style.backgroundColor = '#b08a57'; // highlight color
-});
 
-basket.addEventListener('dragleave', e => {
-  e.preventDefault();
-  if(!gameStarted) return;
-  basket.style.backgroundColor = '#6e4b2f'; // normal color
-});
+// ===== Timer =====
+function updateTimer() {
+  if (!gameStarted) return;
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+  cleanupTimer.textContent = `Time: ${elapsed}s`;
+}
 
-basket.addEventListener('dragover', e => e.preventDefault());
-basket.addEventListener('drop', e => {
-  e.preventDefault();
-  if(!gameStarted) return;
-
-  const emoji = e.dataTransfer.getData('text/plain');
-  const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item'))
-                     .find(d => d.textContent === emoji);
-  if(target) target.remove();
-
-  basket.style.backgroundColor = '#6e4b2f'; // reset after drop
-  checkCompletion();
-});
-
-// Start the cleanup game
+// ===== Start Game =====
 function startCleanupGame() {
-  startBtn.style.display = 'none'; // hide start button
+  startBtn.style.display = 'none';
   gameStarted = true;
   startTime = Date.now();
   updateTimer();
@@ -372,55 +359,61 @@ function startCleanupGame() {
     div.draggable = true;
     div.addEventListener('dragstart', e => {
       e.dataTransfer.setData('text/plain', div.textContent);
-      const rect = div.getBoundingClientRect();
-      e.dataTransfer.setData('offsetX', e.clientX - rect.left);
-      e.dataTransfer.setData('offsetY', e.clientY - rect.top);
     });
   });
 }
 
-// Timer update
-function updateTimer() {
-  if(!gameStarted) return;
-  const time = ((Date.now() - startTime) / 1000).toFixed(2);
-  cleanupTimer.textContent = `Time: ${time}s`;
-}
-
-// Drag & Drop logic for basket
+// ===== Basket Drag & Drop =====
 basket.addEventListener('dragover', e => e.preventDefault());
+
+basket.addEventListener('dragenter', e => {
+  e.preventDefault();
+  if (!gameStarted) return;
+  basket.style.backgroundColor = '#b08a57'; // highlight
+});
+
+basket.addEventListener('dragleave', e => {
+  e.preventDefault();
+  if (!gameStarted) return;
+  basket.style.backgroundColor = '#6e4b2f'; // normal
+});
+
 basket.addEventListener('drop', e => {
   e.preventDefault();
-  if(!gameStarted) return;
+  if (!gameStarted) return;
 
   const emoji = e.dataTransfer.getData('text/plain');
   const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item'))
                      .find(d => d.textContent === emoji);
-  if(target) {
+  if (target) {
     target.remove();
     checkCompletion();
   }
+
+  basket.style.backgroundColor = '#6e4b2f';
 });
 
-// Check if all clutter removed
+// ===== Check Completion =====
 function checkCompletion() {
-  if(cleanupBoard.querySelectorAll('.clutter-item').length === 0) {
+  const remaining = cleanupBoard.querySelectorAll('.clutter-item').length;
+  if (remaining === 0) {
     clearInterval(timerInterval);
     const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
     cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
   }
 }
 
-// Reset button
+// ===== Reset =====
 resetBtn.addEventListener('click', () => {
-  startBtn.style.display = 'inline-block';
   setupBoard();
 });
 
-// Start button
+// Start button listener
 startBtn.addEventListener('click', startCleanupGame);
 
-// Initialize board on page load
+// Initialize board
 setupBoard();
+
 
 
 
