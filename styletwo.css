@@ -84,15 +84,6 @@ body {
   text-align: center;
 }
 
-  /* Raised parchment panel */
-  background: rgba(237, 196, 179, 0.75);
-  border: 2px solid #c38e70;
-  border-radius: 16px;
-  box-shadow:
-    0 10px 20px rgba(0,0,0,0.15),
-    inset 0 0 20px rgba(255,255,255,0.2);
-}
-
 /* ===== Sections ===== */
 .section {
   width: 100%;
@@ -139,18 +130,15 @@ button:hover {
   box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 
-/* ===== Avatar Dropdown Grid FIX ===== */
+/* ===== Avatar Dropdown Grid ===== */
 .dropdowns {
   display: grid;
   grid-template-columns: repeat(2, minmax(220px, 1fr));
   gap: 15px 20px;
-
-  /* 🔒 IMPORTANT */
   max-width: 520px;
   width: 100%;
   margin: 0 auto 20px auto;
 }
-
 
 .dropdown-group {
   display: flex;
@@ -165,8 +153,9 @@ button:hover {
 
 /* ===== Quiz ===== */
 .progress-bar {
+  display: flex;
   width: 100%;
-  height: 16px;
+  height: 18px;
   background: rgba(255,255,255,0.3);
   border-radius: 8px;
   overflow: hidden;
@@ -174,16 +163,13 @@ button:hover {
   border: 1px solid #b07d62;
 }
 
-.progress-fill {
+.progress-segment {
+  flex: 1 1 0%;
   height: 100%;
-  width: 0%;
-  background: linear-gradient(
-    to right,
-    #c38e70,
-    #9d6b53,
-    #4CAF50
-  );
-  transition: width 0.6s ease;
+  margin: 0 1px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 4px;
+  transition: background 0.5s ease;
 }
 
 #question {
@@ -267,7 +253,6 @@ button:hover {
   .apps-column {
     order: 1;
   }
-}
 
   .dropdowns {
     grid-template-columns: 1fr;
@@ -277,5 +262,3 @@ button:hover {
     flex-direction: column;
   }
 }
-
-
