@@ -82,167 +82,129 @@ generateAvatarBtn.addEventListener('click', () => {
   };
 });
 
-// ===== 1776 History Quiz =====
-
-// Quiz data (10 questions about 1776)
+// ===== 1776 Quiz =====
 const quizData = [
-  { 
-    question: "In which year was the Declaration of Independence signed?",
-    options: ["1775","1776","1777","1781"],
-    answer: "1776"
-  },
-  { 
-    question: "Who was the commander of the Continental Army?",
-    options: ["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"],
-    answer: "George Washington"
-  },
-  { 
-    question: "Which document formally ended the Revolutionary War?",
-    options: ["Bill of Rights","Treaty of Paris","Articles of Confederation","Constitution"],
-    answer: "Treaty of Paris"
-  },
-  {
-    question: "Which colony proposed independence from Britain?",
-    options: ["Virginia","Massachusetts","Pennsylvania","All of the above"],
-    answer: "All of the above"
-  },
-  {
-    question: "Who wrote most of the Declaration of Independence?",
-    options: ["Benjamin Franklin","John Adams","Thomas Jefferson","James Madison"],
-    answer: "Thomas Jefferson"
-  },
-  {
-    question: "Where was the Declaration of Independence signed?",
-    options: ["Boston","Philadelphia","New York","Washington, D.C."],
-    answer: "Philadelphia"
-  },
-  {
-    question: "What was the name of the first American flag?",
-    options: ["Stars and Stripes","Grand Union Flag","Betsy Ross Flag","Liberty Flag"],
-    answer: "Grand Union Flag"
-  },
-  {
-    question: "Which country helped the colonies during the Revolutionary War?",
-    options: ["France","Spain","Netherlands","All of the above"],
-    answer: "All of the above"
-  },
-  {
-    question: "Which famous pamphlet encouraged independence?",
-    options: ["Common Sense","The Federalist Papers","Poor Richard's Almanack","Magna Carta"],
-    answer: "Common Sense"
-  },
-  {
-    question: "Which battle was a turning point in 1776?",
-    options: ["Battle of Bunker Hill","Battle of Trenton","Battle of Saratoga","Battle of Yorktown"],
-    answer: "Battle of Trenton"
-  }
+    { question: "In which year was the Declaration of Independence signed?", options: ["1775","1776","1777","1781"], answer: "1776" },
+    { question: "Who was the commander of the Continental Army?", options: ["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], answer: "George Washington" },
+    { question: "Which document ended the Revolutionary War?", options: ["Bill of Rights","Treaty of Paris","Articles of Confederation","Constitution"], answer: "Treaty of Paris" },
+    { question: "Where was the Declaration of Independence signed?", options: ["New York","Philadelphia","Boston","Washington D.C."], answer: "Philadelphia" },
+    { question: "Who wrote most of the Declaration of Independence?", options: ["Benjamin Franklin","John Adams","Thomas Jefferson","Alexander Hamilton"], answer: "Thomas Jefferson" },
+    { question: "Which battle was a turning point in the Revolutionary War?", options: ["Battle of Bunker Hill","Battle of Saratoga","Battle of Yorktown","Battle of Lexington"], answer: "Battle of Saratoga" },
+    { question: "Who was the King of Britain during the American Revolution?", options: ["George III","Charles II","James I","William IV"], answer: "George III" },
+    { question: "What was the first capital of the United States?", options: ["Philadelphia","New York","Boston","Washington D.C."], answer: "New York" },
+    { question: "Which group supported independence from Britain?", options: ["Loyalists","Patriots","Tories","Redcoats"], answer: "Patriots" },
+    { question: "Which river did George Washington cross for a famous surprise attack?", options: ["Hudson","Delaware","Potomac","Mississippi"], answer: "Delaware" }
 ];
 
-// ===== DOM Elements =====
+let currentQuestion = 0;
+let score = 0;
+
+// DOM Elements
 const progressContainer = document.getElementById('progressContainer');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
 const submitBtn = document.getElementById('submitBtn');
 const nextBtn = document.getElementById('nextBtn');
-const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
-
-let currentQuestion = 0;
-let score = 0;
+const takeAgainBtn = document.getElementById('takeAgainBtn');
 
 // ===== Initialize Progress Bar =====
 function initProgress() {
-  progressContainer.innerHTML = '';
-  quizData.forEach(() => {
-    const segment = document.createElement('div');
-    segment.classList.add('progress-segment');
-    progressContainer.appendChild(segment);
-  });
+    progressContainer.innerHTML = '';
+    quizData.forEach(() => {
+        const seg = document.createElement('div');
+        seg.classList.add('progress-segment');
+        progressContainer.appendChild(seg);
+    });
 }
 
-// ===== Load a Question =====
+// ===== Load Current Question =====
 function loadQuestion() {
-  submitBtn.disabled = true;
-  submitBtn.classList.remove('hidden');
-  nextBtn.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.classList.remove('hidden');
+    nextBtn.classList.add('hidden');
 
-  const q = quizData[currentQuestion];
-  questionEl.textContent = q.question;
-  answersEl.innerHTML = '';
+    const q = quizData[currentQuestion];
+    questionEl.textContent = q.question;
+    answersEl.innerHTML = '';
 
-  q.options.forEach(option => {
-    const btn = document.createElement('button');
-    btn.textContent = option;
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#answers button').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      submitBtn.disabled = false;
+    q.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.textContent = option;
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#answers button').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            submitBtn.disabled = false;
+        });
+        answersEl.appendChild(btn);
     });
-    answersEl.appendChild(btn);
-  });
+
+    updateProgress();
 }
 
 // ===== Update Progress Bar =====
 function updateProgress() {
-  const segments = document.querySelectorAll('.progress-segment');
-  segments.forEach((seg, index) => {
-    seg.style.background = index < currentQuestion ? '#4CAF50' : 'rgba(255,255,255,0.15)';
-  });
+    const segments = document.querySelectorAll('.progress-segment');
+    segments.forEach((seg, index) => {
+        seg.style.background = index < currentQuestion ? '#4CAF50' : 'rgba(255,255,255,0.15)';
+    });
 }
 
 // ===== Submit Answer =====
 submitBtn.addEventListener('click', () => {
-  const selected = document.querySelector('#answers button.selected');
-  if (!selected) return;
+    const selected = document.querySelector('#answers button.selected');
+    if (!selected) return;
 
-  const correctAnswer = quizData[currentQuestion].answer;
+    const correct = quizData[currentQuestion].answer;
+    Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === correct) btn.classList.add('correct');
+    });
 
-  // Mark all buttons
-  Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
-    btn.disabled = true;
-    if (btn.textContent === correctAnswer) btn.classList.add('correct');
-  });
+    if (selected.textContent !== correct) selected.classList.add('wrong');
+    else score++;
 
-  // Mark wrong if needed
-  if (selected.textContent !== correctAnswer) selected.classList.add('wrong');
-  else score++;
-
-  submitBtn.classList.add('hidden');
-  nextBtn.classList.remove('hidden');
-  updateProgress();
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
 });
 
 // ===== Next Question =====
 nextBtn.addEventListener('click', () => {
-  currentQuestion++;
-  if (currentQuestion >= quizData.length) {
-    showScore();
-  } else {
-    loadQuestion();
-  }
+    currentQuestion++;
+    if (currentQuestion >= quizData.length) {
+        showScore();
+    } else {
+        loadQuestion();
+    }
 });
 
 // ===== Show Final Score =====
 function showScore() {
-  questionEl.textContent = 'Quiz Completed!';
-  answersEl.innerHTML = '';
-  submitBtn.classList.add('hidden');
-  nextBtn.classList.add('hidden');
-  scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
-  scoreEl.classList.remove('hidden');
-  takeAgainBtn.classList.remove('hidden');
+    questionEl.textContent = 'Quiz Completed!';
+    answersEl.innerHTML = '';
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.add('hidden');
+    scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
+    scoreEl.classList.remove('hidden');
+    takeAgainBtn.classList.remove('hidden');
+
+    // Fill progress bar completely
+    const segments = document.querySelectorAll('.progress-segment');
+    segments.forEach(seg => seg.style.background = '#4CAF50');
 }
 
-// ===== Restart Quiz =====
+// ===== Take Quiz Again =====
 takeAgainBtn.addEventListener('click', () => {
-  currentQuestion = 0;
-  score = 0;
-  scoreEl.classList.add('hidden');
-  takeAgainBtn.classList.add('hidden');
-  initProgress();
-  loadQuestion();
+    currentQuestion = 0;
+    score = 0;
+    scoreEl.classList.add('hidden');
+    takeAgainBtn.classList.add('hidden');
+    loadQuestion();
+    initProgress();
 });
 
 // ===== Initialize Quiz =====
 initProgress();
 loadQuestion();
+
+
