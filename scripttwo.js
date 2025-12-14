@@ -121,7 +121,7 @@ const quizData = [
   { q:"Commander of Continental Army?", o:["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], a:"George Washington" },
   { q:"Document ending Revolutionary War?", o:["Bill of Rights","Treaty of Paris","Articles of Confederation","Constitution"], a:"Treaty of Paris" },
   { q:"Which city was first capital of USA?", o:["Philadelphia","New York","Boston","Washington DC"], a:"New York" },
-  { q:"Who wrote the Declaration?", o:["Jefferson","Adams","Washington","Franklin"], a:"Jefferson" },
+  { q:"Who wrote the most of the Declaration?", o:["Jefferson","Adams","Washington","Franklin"], a:"Jefferson" },
   { q:"Which battle was first major battle?", o:["Bunker Hill","Lexington","Saratoga","Yorktown"], a:"Bunker Hill" },
   { q:"Who was king of Britain?", o:["George I","George II","George III","George IV"], a:"George III" },
   { q:"What year did war start?", o:["1774","1775","1776","1777"], a:"1775" },
@@ -231,4 +231,5 @@ takeAgainBtn.addEventListener('click', () => {
 // ===== Initialize =====
 initProgressBar();
 loadQuestion();
+
 
