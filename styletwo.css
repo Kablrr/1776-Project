@@ -6,15 +6,27 @@
   font-family: 'Georgia', serif;
 }
 body {
-  background: #edc4b3;
-  color: #4b2e2a;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  margin: 0;
   padding: 30px;
+  font-family: 'Georgia', serif;
+
+  /* parchment image */
+  background-image:
+    linear-gradient(
+      rgba(237, 196, 179, 0.85),
+      rgba(237, 196, 179, 0.85)
+    ),
+    url("https://images.unsplash.com/photo-1691415780200-76eb077e1ea7?fm=jpg&q=60&w=3000");
+
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  color: #4b2e2a;
   overflow-x: hidden;
 }
+
 
 /* ===== Layout ===== */
 .main-layout {
@@ -174,3 +186,4 @@ button:hover { transform: scale(1.05); }
   #answers button { width: 95%; }
   .button-wrapper { flex-direction: column; }
 }
+
