@@ -11,7 +11,13 @@ const promptInput = document.getElementById('promptInput');
 const imageContainer = document.getElementById('imageContainer');
 
 generateBtn.addEventListener('click', () => {
-  const prompt = promptInput.value.trim();
+  const userPrompt = promptInput.value.trim();
+    const prompt = `
+    Colonial American scene, set in the year 1776.
+    ${userPrompt}.
+    Historical realism, 18th century atmosphere, parchment tones, oil painting style.
+    `;
+
   if(!prompt) return alert('Enter a colonial scene!');
   imageContainer.innerHTML = '';
   const img = new Image();
@@ -157,4 +163,5 @@ takeAgainBtn.addEventListener('click', () => {
 
 // ===== Initialize =====
 loadQuestion();
+
 
