@@ -172,3 +172,113 @@ takeAgainBtn.addEventListener('click', ()=>{
 // Initialize
 initProgressBar();
 loadQuestion();
+/* ===== Colonial Memory Match ===== */
+const memoryCards = ['Book','Quill','Scroll','Inkwell','Map','Lantern','Hat','Sword'];
+let memoryDeck = [...memoryCards, ...memoryCards];
+let memoryGrid = document.querySelector('#memoryGame .card-grid');
+let memoryFlipped = [];
+let memoryMatches = 0;
+
+function shuffle(array){ return array.sort(()=>Math.random()-0.5); }
+
+function initMemoryGame(){
+  memoryGrid.innerHTML = '';
+  memoryDeck = shuffle(memoryDeck);
+  memoryMatches = 0;
+  memoryFlipped = [];
+  memoryDeck.forEach((item)=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.value = item;
+    card.textContent = '?';
+    card.addEventListener('click', () => flipCard(card));
+    memoryGrid.appendChild(card);
+  });
+  document.getElementById('memoryScore').textContent = '';
+}
+
+function flipCard(card){
+  if(memoryFlipped.length >=2 || card.classList.contains('flipped')) return;
+  card.classList.add('flipped');
+  card.textContent = card.dataset.value;
+  memoryFlipped.push(card);
+
+  if(memoryFlipped.length === 2){
+    setTimeout(()=>checkMatch(), 600);
+  }
+}
+
+function checkMatch(){
+  const [c1, c2] = memoryFlipped;
+  if(c1.dataset.value === c2.dataset.value){
+    memoryMatches++;
+  } else {
+    c1.classList.remove('flipped'); c1.textContent='?';
+    c2.classList.remove('flipped'); c2.textContent='?';
+  }
+  memoryFlipped = [];
+  if(memoryMatches === memoryCards.length){
+    document.getElementById('memoryScore').textContent = 'You matched all cards!';
+  }
+}
+
+initMemoryGame();
+
+/* ===== Typing Challenge ===== */
+const sentences = [
+  "Learn your lessons well in the colonial classroom.",
+  "Quills and ink were the tools of every student.",
+  "1776 was a year of revolution and learning.",
+  "Books were rare and treasured in colonial schools."
+];
+let typingIndex = 0;
+let typingStart = 0;
+const sentenceDisplay = document.getElementById('sentenceDisplay');
+const typingInput = document.getElementById('typingInput');
+const typingScore = document.getElementById('typingScore');
+
+function loadTypingSentence(){
+  const sentence = sentences[typingIndex];
+  sentenceDisplay.textContent = sentence;
+  typingInput.value = '';
+  typingStart = Date.now();
+}
+
+typingInput.addEventListener('input', ()=>{
+  const sentence = sentences[typingIndex];
+  if(typingInput.value === sentence){
+    const time = ((Date.now()-typingStart)/1000).toFixed(2);
+    typingScore.textContent = `Correct! Time: ${time} seconds`;
+    typingIndex = (typingIndex+1)%sentences.length;
+    setTimeout(loadTypingSentence, 800);
+  }
+});
+
+loadTypingSentence();
+
+/* ===== Classroom Cleanup Game ===== */
+const cleanupBoard = document.querySelector('.classroom-board');
+const cleanupItems = ['Book','Quill','Scroll','Lantern','Hat','Sword'];
+cleanupItems.forEach(item=>{
+  const div = document.createElement('div');
+  div.className = 'item';
+  div.textContent = item;
+  div.draggable = true;
+  div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', item); });
+  cleanupBoard.appendChild(div);
+});
+
+cleanupBoard.addEventListener('dragover', e=> e.preventDefault());
+cleanupBoard.addEventListener('drop', e=>{
+  e.preventDefault();
+  const item = e.dataTransfer.getData('text/plain');
+  const divs = Array.from(cleanupBoard.querySelectorAll('.item'));
+  const target = divs.find(d=>d.textContent === item && !d.classList.contains('dropped'));
+  if(target){
+    target.classList.add('dropped');
+    target.style.background = '#4f7c4a';
+    target.style.color = '#fff';
+    document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
+  }
+});
+
