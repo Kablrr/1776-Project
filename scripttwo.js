@@ -16,20 +16,16 @@ generateBtn.addEventListener('click', () => {
   if(!prompt) return alert('Enter a colonial scene!');
 
   imageContainer.innerHTML = '';
+  loadingText.innerHTML = `<div class="spinner"></div>`; // show spinner
   loadingText.classList.remove('hidden');
-  loadingText.textContent = 'Generating image...';
 
   const img = new Image();
-  // Add random seed to prevent caching and force a new image
   img.src = `https://image.pollinations.ai/prompt/1776+colonial+scene,+${encodeURIComponent(prompt)}?width=400&height=300&seed=${Date.now()}`;
   img.alt = prompt;
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
 
-  // Only hide loading when image finishes loading or errors
-  img.onload = () => {
-    loadingText.classList.add('hidden');
-  };
+  img.onload = () => loadingText.classList.add('hidden');
   img.onerror = () => {
     loadingText.classList.add('hidden');
     alert('Failed to generate image. Try again.');
@@ -45,8 +41,8 @@ const avatarLoading = document.getElementById('avatarLoading');
 
 generateAvatarBtn.addEventListener('click', () => {
   avatarContainer.innerHTML = '';
+  avatarLoading.innerHTML = `<div class="spinner"></div>`; // show spinner
   avatarLoading.classList.remove('hidden');
-  avatarLoading.textContent = 'Generating avatar...';
 
   const gender = document.getElementById('genderSelect').value;
   const background = document.getElementById('backgroundSelect').value;
@@ -65,9 +61,7 @@ generateAvatarBtn.addEventListener('click', () => {
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
 
-  img.onload = () => {
-    avatarLoading.classList.add('hidden');
-  };
+  img.onload = () => avatarLoading.classList.add('hidden');
   img.onerror = () => {
     avatarLoading.classList.add('hidden');
     alert('Failed to generate avatar. Try again.');
