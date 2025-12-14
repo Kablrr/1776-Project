@@ -239,35 +239,47 @@ button:hover {
   text-align: center;
 }
 
-/* ===== Memory Match Cards ===== */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 20px;
-  width: 100%;
-  margin-top: 20px;
+.card-grid .card {
+  perspective: 1000px;
 }
 
-.card-grid .card {
-  background: #2a231f;
-  border: 2px solid #b08a57;
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   border-radius: 12px;
-  height: 140px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 2.5rem;
-  color: #d8c9b4;
-  cursor: pointer;
-  user-select: none;
+  backface-visibility: hidden;
   box-shadow: 0 6px 12px rgba(0,0,0,0.5);
-  transition: transform 0.3s ease, background 0.3s ease;
-  transform-style: preserve-3d;
-  perspective: 1000px;
 }
 
-.card-grid .card.flipped {
+.card-front {
+  background: #2a231f;
+  color: #d8c9b4;
+  border: 2px solid #b08a57;
+  cursor: pointer;
+}
+
+.card-back {
   background: #b08a57;
   color: #1c1714;
-  transform: rotateY(0deg);
+  transform: rotateY(180deg);
+  border: 2px solid #b08a57;
 }
+
+
