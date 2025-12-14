@@ -1,11 +1,11 @@
-// Cursor Glow
+// ===== Cursor Glow =====
 const cursorGlow = document.getElementById('cursorGlow');
 document.addEventListener('mousemove', e => {
   cursorGlow.style.top = `${e.clientY}px`;
   cursorGlow.style.left = `${e.clientX}px`;
 });
 
-// Spinner Helper
+// ===== Spinner Helper =====
 function createSpinner(text='May take up to a minute to generate') {
   const wrapper = document.createElement('div');
   wrapper.className = 'spinner-wrapper';
@@ -13,7 +13,7 @@ function createSpinner(text='May take up to a minute to generate') {
   return wrapper;
 }
 
-// Text-to-Image Generator
+// ===== Text-to-Image Generator =====
 const generateBtn = document.getElementById('generateBtn');
 const promptInput = document.getElementById('promptInput');
 const imageContainer = document.getElementById('imageContainer');
@@ -43,7 +43,7 @@ generateBtn.addEventListener('click', () => {
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
-// Avatar Generator
+// ===== Avatar Generator =====
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
 
@@ -70,7 +70,7 @@ generateAvatarBtn.addEventListener('click', () => {
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
-// Quiz
+// ===== Quiz =====
 const quizData = [
   {q:"Year Declaration of Independence was signed?", o:["1775","1776","1777","1781"], a:"1776"},
   {q:"Commander of Continental Army?", o:["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], a:"George Washington"},
@@ -85,7 +85,6 @@ const quizData = [
 ];
 
 let currentQuestion = 0, score = 0;
-
 const progressContainer = document.getElementById('progressContainer');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
@@ -169,10 +168,11 @@ takeAgainBtn.addEventListener('click', ()=>{
   loadQuestion();
 });
 
-// Initialize
+// ===== Initialize Quiz =====
 initProgressBar();
 loadQuestion();
-/* ===== Colonial Memory Match with Emojis & Working 3D Flip ===== */
+
+// ===== Colonial Memory Match 3D Flip =====
 const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
 let memoryDeck = [...memoryEmojis, ...memoryEmojis];
 let memoryGrid = document.querySelector('#memoryGame .card-grid');
@@ -191,15 +191,12 @@ function initMemoryGame() {
     const card = document.createElement('div');
     card.className = 'card';
     card.dataset.value = emoji;
-
-    // inner front/back for 3D flip
     card.innerHTML = `
       <div class="card-inner">
         <div class="card-front">?</div>
         <div class="card-back">${emoji}</div>
       </div>
     `;
-
     card.addEventListener('click', () => flipCard(card));
     memoryGrid.appendChild(card);
   });
@@ -209,13 +206,10 @@ function initMemoryGame() {
 
 function flipCard(card) {
   if (memoryFlipped.length >= 2 || card.classList.contains('matched') || card.classList.contains('flipped')) return;
-
   card.classList.add('flipped');
   memoryFlipped.push(card);
 
-  if (memoryFlipped.length === 2) {
-    setTimeout(checkMatch, 800);
-  }
+  if (memoryFlipped.length === 2) setTimeout(checkMatch, 800);
 }
 
 function checkMatch() {
@@ -228,7 +222,6 @@ function checkMatch() {
     c1.classList.remove('flipped');
     c2.classList.remove('flipped');
   }
-
   memoryFlipped = [];
 
   if (memoryMatches === memoryEmojis.length) {
@@ -236,11 +229,9 @@ function checkMatch() {
   }
 }
 
-// Initialize Memory Game
 initMemoryGame();
 
-
-/* ===== Typing Challenge ===== */
+// ===== Typing Challenge =====
 const sentences = [
   "Learn your lessons well in the colonial classroom.",
   "Quills and ink were the tools of every student.",
@@ -272,9 +263,10 @@ typingInput.addEventListener('input', ()=>{
 
 loadTypingSentence();
 
-/* ===== Classroom Cleanup Game ===== */
+// ===== Classroom Cleanup Game =====
 const cleanupBoard = document.querySelector('.classroom-board');
 const cleanupItems = ['Book','Quill','Scroll','Lantern','Hat','Sword'];
+
 cleanupItems.forEach(item=>{
   const div = document.createElement('div');
   div.className = 'item';
@@ -297,6 +289,3 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
-
-
-
