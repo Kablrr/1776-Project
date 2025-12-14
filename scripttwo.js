@@ -296,49 +296,66 @@ const cleanupTimer = document.getElementById('cleanupTimer');
 const resetBtn = document.getElementById('resetCleanupBtn');
 const basket = document.getElementById('basket');
 
+const startBtn = document.createElement('button');
+startBtn.textContent = 'Start Cleanup';
+startBtn.id = 'startCleanupBtn';
+startBtn.style.marginBottom = '10px';
+cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
+
 let clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
 let startTime = 0;
 let timerInterval;
+let gameStarted = false;
 
-// Initialize game
-function initCleanupGame() {
-  // Clear previous clutter
+// Initialize board only (items will be inactive until start)
+function setupBoard() {
   cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
   cleanupScore.textContent = '';
   clearInterval(timerInterval);
-  startTime = Date.now();
-  updateTimer();
-  timerInterval = setInterval(updateTimer, 50);
 
-  // Add clutter emojis
   clutterItems.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
 
-    // Random position inside the board
     const maxX = cleanupBoard.clientWidth - 40;
     const maxY = cleanupBoard.clientHeight - 40;
     div.style.left = Math.random() * maxX + 'px';
     div.style.top = Math.random() * maxY + 'px';
 
-    div.draggable = true;
+    // Initially disable dragging
+    div.draggable = false;
 
-    // Drag events
+    cleanupBoard.appendChild(div);
+  });
+
+  cleanupTimer.textContent = `Time: 0.00s`;
+  gameStarted = false;
+}
+
+// Start the cleanup game
+function startCleanupGame() {
+  startBtn.style.display = 'none'; // hide start button
+  gameStarted = true;
+  startTime = Date.now();
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 50);
+
+  // Enable dragging for all items
+  cleanupBoard.querySelectorAll('.clutter-item').forEach(div => {
+    div.draggable = true;
     div.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', emoji);
-      // save offset for smoother dragging
+      e.dataTransfer.setData('text/plain', div.textContent);
       const rect = div.getBoundingClientRect();
       e.dataTransfer.setData('offsetX', e.clientX - rect.left);
       e.dataTransfer.setData('offsetY', e.clientY - rect.top);
     });
-
-    cleanupBoard.appendChild(div);
   });
 }
 
 // Timer update
 function updateTimer() {
+  if(!gameStarted) return;
   const time = ((Date.now() - startTime) / 1000).toFixed(2);
   cleanupTimer.textContent = `Time: ${time}s`;
 }
@@ -347,11 +364,13 @@ function updateTimer() {
 basket.addEventListener('dragover', e => e.preventDefault());
 basket.addEventListener('drop', e => {
   e.preventDefault();
+  if(!gameStarted) return;
+
   const emoji = e.dataTransfer.getData('text/plain');
   const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item'))
                      .find(d => d.textContent === emoji);
   if(target) {
-    target.remove(); // remove from board
+    target.remove();
     checkCompletion();
   }
 });
@@ -366,8 +385,15 @@ function checkCompletion() {
 }
 
 // Reset button
-resetBtn.addEventListener('click', initCleanupGame);
+resetBtn.addEventListener('click', () => {
+  startBtn.style.display = 'inline-block';
+  setupBoard();
+});
 
-// Start the game
-initCleanupGame();
+// Start button
+startBtn.addEventListener('click', startCleanupGame);
+
+// Initialize board on page load
+setupBoard();
+
 
