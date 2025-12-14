@@ -59,28 +59,28 @@ body {
 .image-wrapper {
   width: 100%;
   margin-bottom: 20px;
+  overflow: visible; /* allow shadow */
 }
 
-/* ===== Image Shadows ===== */
 .image-wrapper img {
   width: 100%;
   border-radius: 14px;
   border: 2px solid #6e4b2f;
   background: #2a231f;
 
-  /* Add vintage shadow */
   box-shadow: 
-    0 6px 15px rgba(0, 0, 0, 0.5), /* soft outer shadow */
-    inset 0 0 10px rgba(255, 255, 255, 0.05); /* subtle inner glow for depth */
+    0 8px 20px rgba(0, 0, 0, 0.65), /* stronger outer shadow */
+    inset 0 0 12px rgba(255, 255, 255, 0.08); /* subtle inner glow */
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .image-wrapper img:hover {
-  transform: translateY(-4px); /* lift slightly on hover */
+  transform: translateY(-4px);
   box-shadow: 
-    0 12px 25px rgba(0, 0, 0, 0.55),
-    inset 0 0 12px rgba(255, 255, 255, 0.06);
+    0 12px 25px rgba(0, 0, 0, 0.75),
+    inset 0 0 14px rgba(255, 255, 255, 0.09);
 }
+
 
 
 /* ===== Apps Column ===== */
@@ -309,4 +309,5 @@ button:hover {
     flex-direction: column;
   }
 }
+
 
