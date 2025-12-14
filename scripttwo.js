@@ -281,6 +281,7 @@ typingInput.addEventListener('input', () => {
 // Initialize
 loadTypingQuote();
 
+
 // ===== Classroom Cleanup Game =====
 const cleanupBoard = document.querySelector('.classroom-board');
 const cleanupItems = ['Book','Quill','Scroll','Lantern','Hat','Sword'];
@@ -307,5 +308,6 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
 
 
