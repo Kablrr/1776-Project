@@ -250,3 +250,37 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   transform: rotateY(180deg);
   border: 2px solid #b08a57;
 }
+.classroom-board {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 350px;
+  margin: 20px auto;
+  background: url('https://images.unsplash.com/photo-1601582583749-d6b1f466f5a5?fm=jpg&q=60&w=1200') no-repeat center/cover;
+  border: 2px solid #b08a57;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+#basket {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  width: 100px;
+  height: 100px;
+  background: #b08a57;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #1c1714;
+  z-index: 100;
+}
+
+.clutter-item {
+  position: absolute;
+  font-size: 2rem;
+  cursor: grab;
+}
+
