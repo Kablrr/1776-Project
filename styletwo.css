@@ -6,16 +6,43 @@
   font-family: 'Georgia', serif;
 }
 
+/* ===== Body with Background Image & Tint ===== */
 body {
-  background: #edc4b3; /* Almond Silk */
-  color: #774936; /* Clay Soil for main text */
+  position: relative;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding: 30px;
   overflow-x: hidden;
+  color: #774936; /* Clay Soil for main text */
 }
+
+/* Background image layer */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://images.unsplash.com/photo-1691415780200-76eb077e1ea7?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8Y3J1bXBsZWQlMjBwYXBlcnxlbnwwfHwwfHx8MA%3D%3D') no-repeat center center fixed;
+  background-size: cover;
+  z-index: -2;
+}
+
+/* Almond Silk tint overlay */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(237,196,179,0.6); /* Almond Silk with 60% opacity */
+  z-index: -1;
+}
+
 
 /* ===== Large Main Container ===== */
 .main-content-container {
@@ -287,3 +314,4 @@ button:hover {
     flex: 1 1 100%;
   }
 }
+
