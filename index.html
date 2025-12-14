@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>1776 School Project</title>
-  <link rel="stylesheet" href="styletwo.css?v=2">
+  <title>Kabir Malhi - 1776 Project</title>
+  <link rel="stylesheet" href="styletwo.css">
 </head>
 <body>
 
@@ -16,10 +16,10 @@
   <div class="image-column left-column">
     <h2>1776</h2>
     <div class="image-wrapper">
-      <img src="https://via.placeholder.com/300x200?text=1776+Scene+1" alt="1776 Image 1">
+      <img src="https://via.placeholder.com/300x200?text=1776+Scene+1" alt="1776 Scene 1">
     </div>
     <div class="image-wrapper">
-      <img src="https://via.placeholder.com/300x200?text=1776+Scene+2" alt="1776 Image 2">
+      <img src="https://via.placeholder.com/300x200?text=1776+Scene+2" alt="1776 Scene 2">
     </div>
   </div>
 
@@ -27,9 +27,9 @@
   <div class="apps-column">
     <div class="container">
 
-      <!-- Text-to-Image Generator -->
+      <!-- Text to Image Generator -->
       <div class="section">
-        <h1>Image Generator</h1>
+        <h1>1776 Scene Generator</h1>
         <p>Convert your ideas into a colonial scene (May take 30-60 seconds)</p>
         <input id="promptInput" type="text" placeholder="Enter a colonial scene...">
         <button id="generateBtn">Generate Image</button>
@@ -39,8 +39,8 @@
 
       <!-- Avatar Generator -->
       <div class="section">
-        <h1>1776 Avatar Generator</h1>
-        <p>Customize your colonial student avatar (May take 30-60 seconds)</p>
+        <h1>Colonial Avatar Generator</h1>
+        <p>Customize your colonial student avatar</p>
 
         <div class="dropdowns">
           <div class="dropdown-group">
@@ -50,7 +50,6 @@
               <option>Female</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="backgroundSelect">Background:</label>
             <select id="backgroundSelect">
@@ -64,7 +63,6 @@
               <option>Ship Deck</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="outfitSelect">Outfit:</label>
             <select id="outfitSelect">
@@ -78,7 +76,6 @@
               <option>Apprentice Outfit</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="hatSelect">Hat:</label>
             <select id="hatSelect">
@@ -90,7 +87,6 @@
               <option>Bandana</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="accessorySelect">Accessory:</label>
             <select id="accessorySelect">
@@ -103,7 +99,6 @@
               <option>Lantern</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="hairSelect">Hair Style:</label>
             <select id="hairSelect">
@@ -116,7 +111,6 @@
               <option>Braided</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="ageSelect">Age:</label>
             <select id="ageSelect">
@@ -126,7 +120,6 @@
               <option>Elderly</option>
             </select>
           </div>
-
           <div class="dropdown-group">
             <label for="raceSelect">Heritage:</label>
             <select id="raceSelect">
@@ -145,6 +138,22 @@
         <div id="avatarContainer" class="image-container"></div>
       </div>
 
+      <!-- Quiz -->
+      <div class="section">
+        <h1>1776 History Quiz</h1>
+        <div id="progressContainer"></div>
+        <div id="question"></div>
+        <div id="answers"></div>
+
+        <div class="button-wrapper">
+          <button id="submitBtn" disabled>Submit</button>
+          <button id="nextBtn" class="hidden">Next</button>
+        </div>
+
+        <button id="takeAgainBtn" class="hidden">Take Again</button>
+        <div id="score" class="hidden"></div>
+      </div>
+
     </div>
   </div>
 
@@ -152,15 +161,15 @@
   <div class="image-column right-column">
     <h2>2025</h2>
     <div class="image-wrapper">
-      <img src="https://via.placeholder.com/300x200?text=2025+Scene+1" alt="2025 Image 1">
+      <img src="https://via.placeholder.com/300x200?text=2025+Scene+1" alt="2025 Scene 1">
     </div>
     <div class="image-wrapper">
-      <img src="https://via.placeholder.com/300x200?text=2025+Scene+2" alt="2025 Image 2">
+      <img src="https://via.placeholder.com/300x200?text=2025+Scene+2" alt="2025 Scene 2">
     </div>
   </div>
 
 </div>
 
-<script src="scripttwo.js?v=2"></script>
+<script src="scripttwo.js"></script>
 </body>
 </html>
