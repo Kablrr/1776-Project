@@ -255,7 +255,12 @@ const typingScore = document.getElementById('typingScore');
 let typingStart = 0;
 
 function loadTypingQuote() {
+  // Make the quote larger and more prominent
   sentenceDisplay.textContent = typingQuote;
+  sentenceDisplay.style.fontSize = '1.5rem';
+  sentenceDisplay.style.fontWeight = 'bold';
+  sentenceDisplay.style.color = '#bfae97';
+  
   typingInput.value = '';
   typingInput.focus();
   typingStart = Date.now();
@@ -264,13 +269,14 @@ function loadTypingQuote() {
 
 typingInput.addEventListener('input', () => {
   const typed = typingInput.value;
-  
-  // If typed text matches exactly
+
+  // Perfect match
   if (typed === typingQuote) {
     const time = ((Date.now() - typingStart) / 1000).toFixed(2);
+    typingInput.value = ''; // clear input immediately
     typingScore.textContent = `✅ Perfect! Time: ${time} seconds`;
   } 
-  // If typed text diverges from the quote
+  // Typing error
   else if (!typingQuote.startsWith(typed)) {
     typingScore.textContent = `❌ Typing error! Check your spelling and punctuation.`;
   } else {
@@ -280,7 +286,6 @@ typingInput.addEventListener('input', () => {
 
 // Initialize
 loadTypingQuote();
-
 
 // ===== Classroom Cleanup Game =====
 const cleanupBoard = document.querySelector('.classroom-board');
@@ -308,6 +313,7 @@ cleanupBoard.addEventListener('drop', e=>{
     document.getElementById('cleanupScore').textContent = 'Item placed correctly!';
   }
 });
+
 
 
 
