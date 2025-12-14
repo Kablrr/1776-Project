@@ -12,11 +12,10 @@ function createSpinner() {
   return spinner;
 }
 
-// ===== Text to Image =====
+// ===== Text-to-Image Generator =====
 const generateBtn = document.getElementById('generateBtn');
 const promptInput = document.getElementById('promptInput');
 const imageContainer = document.getElementById('imageContainer');
-let textImg = null;
 
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
@@ -28,23 +27,23 @@ generateBtn.addEventListener('click', () => {
     Historical realism, 18th century atmosphere, parchment tones, oil painting style.
   `;
 
+  // Clear container and show spinner
   imageContainer.innerHTML = '';
   const spinner = createSpinner();
   imageContainer.appendChild(spinner);
 
-  if (!textImg) {
-    textImg = new Image();
-    textImg.style.width = '100%';
-    textImg.style.maxWidth = '300px';
-    textImg.style.border = '2px solid #4b2e2a';
-    textImg.style.borderRadius = '12px';
-  }
+  // Create new image element for every generation
+  const textImg = new Image();
+  textImg.style.width = '100%';
+  textImg.style.maxWidth = '300px';
+  textImg.style.border = '2px solid #4b2e2a';
+  textImg.style.borderRadius = '12px';
+  textImg.alt = prompt;
 
   const temp = new Image();
   temp.onload = () => {
     spinner.remove();
     textImg.src = temp.src;
-    textImg.alt = prompt;
     imageContainer.appendChild(textImg);
   };
   temp.onerror = () => {
@@ -57,7 +56,6 @@ generateBtn.addEventListener('click', () => {
 // ===== Avatar Generator =====
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
-let avatarImg = null;
 
 generateAvatarBtn.addEventListener('click', () => {
   const gender = document.getElementById('genderSelect').value;
@@ -79,23 +77,23 @@ generateAvatarBtn.addEventListener('click', () => {
     Painted realism, warm parchment tones, 18th century oil painting style.
   `;
 
+  // Clear container and show spinner
   avatarContainer.innerHTML = '';
   const spinner = createSpinner();
   avatarContainer.appendChild(spinner);
 
-  if (!avatarImg) {
-    avatarImg = new Image();
-    avatarImg.style.width = '100%';
-    avatarImg.style.maxWidth = '220px';
-    avatarImg.style.border = '2px solid #4b2e2a';
-    avatarImg.style.borderRadius = '14px';
-  }
+  // Create new image element for every generation
+  const avatarImg = new Image();
+  avatarImg.style.width = '100%';
+  avatarImg.style.maxWidth = '220px';
+  avatarImg.style.border = '2px solid #4b2e2a';
+  avatarImg.style.borderRadius = '14px';
+  avatarImg.alt = '1776 Avatar';
 
   const temp = new Image();
   temp.onload = () => {
     spinner.remove();
     avatarImg.src = temp.src;
-    avatarImg.alt = '1776 Avatar';
     avatarContainer.appendChild(avatarImg);
   };
   temp.onerror = () => {
@@ -130,16 +128,18 @@ const nextBtn = document.getElementById('nextBtn');
 const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
 
+// Initialize progress bar
 function initProgressBar() {
   progressContainer.innerHTML = '';
   quizData.forEach(() => {
     const segment = document.createElement('div');
     segment.classList.add('progress-segment');
-    segment.style.backgroundColor = '#ccc'; // default unattempted color
+    segment.style.backgroundColor = '#ccc'; // default unattempted
     progressContainer.appendChild(segment);
   });
 }
 
+// Load question
 function loadQuestion() {
   submitBtn.disabled = true;
   submitBtn.classList.remove('hidden');
@@ -162,11 +162,13 @@ function loadQuestion() {
   });
 }
 
+// Mark progress segment
 function markProgress(isCorrect) {
   const segments = document.querySelectorAll('.progress-segment');
   if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4CAF50' : '#e74c3c';
 }
 
+// Submit answer
 submitBtn.addEventListener('click', () => {
   const selected = document.querySelector('#answers button.selected');
   if (!selected) return;
@@ -186,12 +188,14 @@ submitBtn.addEventListener('click', () => {
   nextBtn.classList.remove('hidden');
 });
 
+// Next question
 nextBtn.addEventListener('click', () => {
   currentQuestion++;
   if (currentQuestion >= quizData.length) showScore();
   else loadQuestion();
 });
 
+// Show final score
 function showScore() {
   questionEl.textContent = 'Quiz Completed!';
   answersEl.innerHTML = '';
@@ -202,6 +206,7 @@ function showScore() {
   scoreEl.classList.remove('hidden');
 }
 
+// Retake quiz
 takeAgainBtn.addEventListener('click', () => {
   currentQuestion = 0;
   score = 0;
@@ -214,4 +219,3 @@ takeAgainBtn.addEventListener('click', () => {
 // ===== Initialize =====
 initProgressBar();
 loadQuestion();
-
