@@ -240,7 +240,6 @@ function setupMemory() {
   });
 }
 
-// Wrap initial setup in requestAnimationFrame to prevent scroll jump
 requestAnimationFrame(() => {
   setupMemory();
 });
@@ -267,13 +266,10 @@ async function fetchRandomSentence() {
   typingScore.textContent = "Time: 0.00s";
 
   try {
-    // Add a random number to prompt to make AI generate a new sentence each time
     const randomSeed = Math.floor(Math.random() * 10000);
     const prompt = `Write a 7-12 word colonial-era sentence about school life in 1776. Variation: ${randomSeed}`;
     const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
     let aiText = await response.text();
-
-    // Only take the first 12 words
     const words = aiText.trim().split(/\s+/).slice(0, 12);
     currentSentence = words.join(" ") || "Students in 1776 wrote with quills on parchment.";
   } catch(err) {
@@ -282,7 +278,6 @@ async function fetchRandomSentence() {
 
   sentenceDisplay.textContent = currentSentence;
   typingInput.disabled = false;
-  typingInput.focus();
   typingStarted = false;
   typingStartTime = 0;
 
@@ -290,27 +285,22 @@ async function fetchRandomSentence() {
   typingScore.textContent = "Time: 0.00s";
 }
 
-// Reset function to generate a new sentence every time
+// Reset function
 function resetTypingChallenge() {
   clearInterval(typingTimer);
   fetchRandomSentence();
 }
 
-// Prevent copy, cut, paste, drag-drop
-typingInput.addEventListener("paste", e => e.preventDefault());
-typingInput.addEventListener("copy", e => e.preventDefault());
-typingInput.addEventListener("cut", e => e.preventDefault());
-typingInput.addEventListener("drop", e => e.preventDefault());
+// Prevent copy/paste/drag
+["paste","copy","cut","drop"].forEach(evt => typingInput.addEventListener(evt, e => e.preventDefault()));
 
-// Initial load
-fetchRandomSentence();
-
+// Timer starts on first input
 typingInput.addEventListener("input", () => {
   if(!typingStarted){
     typingStarted = true;
     typingStartTime = Date.now();
     typingTimer = setInterval(() => {
-      const elapsed = (Date.now() - typingStartTime) / 1000;
+      const elapsed = (Date.now() - typingStartTime)/1000;
       typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
     }, 10);
   }
@@ -324,7 +314,7 @@ typingInput.addEventListener("input", () => {
       typingLeaderboard.textContent = `Best: ${typingBestTime.toFixed(2)} s`;
     }
     typingInput.disabled = true;
-    setTimeout(fetchRandomSentence, 1000); // New sentence after completing current one
+    setTimeout(fetchRandomSentence, 1000);
   }
 });
 
@@ -429,11 +419,7 @@ function resetCleanup() {
   });
 }
 
-// Wrap initial cleanup in requestAnimationFrame to prevent scroll jump
-requestAnimationFrame(() => {
-  resetCleanup();
-});
-
+requestAnimationFrame(() => resetCleanup());
 resetCleanupBtn.addEventListener("click", resetCleanup);
 
 // ===== Cursor Glow =====
@@ -444,21 +430,20 @@ document.addEventListener("mousemove", e => {
   cursorGlow.style.top = `${y}px`;
 });
 
-// Prevent initial auto-scroll to memory game
+// Prevent initial auto-scroll
 window.scrollTo(0, 0);
 
+// ===== Fullscreen Button =====
 const fullscreenBtn = document.getElementById("fullscreenBtn");
 
 fullscreenBtn.addEventListener("click", () => {
   if (!document.fullscreenElement) {
-    // Enter fullscreen
     document.documentElement.requestFullscreen().then(() => {
       fullscreenBtn.textContent = "Exit Fullscreen";
     }).catch(err => {
       console.error(`Error attempting to enable fullscreen: ${err.message}`);
     });
   } else {
-    // Exit fullscreen
     document.exitFullscreen().then(() => {
       fullscreenBtn.textContent = "Enter Fullscreen";
     }).catch(err => {
@@ -467,13 +452,8 @@ fullscreenBtn.addEventListener("click", () => {
   }
 });
 
-// Optional: update button text if user exits fullscreen manually
 document.addEventListener("fullscreenchange", () => {
   if (!document.fullscreenElement) {
     fullscreenBtn.textContent = "Enter Fullscreen";
   }
 });
-
-
-
-
