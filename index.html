@@ -38,7 +38,7 @@
       <!-- Text to Image Generator -->
       <div class="section">
         <h1>Image Generator</h1>
-        <p>Turn any prompt into an image from the colonial time!</p>
+        <p>Turn any prompt into a colonial-era image!</p>
         <input id="promptInput" type="text" placeholder="Enter a colonial scene...">
         <button id="generateBtn">Generate Image</button>
         <div id="imageContainer" class="image-container"></div>
@@ -47,7 +47,6 @@
       <!-- Avatar Generator -->
       <div class="section">
         <h1>1776 Avatar Generator</h1>
-        <p>Generate your own avatar from 1776!</p>
         <div class="dropdowns">
           <div class="dropdown-group"><label for="genderSelect">Gender:</label><select id="genderSelect"><option>Male</option><option>Female</option></select></div>
           <div class="dropdown-group"><label for="backgroundSelect">Background:</label><select id="backgroundSelect"><option>Classroom</option><option>Library</option><option>Town Square</option><option>Tavern</option><option>Courtyard</option><option>Market</option><option>Garden</option><option>Ship Deck</option></select></div>
@@ -77,7 +76,7 @@
       </div>
 
       <!-- Video Section -->
-      <div class="section" id="quizVideoSection">
+      <div class="section">
         <h1>Watch a Colonial School Day</h1>
         <video id="quizVideo" width="100%" controls>
           <source src="Schoolanimationforproject.mov" type="video/mp4">
@@ -89,8 +88,8 @@
       <div class="full-width-game" id="memoryGame">
         <h1>Colonial Memory Match</h1>
         <div class="card-grid"></div>
-        <div id="memoryScore"></div>
         <div id="memoryTimer">Time: 0.00s</div>
+        <div id="memoryLeaderboard">Best: -- s</div>
       </div>
 
       <!-- Typing Challenge -->
@@ -99,7 +98,7 @@
         <div id="sentenceDisplay"></div>
         <input type="text" id="typingInput" placeholder="Type the colonial sentence here...">
         <div id="typingScore"></div>
-        <div id="typingResetWrapper"></div>
+        <div id="typingLeaderboard">Best: -- s</div>
       </div>
 
       <!-- Classroom Cleanup -->
@@ -110,7 +109,7 @@
         <div class="classroom-board" id="classroomBoard">
           <div id="basket">🧺</div>
         </div>
-        <div id="cleanupScore"></div>
+        <div id="cleanupLeaderboard">Best: -- s</div>
       </div>
 
     </div>
@@ -132,5 +131,3 @@
 <script src="scripttwo.js"></script>
 </body>
 </html>
-
-
