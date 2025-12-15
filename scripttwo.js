@@ -286,19 +286,19 @@ async function fetchRandomSentence() {
   typingScore.textContent = "Time: 0.00s";
 }
 
+// Reset function to generate a new sentence every time
 function resetTypingChallenge() {
   clearInterval(typingTimer);
-  typingInput.value = "";
-  typingScore.textContent = "Time: 0.00s";
   fetchRandomSentence();
 }
 
-// Prevent copy, cut, paste, and drag-drop in the typing input
+// Prevent copy, cut, paste, drag-drop
 typingInput.addEventListener("paste", e => e.preventDefault());
 typingInput.addEventListener("copy", e => e.preventDefault());
 typingInput.addEventListener("cut", e => e.preventDefault());
 typingInput.addEventListener("drop", e => e.preventDefault());
 
+// Initial load
 fetchRandomSentence();
 
 typingInput.addEventListener("input", () => {
@@ -320,7 +320,7 @@ typingInput.addEventListener("input", () => {
       typingLeaderboard.textContent = `Best: ${typingBestTime.toFixed(2)} s`;
     }
     typingInput.disabled = true;
-    setTimeout(fetchRandomSentence, 1000);
+    setTimeout(fetchRandomSentence, 1000); // New sentence after completing current one
   }
 });
 
@@ -328,6 +328,7 @@ const typingResetBtn = document.getElementById("resetTypingBtn");
 if(typingResetBtn){
   typingResetBtn.addEventListener("click", resetTypingChallenge);
 }
+
 
 // ===== Classroom Cleanup =====
 let cleanupStarted = false;
@@ -442,4 +443,5 @@ document.addEventListener("mousemove", e => {
 
 // Prevent initial auto-scroll to memory game
 window.scrollTo(0, 0);
+
 
