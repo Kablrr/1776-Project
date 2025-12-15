@@ -240,7 +240,11 @@ function setupMemory() {
     memoryGrid.appendChild(card);
   });
 }
-setupMemory();
+
+// Wrap initial setup in requestAnimationFrame to prevent scroll jump
+requestAnimationFrame(() => {
+  setupMemory();
+});
 
 resetMemoryBtn.addEventListener("click", () => {
   clearInterval(memoryTimer);
@@ -398,8 +402,12 @@ function resetCleanup() {
   });
 }
 
+// Wrap initial cleanup in requestAnimationFrame to prevent scroll jump
+requestAnimationFrame(() => {
+  resetCleanup();
+});
+
 resetCleanupBtn.addEventListener("click", resetCleanup);
-resetCleanup();
 
 // ===== Cursor Glow =====
 document.addEventListener("mousemove", e => {
@@ -408,3 +416,6 @@ document.addEventListener("mousemove", e => {
   cursorGlow.style.left = `${x}px`;
   cursorGlow.style.top = `${y}px`;
 });
+
+// Prevent initial auto-scroll to memory game
+window.scrollTo(0, 0);
