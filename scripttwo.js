@@ -6,9 +6,9 @@ document.addEventListener('mousemove', e => {
 });
 
 // ===== Sounds =====
-const correctSound = new Audio('sounds/correct.mp3');
-const wrongSound = new Audio('sounds/wrong.mp3');
-const completeSound = new Audio('sounds/complete.mp3');
+const correctSound = new Audio('correct.mp3');
+const wrongSound = new Audio('wrong.mp3');
+const completeSound = new Audio('complete.mp3');
 
 // ===== Spinner Helper =====
 function createSpinner(text='May take a moment to generate...') {
@@ -26,8 +26,8 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return alert('Enter a colonial scene!');
-
   const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
+
   imageContainer.innerHTML = '';
   const spinner = createSpinner();
   imageContainer.appendChild(spinner);
@@ -39,15 +39,8 @@ generateBtn.addEventListener('click', () => {
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
 
-  img.onload = () => {
-    spinner.remove();
-    imageContainer.appendChild(img);
-    completeSound.play();
-  };
-  img.onerror = () => {
-    spinner.remove();
-    alert('Failed to generate image. Try again.');
-  };
+  img.onload = () => { spinner.remove(); imageContainer.appendChild(img); completeSound.play(); };
+  img.onerror = () => { spinner.remove(); alert('Failed to generate image. Try again.'); };
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
@@ -73,15 +66,8 @@ generateAvatarBtn.addEventListener('click', () => {
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '14px';
 
-  img.onload = () => {
-    spinner.remove();
-    avatarContainer.appendChild(img);
-    completeSound.play();
-  };
-  img.onerror = () => {
-    spinner.remove();
-    alert('Failed to generate avatar. Try again.');
-  };
+  img.onload = () => { spinner.remove(); avatarContainer.appendChild(img); completeSound.play(); };
+  img.onerror = () => { spinner.remove(); alert('Failed to generate avatar. Try again.'); };
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
@@ -99,7 +85,7 @@ const quizData = [
   {q:"Which treaty ended war?", o:["Paris","Versailles","London","Madrid"], a:"Paris"}
 ];
 
-let currentQuestion = 0, score = 0;
+let currentQuestion = 0, quizScore = 0;
 const progressContainer = document.getElementById('progressContainer');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
@@ -155,10 +141,11 @@ submitBtn.addEventListener('click', () => {
 
   if(isCorrect) correctSound.play();
   else wrongSound.play();
-
   if(!isCorrect) selected.classList.add('wrong');
 
   markProgress(isCorrect);
+  quizScore += isCorrect ? 1 : 0;
+
   submitBtn.classList.add('hidden');
   nextBtn.classList.remove('hidden');
 });
@@ -175,14 +162,14 @@ function showScore(){
   submitBtn.classList.add('hidden');
   nextBtn.classList.add('hidden');
   takeAgainBtn.classList.remove('hidden');
-  scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
+  scoreEl.textContent = `Your Score: ${quizScore} / ${quizData.length}`;
   scoreEl.classList.remove('hidden');
   completeSound.play();
 }
 
 takeAgainBtn.addEventListener('click', () => {
   currentQuestion = 0;
-  score = 0;
+  quizScore = 0;
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
   initProgressBar();
@@ -219,7 +206,7 @@ function initMemoryGame() {
 }
 
 function flipCard(card) {
-  if (memoryFlipped.length >= 2 || card.classList.contains('matched') || card.classList.contains('flipped')) return;
+  if(memoryFlipped.length >= 2 || card.classList.contains('matched') || card.classList.contains('flipped')) return;
   card.classList.add('flipped');
   memoryFlipped.push(card);
   if(memoryFlipped.length === 2) setTimeout(checkMatch, 800);
@@ -304,72 +291,59 @@ loadTypingQuote();
 const cleanupBoard = document.getElementById('classroomBoard');
 const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
-const basket = document.getElementById('basket');
-const resetBtn = document.getElementById('resetCleanupBtn');
+const cleanupBasket = document.getElementById('basket');
+const cleanupResetBtn = document.getElementById('resetCleanupBtn');
 
-// Create Start button if not present
-let startBtn = document.getElementById('startCleanupBtn');
-if (!startBtn) {
-  startBtn = document.createElement('button');
-  startBtn.id = 'startCleanupBtn';
-  startBtn.textContent = 'Start Cleanup';
-  cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
+const clutterItemsList = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
+let startCleanupTime = 0, cleanupTimerInterval, cleanupGameStarted = false;
+
+// Create Start button if missing
+let cleanupStartBtn = document.getElementById('startCleanupBtn');
+if(!cleanupStartBtn) {
+  cleanupStartBtn = document.createElement('button');
+  cleanupStartBtn.id = 'startCleanupBtn';
+  cleanupStartBtn.textContent = 'Start Cleanup';
+  cleanupBoard.parentNode.insertBefore(cleanupStartBtn, cleanupBoard);
 }
 
-const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
-let startTime = 0, timerInterval, gameStarted = false;
-
-function setupBoard() {
-  // Clear previous items
-  cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
+function setupCleanupBoard() {
+  cleanupBoard.querySelectorAll('.clutter-item').forEach(c => c.remove());
   cleanupScore.textContent = '';
   cleanupTimer.textContent = 'Time: 0.00s';
-  clearInterval(timerInterval);
-  gameStarted = false;
+  clearInterval(cleanupTimerInterval);
+  cleanupGameStarted = false;
 
-  const basketRect = basket.getBoundingClientRect();
-
-  clutterItems.forEach(emoji => {
+  clutterItemsList.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
 
-    const itemSize = 40;
-    let x, y;
-
-    do {
-      x = Math.random() * (cleanupBoard.clientWidth - itemSize);
-      y = Math.random() * (cleanupBoard.clientHeight - itemSize);
-    } while (
-      x + itemSize > basket.offsetLeft &&
-      x < basket.offsetLeft + basket.offsetWidth &&
-      y + itemSize > basket.offsetTop &&
-      y < basket.offsetTop + basket.offsetHeight
-    );
+    let x = Math.random() * (cleanupBoard.clientWidth - 40);
+    let y = Math.random() * (cleanupBoard.clientHeight - 40);
 
     div.style.position = 'absolute';
-    div.style.left = x + 'px';
-    div.style.top = y + 'px';
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
     div.style.cursor = 'grab';
     div.draggable = false;
     cleanupBoard.appendChild(div);
   });
 
-  startBtn.style.display = 'inline-block';
+  cleanupStartBtn.style.display = 'inline-block';
 }
 
-function updateTimer() {
-  if(!gameStarted) return;
-  const elapsed = ((Date.now() - startTime)/1000).toFixed(2);
+function updateCleanupTimer() {
+  if(!cleanupGameStarted) return;
+  const elapsed = ((Date.now() - startCleanupTime)/1000).toFixed(2);
   cleanupTimer.textContent = `Time: ${elapsed}s`;
 }
 
 function startCleanupGame() {
-  startBtn.style.display = 'none';
-  gameStarted = true;
-  startTime = Date.now();
-  updateTimer();
-  timerInterval = setInterval(updateTimer, 50);
+  cleanupStartBtn.style.display = 'none';
+  cleanupGameStarted = true;
+  startCleanupTime = Date.now();
+  updateCleanupTimer();
+  cleanupTimerInterval = setInterval(updateCleanupTimer,50);
 
   cleanupBoard.querySelectorAll('.clutter-item').forEach(div => {
     div.draggable = true;
@@ -377,46 +351,32 @@ function startCleanupGame() {
   });
 }
 
-basket.addEventListener('dragover', e => e.preventDefault());
-basket.addEventListener('dragenter', e => { e.preventDefault(); if(!gameStarted) return; basket.classList.add('drag-over'); });
-basket.addEventListener('dragleave', e => { e.preventDefault(); if(!gameStarted) return; basket.classList.remove('drag-over'); });
-basket.addEventListener('drop', e => {
+cleanupBasket.addEventListener('dragover', e => e.preventDefault());
+cleanupBasket.addEventListener('dragenter', e => { e.preventDefault(); if(!cleanupGameStarted) return; cleanupBasket.classList.add('drag-over'); });
+cleanupBasket.addEventListener('dragleave', e => { e.preventDefault(); cleanupBasket.classList.remove('drag-over'); });
+cleanupBasket.addEventListener('drop', e => {
   e.preventDefault();
-  if(!gameStarted) return;
+  if(!cleanupGameStarted) return;
   const emoji = e.dataTransfer.getData('text/plain');
   const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d => d.textContent === emoji);
   if(target) target.remove();
-  basket.classList.remove('drag-over');
-  checkCompletion();
-});
-
-function checkCompletion() {
-  const remaining = cleanupBoard.querySelectorAll('.clutter-item').length;
-  if(remaining === 0) {
-    clearInterval(timerInterval);
-    const totalTime = ((Date.now() - startTime)/1000).toFixed(2);
+  cleanupBasket.classList.remove('drag-over');
+  if(cleanupBoard.querySelectorAll('.clutter-item').length === 0){
+    clearInterval(cleanupTimerInterval);
+    const totalTime = ((Date.now() - startCleanupTime)/1000).toFixed(2);
     cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
     completeSound.play();
   }
-}
+});
 
-resetBtn.addEventListener('click', setupBoard);
-startBtn.addEventListener('click', startCleanupGame);
+cleanupResetBtn.addEventListener('click', setupCleanupBoard);
+cleanupStartBtn.addEventListener('click', startCleanupGame);
 
-// Initialize
-setupBoard();
-
+setupCleanupBoard();
 
 // ===== Light/Dark Mode Toggle =====
 const modeSwitch = document.getElementById('modeSwitch');
-
 modeSwitch.addEventListener('change', () => {
-  if (modeSwitch.checked) {
-    document.body.classList.add('light-mode');
-    document.body.classList.remove('dark-mode');
-  } else {
-    document.body.classList.add('dark-mode');
-    document.body.classList.remove('light-mode');
-  }
+  if (modeSwitch.checked) document.body.classList.add('light-mode');
+  else document.body.classList.remove('light-mode');
 });
-
