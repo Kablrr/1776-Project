@@ -70,7 +70,8 @@ body {
 .image-wrapper img {
   width: 100%;
   max-width: 100%;
-  height: auto; /* ensures AI images scale properly */
+  height: auto;
+  object-fit: contain; /* ensures AI images fit properly */
   border-radius: 14px;
   border: 2px solid var(--border-color);
   background: var(--parchment);
@@ -163,11 +164,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   width:100%;
   margin:20px auto 0 auto;
 }
-.dropdown-group label {
-  font-weight:bold;
-  margin-bottom:4px;
-  color: var(--text-color);
-}
+.dropdown-group label { font-weight:bold; margin-bottom:4px; color: var(--text-color); }
 
 /* ===== Quiz ===== */
 .progress-bar {
@@ -187,6 +184,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   transition: background-color 0.4s ease;
 }
 .progress-segment.correct { background-color: var(--correct-color); }
+.progress-segment.wrong { background-color: var(--wrong-color); }
 #question { font-size:1.45rem; font-weight:bold; margin-bottom:12px; }
 #answers { display:flex; flex-direction:column; align-items:center; }
 #answers button {
@@ -202,12 +200,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
 #answers button.wrong { background: var(--wrong-color); color:#fff; }
 
 /* ===== Spinner ===== */
-.spinner-wrapper {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  margin:24px auto;
-}
+.spinner-wrapper { display:flex; flex-direction:column; align-items:center; margin:24px auto; }
 .spinner {
   width:52px;
   height:52px;
@@ -243,15 +236,8 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
 #memoryGame .card-inner { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition: transform 0.5s; }
 #memoryGame .card.flipped .card-inner { transform: rotateY(180deg); }
 #memoryGame .card-front, #memoryGame .card-back {
-  position:absolute;
-  width:100%;
-  height:100%;
-  border-radius:10px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:2rem;
-  backface-visibility:hidden;
+  position:absolute; width:100%; height:100%; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; font-size:2rem; backface-visibility:hidden;
 }
 #memoryGame .card-front { background: var(--container-bg); border:2px solid var(--border-color); }
 #memoryGame .card-back { transform:rotateY(180deg); background: var(--button-grad-start); color:#fff; border:2px solid var(--border-color); }
@@ -267,7 +253,6 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   width:100%;
   max-width:650px;
   height:300px;
-  background-image: url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg');
   background-size: cover;
   background-position:center;
   border:2px solid var(--border-color);
@@ -276,14 +261,8 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   overflow:hidden;
 }
 #basket {
-  position:absolute;
-  bottom:20px;
-  right:50px;
-  font-size:64px;
-  pointer-events:auto;
-  cursor:grab;
-  transition: transform 0.2s ease;
-  z-index:10;
+  position:absolute; bottom:20px; right:50px; font-size:64px;
+  pointer-events:auto; cursor:grab; transition: transform 0.2s ease; z-index:10;
 }
 #basket.drag-over { transform: scale(1.1); }
 .clutter-item { position:absolute; font-size:32px; cursor:grab; }
