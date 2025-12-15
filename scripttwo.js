@@ -138,12 +138,10 @@ submitBtn.addEventListener("click", () => {
     selected.classList.add("wrong");
   }
 
-  // Highlight correct answers visually only
   Array.from(answersEl.children).forEach(b => {
     if(b.dataset.correct === "true") b.classList.add("correct");
   });
 
-  // Update progress
   progressContainer.innerHTML = "";
   quizData.forEach((_, i) => {
     const seg = document.createElement("div");
@@ -190,7 +188,7 @@ function startMemoryTimer(){
   memoryTime=0;
   memoryTimer=setInterval(()=>{
     memoryTime+=0.01;
-    memoryTimerEl.textContent = `Time: ${memoryTime.toFixed(2)}s`;
+    memoryTimerEl.textContent=`Time: ${memoryTime.toFixed(2)}s`;
   },10);
 }
 
@@ -206,7 +204,6 @@ function setupMemory(){
       if(card.classList.contains("flipped") || flipped.length===2) return;
       card.classList.add("flipped");
       flipped.push({card,emoji});
-
       if(flipped.length===2){
         if(flipped[0].emoji===flipped[1].emoji){
           playSfx("correct.mp3");
@@ -256,13 +253,8 @@ async function fetchRandomSentence(){
     let aiText=await response.text();
     const words=aiText.trim().split(/\s+/).slice(0,12);
     currentSentence=words.join(" ")||"Students in 1776 wrote with quills on parchment.";
-
-    // prevent repeating same sentence twice
-    if(currentSentence === lastSentence){
-      currentSentence += " (again)";
-    }
+    if(currentSentence === lastSentence) currentSentence += " (again)";
     lastSentence = currentSentence;
-
   } catch { currentSentence="Students in 1776 wrote with quills on parchment."; }
 
   sentenceDisplay.textContent=currentSentence;
@@ -289,13 +281,11 @@ typingInput.addEventListener("input",()=>{
       typingScore.textContent=`Time: ${elapsed.toFixed(2)}s`;
     },10);
   }
-
   if(typingInput.value.length===0 && typingStarted){
     clearInterval(typingTimer);
     typingStarted=false;
     typingScore.textContent="Time: 0.00s";
   }
-
   if(typingInput.value===currentSentence){
     clearInterval(typingTimer);
     const elapsed=(Date.now()-typingStartTime)/1000;
@@ -305,10 +295,7 @@ typingInput.addEventListener("input",()=>{
       typingLeaderboard.textContent=`Best: ${typingBestTime.toFixed(2)} s`;
     }
     typingInput.disabled=true;
-    setTimeout(()=>{
-      typingStarted=false;
-      fetchRandomSentence();
-    },1000);
+    setTimeout(()=>{ typingStarted=false; fetchRandomSentence(); },1000);
   }
 });
 
@@ -316,7 +303,7 @@ typingResetBtn.addEventListener("click", resetTypingChallenge);
 fetchRandomSentence();
 
 // ===== Classroom Cleanup =====
-let cleanupStarted=false, cleanupTime=0, cleanupTimer=null, cleanupBestTime=null, itemsInPlay=[];
+let cleanupStarted=false, cleanupTime=0, cleanupTimer=null, cleanupBestTime=null, itemsInPlay=[]; 
 const classroomItems=["📚","🖋️","🕯️","📜","🪑","🏺"];
 
 classroomBoard.style.backgroundImage="url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg')";
@@ -332,6 +319,78 @@ function startCleanupTimer(){
     cleanupTime+=0.01;
     cleanupTimerEl.textContent=`Time: ${cleanupTime.toFixed(2)}s`;
   },10);
+}
+
+function enableDrag(item){
+  // Desktop drag
+  item.addEventListener("mousedown", e=>{
+    e.preventDefault();
+    startCleanupTimer();
+    const boardRect=classroomBoard.getBoundingClientRect();
+    const offsetX=e.clientX-item.getBoundingClientRect().left;
+    const offsetY=e.clientY-item.getBoundingClientRect().top;
+
+    function onMouseMove(e){
+      let x=e.clientX-boardRect.left-offsetX;
+      let y=e.clientY-boardRect.top-offsetY;
+      item.style.left=`${Math.max(0,Math.min(x,boardRect.width-item.offsetWidth))}px`;
+      item.style.top=`${Math.max(0,Math.min(y,boardRect.height-item.offsetHeight))}px`;
+    }
+
+    function onMouseUp(){
+      document.removeEventListener("mousemove",onMouseMove);
+      document.removeEventListener("mouseup",onMouseUp);
+      checkDrop(item);
+    }
+
+    document.addEventListener("mousemove",onMouseMove);
+    document.addEventListener("mouseup",onMouseUp);
+  });
+
+  // Touch drag
+  item.addEventListener("touchstart", e=>{
+    e.preventDefault();
+    startCleanupTimer();
+    const touch=e.touches[0];
+    const boardRect=classroomBoard.getBoundingClientRect();
+    const offsetX=touch.clientX-item.getBoundingClientRect().left;
+    const offsetY=touch.clientY-item.getBoundingClientRect().top;
+
+    function onTouchMove(e){
+      const touch=e.touches[0];
+      let x=touch.clientX-boardRect.left-offsetX;
+      let y=touch.clientY-boardRect.top-offsetY;
+      item.style.left=`${Math.max(0,Math.min(x,boardRect.width-item.offsetWidth))}px`;
+      item.style.top=`${Math.max(0,Math.min(y,boardRect.height-item.offsetHeight))}px`;
+    }
+
+    function onTouchEnd(){
+      document.removeEventListener("touchmove",onTouchMove);
+      document.removeEventListener("touchend",onTouchEnd);
+      checkDrop(item);
+    }
+
+    document.addEventListener("touchmove",onTouchMove);
+    document.addEventListener("touchend",onTouchEnd);
+  });
+}
+
+function checkDrop(item){
+  const basketRect=basket.getBoundingClientRect();
+  const itemRect=item.getBoundingClientRect();
+  const overlapX=itemRect.left+itemRect.width/2>basketRect.left && itemRect.left+itemRect.width/2<basketRect.right;
+  const overlapY=itemRect.top+itemRect.height/2>basketRect.top && itemRect.top+itemRect.height/2<basketRect.bottom;
+  if(overlapX && overlapY){
+    classroomBoard.removeChild(item);
+    itemsInPlay=itemsInPlay.filter(i=>i!==item);
+    if(itemsInPlay.length===0){
+      clearInterval(cleanupTimer);
+      if(cleanupBestTime===null || cleanupTime<cleanupBestTime){
+        cleanupBestTime=cleanupTime;
+        cleanupLeaderboardEl.textContent=`Best: ${cleanupBestTime.toFixed(2)} s`;
+      }
+    }
+  }
 }
 
 function resetCleanup(){
@@ -356,47 +415,7 @@ function resetCleanup(){
       item.style.top=`${Math.random()*(rect.height-40)}px`;
     });
 
-    item.addEventListener("mousedown", e=>{
-      e.preventDefault();
-      startCleanupTimer();
-      const boardRect=classroomBoard.getBoundingClientRect();
-      const offsetX=e.clientX-item.getBoundingClientRect().left;
-      const offsetY=e.clientY-item.getBoundingClientRect().top;
-
-      function onMouseMove(e){
-        const x=e.clientX-boardRect.left-offsetX;
-        const y=e.clientY-boardRect.top-offsetY;
-        item.style.left=`${Math.max(0,Math.min(x,boardRect.width-40))}px`;
-        item.style.top=`${Math.max(0,Math.min(y,boardRect.height-40))}px`;
-      }
-
-      function onMouseUp(){
-        document.removeEventListener("mousemove",onMouseMove);
-        document.removeEventListener("mouseup",onMouseUp);
-        const basketRect=basket.getBoundingClientRect();
-        const itemRect=item.getBoundingClientRect();
-        const overlapX=itemRect.left+itemRect.width/2>basketRect.left &&
-                       itemRect.left+itemRect.width/2<basketRect.right;
-        const overlapY=itemRect.top+itemRect.height/2>basketRect.top &&
-                       itemRect.top+itemRect.height/2<basketRect.bottom;
-
-        if(overlapX && overlapY){
-          classroomBoard.removeChild(item);
-          itemsInPlay=itemsInPlay.filter(i=>i!==item);
-          if(itemsInPlay.length===0){
-            clearInterval(cleanupTimer);
-            if(cleanupBestTime===null||cleanupTime<cleanupBestTime){
-              cleanupBestTime=cleanupTime;
-              cleanupLeaderboardEl.textContent=`Best: ${cleanupBestTime.toFixed(2)} s`;
-            }
-          }
-        }
-      }
-
-      document.addEventListener("mousemove",onMouseMove);
-      document.addEventListener("mouseup",onMouseUp);
-    });
-
+    enableDrag(item);
     classroomBoard.appendChild(item);
     itemsInPlay.push(item);
   });
@@ -428,54 +447,3 @@ document.addEventListener("fullscreenchange", ()=>{
 });
 
 window.scrollTo(0,0);
-
-
-// ===== Touch Drag Support for Classroom Cleanup =====
-function enableTouchDrag(item) {
-  item.addEventListener("touchstart", e => {
-    e.preventDefault();
-    startCleanupTimer();
-    const touch = e.touches[0];
-    const boardRect = classroomBoard.getBoundingClientRect();
-    const offsetX = touch.clientX - item.getBoundingClientRect().left;
-    const offsetY = touch.clientY - item.getBoundingClientRect().top;
-
-    function onTouchMove(e){
-      const touch = e.touches[0];
-      let x = touch.clientX - boardRect.left - offsetX;
-      let y = touch.clientY - boardRect.top - offsetY;
-      item.style.left = `${Math.max(0, Math.min(x, boardRect.width - item.offsetWidth))}px`;
-      item.style.top = `${Math.max(0, Math.min(y, boardRect.height - item.offsetHeight))}px`;
-    }
-
-    function onTouchEnd(){
-      document.removeEventListener("touchmove", onTouchMove);
-      document.removeEventListener("touchend", onTouchEnd);
-
-      const basketRect = basket.getBoundingClientRect();
-      const itemRect = item.getBoundingClientRect();
-      const overlapX = itemRect.left + itemRect.width/2 > basketRect.left &&
-                       itemRect.left + itemRect.width/2 < basketRect.right;
-      const overlapY = itemRect.top + itemRect.height/2 > basketRect.top &&
-                       itemRect.top + itemRect.height/2 < basketRect.bottom;
-
-      if(overlapX && overlapY){
-        classroomBoard.removeChild(item);
-        itemsInPlay = itemsInPlay.filter(i => i !== item);
-        if(itemsInPlay.length===0){
-          clearInterval(cleanupTimer);
-          if(cleanupBestTime===null || cleanupTime < cleanupBestTime){
-            cleanupBestTime = cleanupTime;
-            cleanupLeaderboardEl.textContent = `Best: ${cleanupBestTime.toFixed(2)} s`;
-          }
-        }
-      }
-    }
-
-    document.addEventListener("touchmove", onTouchMove);
-    document.addEventListener("touchend", onTouchEnd);
-  });
-}
-
-// In resetCleanup(), after creating each clutter item:
-enableTouchDrag(item);
