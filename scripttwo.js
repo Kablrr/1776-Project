@@ -447,5 +447,33 @@ document.addEventListener("mousemove", e => {
 // Prevent initial auto-scroll to memory game
 window.scrollTo(0, 0);
 
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+fullscreenBtn.addEventListener("click", () => {
+  if (!document.fullscreenElement) {
+    // Enter fullscreen
+    document.documentElement.requestFullscreen().then(() => {
+      fullscreenBtn.textContent = "Exit Fullscreen";
+    }).catch(err => {
+      console.error(`Error attempting to enable fullscreen: ${err.message}`);
+    });
+  } else {
+    // Exit fullscreen
+    document.exitFullscreen().then(() => {
+      fullscreenBtn.textContent = "Enter Fullscreen";
+    }).catch(err => {
+      console.error(`Error attempting to exit fullscreen: ${err.message}`);
+    });
+  }
+});
+
+// Optional: update button text if user exits fullscreen manually
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement) {
+    fullscreenBtn.textContent = "Enter Fullscreen";
+  }
+});
+
+
 
 
