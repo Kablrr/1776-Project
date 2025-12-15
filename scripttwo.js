@@ -377,3 +377,16 @@ resetBtn.addEventListener('click', setupBoard);
 startBtn.addEventListener('click', startCleanupGame);
 
 setupBoard();
+// ===== Light/Dark Mode Toggle =====
+const modeSwitch = document.getElementById('modeSwitch');
+
+modeSwitch.addEventListener('change', () => {
+  if (modeSwitch.checked) {
+    document.body.classList.remove('dark');
+    document.body.classList.add('light');
+  } else {
+    document.body.classList.remove('light');
+    document.body.classList.add('dark');
+  }
+});
+
