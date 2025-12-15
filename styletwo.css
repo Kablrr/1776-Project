@@ -146,8 +146,27 @@ button {
   background: linear-gradient(to bottom, var(--button-grad-start), var(--button-grad-end));
   color:#fff;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+  margin:6px 0;
 }
 button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+}
+
+/* ===== Reset Buttons ===== */
+.reset-button {
+  width:100%;
+  max-width:420px;
+  background: linear-gradient(to bottom, var(--button-grad-start), var(--button-grad-end));
+  border:1px solid var(--border-color);
+  color:#fff;
+  font-weight:bold;
+  padding:12px 24px;
+  border-radius:14px;
+  cursor:pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+.reset-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(0,0,0,0.6);
 }
