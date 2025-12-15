@@ -7,13 +7,13 @@ document.addEventListener('mousemove', e => {
 
 // ===== Sounds =====
 const correctSound = new Audio('sounds/correct.mp3');
-correctSound.volume = 0.3; // slightly loud, for positive feedback
+correctSound.volume = 0.1; // slightly loud, for positive feedback
 
 const wrongSound = new Audio('sounds/wrong.mp3');
-wrongSound.volume = 0.4; // a bit softer, not harsh
+wrongSound.volume = 0.1; // a bit softer, not harsh
 
 const completeSound = new Audio('sounds/complete.mp3');
-completeSound.volume = 0.2; // quiet celebration sound
+completeSound.volume = 0.1; // quiet celebration sound
 
 // ===== Spinner Helper =====
 function createSpinner(text='May take a moment to generate...') {
@@ -413,5 +413,6 @@ modeSwitch.addEventListener('change', () => {
   if (modeSwitch.checked) document.body.classList.add('light-mode');
   else document.body.classList.remove('light-mode');
 });
+
 
 
