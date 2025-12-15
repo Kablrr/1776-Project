@@ -260,7 +260,13 @@ resetMemoryBtn.addEventListener("click", () => {
   setupMemory();
 });
 
-// ===== Typing Challenge (AI) =====
+// ===== Typing Challenge =====
+const sentenceDisplay = document.getElementById("sentenceDisplay");
+const typingInput = document.getElementById("typingInput");
+const typingScore = document.getElementById("typingScore");
+const typingLeaderboard = document.getElementById("typingLeaderboard");
+const typingResetBtn = document.getElementById("resetTypingBtn");
+
 let currentSentence = "";
 let typingStarted = false;
 let typingStartTime = 0;
@@ -288,7 +294,6 @@ async function fetchRandomSentence() {
   typingInput.disabled = false;
   typingStarted = false;
   typingStartTime = 0;
-
   clearInterval(typingTimer);
   typingScore.textContent = "Time: 0.00s";
 }
@@ -326,10 +331,11 @@ typingInput.addEventListener("input", () => {
   }
 });
 
-const typingResetBtn = document.getElementById("resetTypingBtn");
-if(typingResetBtn){
-  typingResetBtn.addEventListener("click", resetTypingChallenge);
-}
+typingResetBtn.addEventListener("click", resetTypingChallenge);
+
+// Initialize first sentence
+fetchRandomSentence();
+
 
 // ===== Classroom Cleanup =====
 let cleanupStarted = false;
@@ -465,4 +471,5 @@ document.addEventListener("fullscreenchange", () => {
     fullscreenBtn.textContent = "Enter Fullscreen";
   }
 });
+
 
