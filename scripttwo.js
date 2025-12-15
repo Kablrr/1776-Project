@@ -21,9 +21,8 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return alert('Enter a colonial scene!');
-  
-  const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
 
+  const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
   imageContainer.innerHTML = '';
   const spinner = createSpinner();
   imageContainer.appendChild(spinner);
@@ -195,14 +194,21 @@ takeAgainBtn.addEventListener('click', () => {
 initProgressBar();
 loadQuestion();
 
-// ===== Typing Challenge Revamp =====
+// ===== Typing Challenge =====
 const typingQuote = "Learn your lessons well in the colonial classroom.";
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingInput = document.getElementById('typingInput');
 const typingScore = document.getElementById('typingScore');
 const correctSoundTyping = new Audio('correct.mp3');
 
-let typingStart = null; // Start time will be set on first keystroke
+let typingStart = null;
+let typingTimerInterval = null;
+
+function updateTypingTimer() {
+  if (!typingStart) return;
+  const elapsed = ((Date.now() - typingStart) / 1000).toFixed(2);
+  typingScore.textContent = `⌛ Time: ${elapsed}s`;
+}
 
 function loadTypingQuote() {
   sentenceDisplay.innerHTML = `<span>"${typingQuote}"</span>`;
@@ -211,43 +217,44 @@ function loadTypingQuote() {
   typingStart = null;
   typingInput.disabled = false;
   typingInput.focus();
+  clearInterval(typingTimerInterval);
 }
-
-// Call to load initial sentence
-loadTypingQuote();
 
 typingInput.addEventListener('input', () => {
   const typed = typingInput.value;
 
-  // Start timer on first keystroke
-  if (!typingStart) typingStart = Date.now();
+  if (!typingStart) {
+    typingStart = Date.now();
+    typingTimerInterval = setInterval(updateTypingTimer, 50);
+  }
 
-  // Correct completion
   if (typed === typingQuote) {
     const elapsed = ((Date.now() - typingStart) / 1000).toFixed(2);
     typingScore.textContent = `✅ Perfect! Time: ${elapsed} seconds`;
-    typingScore.classList.remove('error');
+    typingInput.disabled = true;
+    clearInterval(typingTimerInterval);
     correctSoundTyping.play();
-    typingInput.disabled = true; // Stop typing until reset
-  } 
-  // Error in typing
-  else if (!typingQuote.startsWith(typed)) {
+  } else if (!typingQuote.startsWith(typed)) {
     typingScore.textContent = `❌ Typing error! Check spelling & punctuation.`;
     typingScore.classList.add('error');
-  } 
-  // In-progress, no errors
-  else {
+  } else {
     typingScore.textContent = '';
     typingScore.classList.remove('error');
   }
 });
 
-// Optional: Reset button for typing game
+typingInput.addEventListener('blur', () => clearInterval(typingTimerInterval));
+typingInput.addEventListener('focus', () => {
+  if (typingStart) typingTimerInterval = setInterval(updateTypingTimer, 50);
+});
+
 const typingResetBtn = document.createElement('button');
 typingResetBtn.textContent = 'Reset Typing';
 typingResetBtn.style.marginTop = '10px';
 typingResetBtn.addEventListener('click', loadTypingQuote);
 sentenceDisplay.parentNode.appendChild(typingResetBtn);
+
+loadTypingQuote();
 
 // ===== Memory Match =====
 const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
@@ -308,28 +315,23 @@ function checkMatch() {
 
 initMemoryGame();
 
-// ===== Classroom Cleanup Game =====
+// ===== Classroom Cleanup =====
 const cleanupBoard = document.getElementById('classroomBoard');
 const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
 const resetBtn = document.getElementById('resetCleanupBtn');
 const basket = document.getElementById('basket');
 
-// Create Start button dynamically
 const startBtn = document.createElement('button');
 startBtn.textContent = 'Start Cleanup';
 startBtn.id = 'startCleanupBtn';
 cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
 
 const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
+let startTime = 0, timerInterval, gameStarted = false;
 
-let startTime = 0;
-let timerInterval;
-let gameStarted = false;
-
-// ===== Setup Board =====
 function setupBoard() {
-  cleanupBoard.innerHTML = '';
+  cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
   cleanupScore.textContent = '';
   cleanupTimer.textContent = `Time: 0.00s`;
   clearInterval(timerInterval);
@@ -339,12 +341,10 @@ function setupBoard() {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
-
     const maxX = cleanupBoard.clientWidth - 40;
     const maxY = cleanupBoard.clientHeight - 40;
     div.style.left = Math.random() * maxX + 'px';
     div.style.top = Math.random() * maxY + 'px';
-
     div.draggable = false;
     cleanupBoard.appendChild(div);
   });
@@ -352,14 +352,12 @@ function setupBoard() {
   startBtn.style.display = 'inline-block';
 }
 
-// ===== Timer =====
 function updateTimer() {
   if (!gameStarted) return;
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
   cleanupTimer.textContent = `Time: ${elapsed}s`;
 }
 
-// ===== Start Game =====
 function startCleanupGame() {
   startBtn.style.display = 'none';
   gameStarted = true;
@@ -369,41 +367,23 @@ function startCleanupGame() {
 
   cleanupBoard.querySelectorAll('.clutter-item').forEach(div => {
     div.draggable = true;
-    div.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', div.textContent);
-    });
+    div.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', div.textContent));
   });
 }
 
-// ===== Basket Drag & Drop =====
 basket.addEventListener('dragover', e => e.preventDefault());
-
-basket.addEventListener('dragenter', e => {
-  e.preventDefault();
-  if (!gameStarted) return;
-  basket.classList.add('drag-over');
-});
-
-basket.addEventListener('dragleave', e => {
-  e.preventDefault();
-  if (!gameStarted) return;
-  basket.classList.remove('drag-over');
-});
-
+basket.addEventListener('dragenter', e => { e.preventDefault(); if (!gameStarted) return; basket.classList.add('drag-over'); });
+basket.addEventListener('dragleave', e => { e.preventDefault(); if (!gameStarted) return; basket.classList.remove('drag-over'); });
 basket.addEventListener('drop', e => {
   e.preventDefault();
   if (!gameStarted) return;
-
   const emoji = e.dataTransfer.getData('text/plain');
-  const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item'))
-                     .find(d => d.textContent === emoji);
+  const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d => d.textContent === emoji);
   if (target) target.remove();
-
   basket.classList.remove('drag-over');
   checkCompletion();
 });
 
-// ===== Check Completion =====
 function checkCompletion() {
   const remaining = cleanupBoard.querySelectorAll('.clutter-item').length;
   if (remaining === 0) {
@@ -413,15 +393,7 @@ function checkCompletion() {
   }
 }
 
-// ===== Reset =====
 resetBtn.addEventListener('click', setupBoard);
 startBtn.addEventListener('click', startCleanupGame);
 
-// Initialize board
 setupBoard();
-
-
-
-
-
-
