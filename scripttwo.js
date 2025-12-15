@@ -5,8 +5,13 @@ document.addEventListener('mousemove', e => {
   cursorGlow.style.left = `${e.clientX}px`;
 });
 
+// ===== Sounds =====
+const correctSound = new Audio('sounds/correct.mp3');
+const wrongSound = new Audio('sounds/wrong.mp3');
+const completeSound = new Audio('sounds/complete.mp3');
+
 // ===== Spinner Helper =====
-function createSpinner(text = 'May take a moment to generate...') {
+function createSpinner(text='May take a moment to generate...') {
   const wrapper = document.createElement('div');
   wrapper.className = 'spinner-wrapper';
   wrapper.innerHTML = `<div class="spinner"></div><div class="spinner-text">${text}</div>`;
@@ -37,6 +42,7 @@ generateBtn.addEventListener('click', () => {
   img.onload = () => {
     spinner.remove();
     imageContainer.appendChild(img);
+    completeSound.play();
   };
   img.onerror = () => {
     spinner.remove();
@@ -70,6 +76,7 @@ generateAvatarBtn.addEventListener('click', () => {
   img.onload = () => {
     spinner.remove();
     avatarContainer.appendChild(img);
+    completeSound.play();
   };
   img.onerror = () => {
     spinner.remove();
@@ -92,8 +99,7 @@ const quizData = [
   {q:"Which treaty ended war?", o:["Paris","Versailles","London","Madrid"], a:"Paris"}
 ];
 
-let currentQuestion = 0;
-let score = 0;
+let currentQuestion = 0, score = 0;
 const progressContainer = document.getElementById('progressContainer');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
@@ -134,19 +140,22 @@ function loadQuestion() {
 
 function markProgress(isCorrect) {
   const segments = document.querySelectorAll('.progress-segment');
-  if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? 'var(--correct-color)' : 'var(--wrong-color)';
+  if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4f7c4a' : '#8c3a2b';
 }
 
 submitBtn.addEventListener('click', () => {
   const selected = document.querySelector('#answers button.selected');
   if(!selected) return;
   const isCorrect = selected.textContent === quizData[currentQuestion].a;
-  if(isCorrect) score++;
 
   Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
     btn.disabled = true;
     if(btn.textContent === quizData[currentQuestion].a) btn.classList.add('correct');
   });
+
+  if(isCorrect) correctSound.play();
+  else wrongSound.play();
+
   if(!isCorrect) selected.classList.add('wrong');
 
   markProgress(isCorrect);
@@ -160,7 +169,7 @@ nextBtn.addEventListener('click', () => {
   else loadQuestion();
 });
 
-function showScore() {
+function showScore(){
   questionEl.textContent = 'Quiz Completed!';
   answersEl.innerHTML = '';
   submitBtn.classList.add('hidden');
@@ -168,6 +177,7 @@ function showScore() {
   takeAgainBtn.classList.remove('hidden');
   scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
   scoreEl.classList.remove('hidden');
+  completeSound.play();
 }
 
 takeAgainBtn.addEventListener('click', () => {
@@ -186,8 +196,7 @@ loadQuestion();
 const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
 let memoryDeck = [...memoryEmojis, ...memoryEmojis];
 const memoryGrid = document.querySelector('#memoryGame .card-grid');
-let memoryFlipped = [];
-let memoryMatches = 0;
+let memoryFlipped = [], memoryMatches = 0;
 
 function shuffle(array){ return array.sort(() => Math.random() - 0.5); }
 
@@ -227,7 +236,10 @@ function checkMatch() {
     c2.classList.remove('flipped');
   }
   memoryFlipped = [];
-  if(memoryMatches === memoryEmojis.length) document.getElementById('memoryScore').textContent = '🎉 You matched all cards! 🎉';
+  if(memoryMatches === memoryEmojis.length) {
+    document.getElementById('memoryScore').textContent = '🎉 You matched all cards! 🎉';
+    completeSound.play();
+  }
 }
 
 initMemoryGame();
@@ -265,13 +277,21 @@ typingInput.addEventListener('input', () => {
     typingScore.textContent = `✅ Perfect! Time: ${elapsed} seconds`;
     typingInput.disabled = true;
     clearInterval(typingTimerInterval);
+    completeSound.play();
   } else if(!typingQuote.startsWith(typed)) {
     typingScore.textContent = '❌ Typing error! Check spelling & punctuation.';
     typingScore.classList.add('error');
+    wrongSound.play();
   } else typingScore.classList.remove('error');
 });
 
 typingInput.addEventListener('blur', () => clearInterval(typingTimerInterval));
+typingInput.addEventListener('focus', () => {
+  if(typingStart) typingTimerInterval = setInterval(() => {
+    const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
+    typingScore.textContent = `⌛ Time: ${elapsed}s`;
+  },50);
+});
 
 const typingResetBtn = document.createElement('button');
 typingResetBtn.textContent = 'Reset Typing';
@@ -286,12 +306,10 @@ const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
 const resetBtn = document.getElementById('resetCleanupBtn');
 const basket = document.getElementById('basket');
-const startBtn = document.createElement('button');
-startBtn.textContent = 'Start Cleanup';
-cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
+const startBtn = document.getElementById('startCleanupBtn') || document.createElement('button');
 
 const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
-let startTime = 0, timerInterval = null, gameStarted = false;
+let startTime = 0, timerInterval, gameStarted = false;
 
 function setupBoard() {
   cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
@@ -300,13 +318,27 @@ function setupBoard() {
   clearInterval(timerInterval);
   gameStarted = false;
 
+  const basketRect = basket.getBoundingClientRect();
+  const boardRect = cleanupBoard.getBoundingClientRect();
+
   clutterItems.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
+
     const itemSize = 40;
-    let x = Math.random() * (cleanupBoard.clientWidth - itemSize);
-    let y = Math.random() * (cleanupBoard.clientHeight - itemSize);
+    let x, y;
+
+    do {
+      x = Math.random() * (cleanupBoard.clientWidth - itemSize);
+      y = Math.random() * (cleanupBoard.clientHeight - itemSize);
+    } while (
+      x + itemSize > basket.offsetLeft &&
+      x < basket.offsetLeft + basket.offsetWidth &&
+      y + itemSize > basket.offsetTop &&
+      y < basket.offsetTop + basket.offsetHeight
+    );
+
     div.style.left = x + 'px';
     div.style.top = y + 'px';
     div.draggable = false;
@@ -336,27 +368,42 @@ function startCleanupGame() {
 }
 
 basket.addEventListener('dragover', e => e.preventDefault());
-basket.addEventListener('dragenter', e => { e.preventDefault(); basket.classList.add('drag-over'); });
-basket.addEventListener('dragleave', e => { e.preventDefault(); basket.classList.remove('drag-over'); });
+basket.addEventListener('dragenter', e => { e.preventDefault(); if(!gameStarted) return; basket.classList.add('drag-over'); });
+basket.addEventListener('dragleave', e => { e.preventDefault(); if(!gameStarted) return; basket.classList.remove('drag-over'); });
 basket.addEventListener('drop', e => {
   e.preventDefault();
+  if(!gameStarted) return;
   const emoji = e.dataTransfer.getData('text/plain');
   const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d => d.textContent === emoji);
   if(target) target.remove();
   basket.classList.remove('drag-over');
-  if(cleanupBoard.querySelectorAll('.clutter-item').length === 0){
+  checkCompletion();
+});
+
+function checkCompletion() {
+  const remaining = cleanupBoard.querySelectorAll('.clutter-item').length;
+  if(remaining === 0) {
     clearInterval(timerInterval);
     const totalTime = ((Date.now() - startTime)/1000).toFixed(2);
     cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
+    completeSound.play();
   }
-});
+}
 
 resetBtn.addEventListener('click', setupBoard);
 startBtn.addEventListener('click', startCleanupGame);
+
 setupBoard();
 
 // ===== Light/Dark Mode Toggle =====
 const modeSwitch = document.getElementById('modeSwitch');
+
 modeSwitch.addEventListener('change', () => {
-  document.body.classList.toggle('light-mode', modeSwitch.checked);
+  if (modeSwitch.checked) {
+    document.body.classList.add('light-mode');
+    document.body.classList.remove('dark-mode');
+  } else {
+    document.body.classList.add('dark-mode');
+    document.body.classList.remove('light-mode');
+  }
 });
