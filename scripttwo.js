@@ -1,3 +1,7 @@
+/* ===============================
+   Kabir Malhi - 1776 Project JS
+   =============================== */
+
 /* ===== Light/Dark Mode ===== */
 const modeSwitch = document.getElementById('modeSwitch');
 modeSwitch.addEventListener('change', () => {
@@ -12,21 +16,18 @@ document.addEventListener('mousemove', e => {
 });
 
 /* ===== Image Generator ===== */
+const promptInput = document.getElementById('promptInput');
 const generateBtn = document.getElementById('generateBtn');
 const imageContainer = document.getElementById('imageContainer');
 
 generateBtn.addEventListener('click', () => {
-  const prompt = document.getElementById('promptInput').value.trim();
-  if (!prompt) return;
-  
-  imageContainer.innerHTML = `<div class="spinner-wrapper">
-    <div class="spinner"></div>
-    <div class="spinner-text">Generating image for "${prompt}"...</div>
-  </div>`;
-  
+  const prompt = promptInput.value.trim();
+  if (!prompt) return alert('Enter a prompt!');
+  imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image...</div></div>`;
+  // Simulate async image generation
   setTimeout(() => {
-    imageContainer.innerHTML = `<img src="https://via.placeholder.com/400x300?text=${encodeURIComponent(prompt)}" alt="Generated Image">`;
-  }, 1200);
+    imageContainer.innerHTML = `<img src="https://via.placeholder.com/400x250?text=${encodeURIComponent(prompt)}" alt="Generated Image">`;
+  }, 1500);
 });
 
 /* ===== Avatar Generator ===== */
@@ -41,27 +42,31 @@ generateAvatarBtn.addEventListener('click', () => {
   const accessory = document.getElementById('accessorySelect').value;
   const hair = document.getElementById('hairSelect').value;
   const age = document.getElementById('ageSelect').value;
-  const heritage = document.getElementById('raceSelect').value;
+  const race = document.getElementById('raceSelect').value;
 
-  // Placeholder avatar image
-  avatarContainer.innerHTML = `<img src="https://via.placeholder.com/200x300?text=${encodeURIComponent(gender+'+'+outfit+'+'+background+'+'+hat+'+'+accessory+'+'+hair+'+'+age+'+'+heritage)}" alt="Avatar">`;
+  avatarContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating avatar...</div></div>`;
+  setTimeout(() => {
+    const avatarText = `${gender}, ${age}, ${race}, ${hair} hair, ${hat}, ${outfit}, ${accessory}, ${background}`;
+    avatarContainer.innerHTML = `<div style="padding:20px; border:2px solid #6e4b2f; background: #2a231f; border-radius:12px; color:#d8c9b4;">${avatarText}</div>`;
+  }, 1000);
 });
 
 /* ===== Quiz ===== */
 const quizData = [
-  { q: "Year Declaration of Independence was signed?", a: ["1775","1776","1777","1781"], correct: 1 },
-  { q: "Commander of Continental Army?", a: ["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], correct: 2 },
-  { q: "Document ending Revolutionary War?", a: ["Bill of Rights","Treaty of Paris","Articles of Confederation","Constitution"], correct: 1 },
-  { q: "Which city was first capital of USA?", a: ["Philadelphia","New York","Boston","Washington DC"], correct: 0 },
-  { q: "Who wrote most of the Declaration?", a: ["Jefferson","Adams","Washington","Franklin"], correct: 0 },
-  { q: "What was the first US national flag called?", a: ["Stars and Stripes","Grand Union","Betsy Ross Flag","Gadsden Flag"], correct: 1 },
-  { q: "What year did the Revolutionary War start?", a: ["1774","1775","1776","1777"], correct: 1 },
-  { q: "Who was the primary author of the Articles of Confederation?", a: ["John Dickinson","Thomas Paine","Benjamin Franklin","Alexander Hamilton"], correct: 0 },
-  { q: "Which battle is considered the turning point of the war?", a: ["Bunker Hill","Saratoga","Yorktown","Trenton"], correct: 1 },
-  { q: "Which treaty officially recognized US independence?", a: ["Treaty of Paris","Treaty of Versailles","Treaty of Ghent","Jay Treaty"], correct: 0 }
+  { q: "When was the Declaration of Independence signed?", a: ["1776","1789","1765","1800"], correct: 0 },
+  { q: "Who was the first President of the United States?", a: ["George Washington","John Adams","Thomas Jefferson","Benjamin Franklin"], correct: 0 },
+  { q: "Which battle was the first major conflict of the Revolutionary War?", a: ["Lexington and Concord","Bunker Hill","Yorktown","Saratoga"], correct: 0 },
+  { q: "Which act imposed taxes on paper goods?", a: ["Stamp Act","Tea Act","Intolerable Acts","Sugar Act"], correct: 0 },
+  { q: "Who wrote Common Sense?", a: ["Thomas Paine","Benjamin Franklin","John Locke","James Madison"], correct: 0 },
+  { q: "Which country helped the US in the Revolutionary War?", a: ["France","Spain","Netherlands","Germany"], correct: 0 },
+  { q: "Which treaty ended the Revolutionary War?", a: ["Treaty of Paris 1783","Treaty of Versailles","Jay Treaty","Treaty of Ghent"], correct: 0 },
+  { q: "Where did Washington cross to surprise the Hessians?", a: ["Delaware River","Hudson River","Potomac River","Mississippi River"], correct: 0 },
+  { q: "Which document governed the US before the Constitution?", a: ["Articles of Confederation","Bill of Rights","Declaration of Independence","Federalist Papers"], correct: 0 },
+  { q: "Which city was the first US capital?", a: ["New York","Philadelphia","Boston","Washington D.C."], correct: 0 },
 ];
 
 let currentQuestion = 0;
+let selectedAnswer = null;
 let score = 0;
 
 const questionEl = document.getElementById('question');
@@ -70,57 +75,62 @@ const submitBtn = document.getElementById('submitBtn');
 const nextBtn = document.getElementById('nextBtn');
 const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
+const progressContainer = document.getElementById('progressContainer');
 
 function loadQuestion() {
-  const q = quizData[currentQuestion];
-  questionEl.textContent = q.q;
+  selectedAnswer = null;
+  submitBtn.disabled = true;
+  nextBtn.classList.add('hidden');
+
+  const qData = quizData[currentQuestion];
+  questionEl.textContent = qData.q;
   answersEl.innerHTML = '';
-  
-  q.a.forEach((answer, idx) => {
+  qData.a.forEach((ans, i) => {
     const btn = document.createElement('button');
-    btn.textContent = answer;
+    btn.textContent = ans;
     btn.addEventListener('click', () => {
+      selectedAnswer = i;
       Array.from(answersEl.children).forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       submitBtn.disabled = false;
     });
     answersEl.appendChild(btn);
   });
-  
-  submitBtn.disabled = true;
-  nextBtn.classList.add('hidden');
+
+  // Progress bar
+  progressContainer.innerHTML = '';
+  quizData.forEach((_, i) => {
+    const seg = document.createElement('div');
+    seg.classList.add('progress-segment');
+    if(i < currentQuestion) seg.style.backgroundColor = '#4f7c4a';
+    progressContainer.appendChild(seg);
+  });
 }
 
 submitBtn.addEventListener('click', () => {
-  const selected = Array.from(answersEl.children).find(b => b.classList.contains('selected'));
-  if (!selected) return;
-  const q = quizData[currentQuestion];
-  const selectedIndex = Array.from(answersEl.children).indexOf(selected);
-
-  if (selectedIndex === q.correct) {
-    selected.classList.add('correct');
-    score++;
-  } else {
-    selected.classList.add('wrong');
-    answersEl.children[q.correct].classList.add('correct');
-  }
-
+  const qData = quizData[currentQuestion];
+  Array.from(answersEl.children).forEach((btn, i) => {
+    if(i === qData.correct) btn.classList.add('correct');
+    if(i === selectedAnswer && selectedAnswer !== qData.correct) btn.classList.add('wrong');
+  });
+  if(selectedAnswer === qData.correct) score++;
   submitBtn.classList.add('hidden');
   nextBtn.classList.remove('hidden');
 });
 
 nextBtn.addEventListener('click', () => {
   currentQuestion++;
-  if (currentQuestion < quizData.length) {
+  if(currentQuestion < quizData.length){
     loadQuestion();
     submitBtn.classList.remove('hidden');
   } else {
-    questionEl.textContent = "Quiz Completed!";
+    questionEl.textContent = '';
     answersEl.innerHTML = '';
-    scoreEl.textContent = `Your score: ${score}/${quizData.length}`;
+    progressContainer.innerHTML = '';
+    scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
     scoreEl.classList.remove('hidden');
-    nextBtn.classList.add('hidden');
     takeAgainBtn.classList.remove('hidden');
+    nextBtn.classList.add('hidden');
   }
 });
 
@@ -129,114 +139,130 @@ takeAgainBtn.addEventListener('click', () => {
   score = 0;
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
-  submitBtn.classList.remove('hidden');
   loadQuestion();
+  submitBtn.classList.remove('hidden');
 });
 
-loadQuestion();
-
-/* ===== Memory Match with Reset ===== */
+/* ===== Memory Match ===== */
 const memoryGrid = document.querySelector('#memoryGame .card-grid');
-const memoryTimerEl = document.getElementById('memoryTimer');
-const memoryResetBtn = document.createElement('button');
-memoryResetBtn.textContent = 'Reset';
-memoryResetBtn.style.marginTop = '10px';
-document.getElementById('memoryGame').appendChild(memoryResetBtn);
+let memoryCards = [];
+let memoryFlipped = [];
+let memoryMatched = 0;
 
-let memoryCards = ['🍎','🍌','🍒','🍇','🍎','🍌','🍒','🍇'];
-let memoryTimer, memoryStartTime;
-let flipped = [];
-let matched = [];
+function createMemoryCards() {
+  const values = [...Array(8).keys(), ...Array(8).keys()]; // 8 pairs
+  values.sort(() => Math.random() - 0.5);
 
-function shuffle(array){ return array.sort(() => Math.random()-0.5); }
-
-function startMemoryGame(){
   memoryGrid.innerHTML = '';
-  flipped = []; matched = [];
-  const cards = shuffle(memoryCards.slice());
-  cards.forEach(symbol => {
-    const card = document.createElement('div'); card.className = 'card';
-    const inner = document.createElement('div'); inner.className='card-inner';
-    const front = document.createElement('div'); front.className='card-front';
-    const back = document.createElement('div'); back.className='card-back';
-    front.textContent = '?'; back.textContent = symbol;
-    inner.appendChild(front); inner.appendChild(back);
+  memoryCards = [];
+  memoryFlipped = [];
+  memoryMatched = 0;
+
+  values.forEach(val => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const inner = document.createElement('div');
+    inner.className = 'card-inner';
+    const front = document.createElement('div');
+    front.className = 'card-front';
+    front.textContent = '?';
+    const back = document.createElement('div');
+    back.className = 'card-back';
+    back.textContent = val + 1;
+    inner.appendChild(front);
+    inner.appendChild(back);
     card.appendChild(inner);
-    card.addEventListener('click', () => flipMemoryCard(card, symbol));
+
+    card.addEventListener('click', () => {
+      if(memoryFlipped.length < 2 && !card.classList.contains('flipped')){
+        card.classList.add('flipped');
+        memoryFlipped.push({card, val});
+        if(memoryFlipped.length === 2){
+          setTimeout(checkMemoryMatch, 500);
+        }
+      }
+    });
+
+    memoryCards.push(card);
     memoryGrid.appendChild(card);
   });
-  memoryStartTime = Date.now();
-  clearInterval(memoryTimer);
-  memoryTimer = setInterval(() => {
-    const t = ((Date.now() - memoryStartTime)/1000).toFixed(2);
-    memoryTimerEl.textContent = `Time: ${t}s`;
-  },100);
 }
 
-function flipMemoryCard(card,symbol){
-  if(flipped.length>=2 || matched.includes(symbol)) return;
-  card.classList.add('flipped'); flipped.push({card,symbol});
-  if(flipped.length===2){
-    setTimeout(() => {
-      if(flipped[0].symbol === flipped[1].symbol){
-        matched.push(flipped[0].symbol);
-      } else {
-        flipped[0].card.classList.remove('flipped');
-        flipped[1].card.classList.remove('flipped');
-      }
-      flipped=[];
-      if(matched.length===memoryCards.length/2){ clearInterval(memoryTimer); }
-    },600);
-  }
-}
-
-memoryResetBtn.addEventListener('click', startMemoryGame);
-startMemoryGame();
-
-/* ===== Typing Challenge with Reset ===== */
-const sentenceDisplay = document.getElementById('sentenceDisplay');
-const typingInput = document.getElementById('typingInput');
-const typingScoreEl = document.getElementById('typingScore');
-const typingResetBtn = document.createElement('button');
-typingResetBtn.textContent = 'Reset';
-document.getElementById('typingGame').appendChild(typingResetBtn);
-
-let typingSentence = "The colonial school children wrote with quills.";
-
-function startTypingGame(){
-  sentenceDisplay.textContent = typingSentence;
-  typingInput.value = '';
-  typingScoreEl.textContent = '';
-}
-
-typingInput.addEventListener('input', () => {
-  const value = typingInput.value;
-  if(typingSentence.startsWith(value)){
-    typingScoreEl.textContent = `Progress: ${value.length}/${typingSentence.length}`;
-    typingScoreEl.classList.remove('error');
+function checkMemoryMatch(){
+  const [first, second] = memoryFlipped;
+  if(first.val === second.val){
+    memoryMatched += 2;
   } else {
-    typingScoreEl.textContent = 'Typing Error!';
-    typingScoreEl.classList.add('error');
+    first.card.classList.remove('flipped');
+    second.card.classList.remove('flipped');
+  }
+  memoryFlipped = [];
+}
+
+createMemoryCards();
+
+/* ===== Typing Challenge ===== */
+const typingInput = document.getElementById('typingInput');
+const sentenceDisplay = document.getElementById('sentenceDisplay');
+const typingScore = document.getElementById('typingScore');
+
+const sentences = [
+  "The sun rises over the colonial town.",
+  "George Washington led his troops across the river.",
+  "Colonists gathered to discuss independence.",
+  "The market was busy with merchants and buyers.",
+  "Children studied in the colonial schoolhouse."
+];
+let currentSentence = "";
+function loadTypingSentence(){
+  currentSentence = sentences[Math.floor(Math.random()*sentences.length)];
+  sentenceDisplay.textContent = currentSentence;
+  typingInput.value = '';
+  typingScore.textContent = '';
+}
+typingInput.addEventListener('input', () => {
+  if(typingInput.value === currentSentence){
+    typingScore.textContent = 'Correct!';
+    loadTypingSentence();
+  }
+});
+loadTypingSentence();
+
+/* ===== Classroom Cleanup ===== */
+const classroomBoard = document.getElementById('classroomBoard');
+const basket = document.getElementById('basket');
+
+let draggingItem = null;
+document.addEventListener('mousedown', e => {
+  if(e.target.classList.contains('clutter-item')) draggingItem = e.target;
+});
+document.addEventListener('mouseup', e => {
+  if(draggingItem){
+    const rect = basket.getBoundingClientRect();
+    const itemRect = draggingItem.getBoundingClientRect();
+    if(itemRect.left + itemRect.width/2 > rect.left && itemRect.left + itemRect.width/2 < rect.right &&
+       itemRect.top + itemRect.height/2 > rect.top && itemRect.top + itemRect.height/2 < rect.bottom){
+      draggingItem.remove();
+    }
+    draggingItem = null;
+  }
+});
+document.addEventListener('mousemove', e => {
+  if(draggingItem){
+    draggingItem.style.left = e.clientX - classroomBoard.offsetLeft - draggingItem.offsetWidth/2 + 'px';
+    draggingItem.style.top = e.clientY - classroomBoard.offsetTop - draggingItem.offsetHeight/2 + 'px';
   }
 });
 
-typingResetBtn.addEventListener('click', startTypingGame);
-startTypingGame();
+/* ===== Reset Buttons ===== */
+const resetMemoryBtn = document.createElement('button');
+resetMemoryBtn.textContent = 'Reset Memory Game';
+resetMemoryBtn.style.marginTop = '10px';
+memoryGrid.parentElement.appendChild(resetMemoryBtn);
+resetMemoryBtn.addEventListener('click', createMemoryCards);
 
-/* ===== Classroom Cleanup ===== */
-const cleanupBoard = document.getElementById('classroomBoard');
-const cleanupTimerEl = document.getElementById('cleanupTimer');
-const resetCleanupBtn = document.getElementById('resetCleanupBtn');
-let cleanupStartTime, cleanupTimer;
-
-function startCleanup(){
-  cleanupBoard.innerHTML = '<div id="basket">🧺</div>';
-  cleanupStartTime = Date.now();
-  clearInterval(cleanupTimer);
-  cleanupTimer = setInterval(() => {
-    const t = ((Date.now() - cleanupStartTime)/1000).toFixed(2);
-    cleanupTimerEl.textContent = `Time: ${t}s`;
-  },100);
-}
-resetCleanupBtn.addEventListener('click', startCleanup);
-startCleanup();
+const resetTypingBtn = document.createElement('button');
+resetTypingBtn.textContent = 'Reset Typing Challenge';
+resetTypingBtn.style.marginTop = '10px';
+typingInput.parentElement.appendChild(resetTypingBtn);
+resetTypingBtn.addEventListener('click', loadTypingSentence);
