@@ -291,59 +291,72 @@ loadTypingQuote();
 const cleanupBoard = document.getElementById('classroomBoard');
 const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
-const cleanupBasket = document.getElementById('basket');
-const cleanupResetBtn = document.getElementById('resetCleanupBtn');
+const basket = document.getElementById('basket');
+const resetBtn = document.getElementById('resetCleanupBtn');
 
-const clutterItemsList = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
-let startCleanupTime = 0, cleanupTimerInterval, cleanupGameStarted = false;
-
-// Create Start button if missing
-let cleanupStartBtn = document.getElementById('startCleanupBtn');
-if(!cleanupStartBtn) {
-  cleanupStartBtn = document.createElement('button');
-  cleanupStartBtn.id = 'startCleanupBtn';
-  cleanupStartBtn.textContent = 'Start Cleanup';
-  cleanupBoard.parentNode.insertBefore(cleanupStartBtn, cleanupBoard);
+// Create Start button if not present
+let startBtn = document.getElementById('startCleanupBtn');
+if (!startBtn) {
+  startBtn = document.createElement('button');
+  startBtn.id = 'startCleanupBtn';
+  startBtn.textContent = 'Start Cleanup';
+  cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
 }
 
-function setupCleanupBoard() {
-  cleanupBoard.querySelectorAll('.clutter-item').forEach(c => c.remove());
+const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
+let startTime = 0, timerInterval, gameStarted = false;
+
+function setupBoard() {
+  // Clear previous items
+  cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
   cleanupScore.textContent = '';
   cleanupTimer.textContent = 'Time: 0.00s';
-  clearInterval(cleanupTimerInterval);
-  cleanupGameStarted = false;
+  clearInterval(timerInterval);
+  gameStarted = false;
 
-  clutterItemsList.forEach(emoji => {
+  const basketRect = basket.getBoundingClientRect();
+
+  clutterItems.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
 
-    let x = Math.random() * (cleanupBoard.clientWidth - 40);
-    let y = Math.random() * (cleanupBoard.clientHeight - 40);
+    const itemSize = 40;
+    let x, y;
+
+    do {
+      x = Math.random() * (cleanupBoard.clientWidth - itemSize);
+      y = Math.random() * (cleanupBoard.clientHeight - itemSize - 60); // avoid basket area
+    } while (
+      x + itemSize > basket.offsetLeft &&
+      x < basket.offsetLeft + basket.offsetWidth &&
+      y + itemSize > basket.offsetTop &&
+      y < basket.offsetTop + basket.offsetHeight
+    );
 
     div.style.position = 'absolute';
-    div.style.left = `${x}px`;
-    div.style.top = `${y}px`;
+    div.style.left = x + 'px';
+    div.style.top = y + 'px';
     div.style.cursor = 'grab';
     div.draggable = false;
     cleanupBoard.appendChild(div);
   });
 
-  cleanupStartBtn.style.display = 'inline-block';
+  startBtn.style.display = 'inline-block';
 }
 
-function updateCleanupTimer() {
-  if(!cleanupGameStarted) return;
-  const elapsed = ((Date.now() - startCleanupTime)/1000).toFixed(2);
+function updateTimer() {
+  if(!gameStarted) return;
+  const elapsed = ((Date.now() - startTime)/1000).toFixed(2);
   cleanupTimer.textContent = `Time: ${elapsed}s`;
 }
 
 function startCleanupGame() {
-  cleanupStartBtn.style.display = 'none';
-  cleanupGameStarted = true;
-  startCleanupTime = Date.now();
-  updateCleanupTimer();
-  cleanupTimerInterval = setInterval(updateCleanupTimer,50);
+  startBtn.style.display = 'none';
+  gameStarted = true;
+  startTime = Date.now();
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 50);
 
   cleanupBoard.querySelectorAll('.clutter-item').forEach(div => {
     div.draggable = true;
@@ -351,28 +364,43 @@ function startCleanupGame() {
   });
 }
 
-cleanupBasket.addEventListener('dragover', e => e.preventDefault());
-cleanupBasket.addEventListener('dragenter', e => { e.preventDefault(); if(!cleanupGameStarted) return; cleanupBasket.classList.add('drag-over'); });
-cleanupBasket.addEventListener('dragleave', e => { e.preventDefault(); cleanupBasket.classList.remove('drag-over'); });
-cleanupBasket.addEventListener('drop', e => {
+basket.addEventListener('dragover', e => e.preventDefault());
+basket.addEventListener('dragenter', e => { 
+  e.preventDefault(); 
+  if(!gameStarted) return; 
+  basket.classList.add('drag-over'); 
+});
+basket.addEventListener('dragleave', e => { 
+  e.preventDefault(); 
+  if(!gameStarted) return; 
+  basket.classList.remove('drag-over'); 
+});
+basket.addEventListener('drop', e => {
   e.preventDefault();
-  if(!cleanupGameStarted) return;
+  if(!gameStarted) return;
   const emoji = e.dataTransfer.getData('text/plain');
   const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d => d.textContent === emoji);
   if(target) target.remove();
-  cleanupBasket.classList.remove('drag-over');
-  if(cleanupBoard.querySelectorAll('.clutter-item').length === 0){
-    clearInterval(cleanupTimerInterval);
-    const totalTime = ((Date.now() - startCleanupTime)/1000).toFixed(2);
+  basket.classList.remove('drag-over');
+  checkCompletion();
+});
+
+function checkCompletion() {
+  const remaining = cleanupBoard.querySelectorAll('.clutter-item').length;
+  if(remaining === 0) {
+    clearInterval(timerInterval);
+    const totalTime = ((Date.now() - startTime)/1000).toFixed(2);
     cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
     completeSound.play();
   }
-});
+}
 
-cleanupResetBtn.addEventListener('click', setupCleanupBoard);
-cleanupStartBtn.addEventListener('click', startCleanupGame);
+resetBtn.addEventListener('click', setupBoard);
+startBtn.addEventListener('click', startCleanupGame);
 
-setupCleanupBoard();
+// Initialize
+setupBoard();
+
 
 // ===== Light/Dark Mode Toggle =====
 const modeSwitch = document.getElementById('modeSwitch');
@@ -380,3 +408,4 @@ modeSwitch.addEventListener('change', () => {
   if (modeSwitch.checked) document.body.classList.add('light-mode');
   else document.body.classList.remove('light-mode');
 });
+
