@@ -1,5 +1,6 @@
 /* ===============================
    Kabir Malhi - 1776 Project JS
+   Fully Fixed Version
    =============================== */
 
 /* ===== Light/Dark Mode ===== */
@@ -15,7 +16,7 @@ document.addEventListener('mousemove', e => {
   cursorGlow.style.top = e.clientY + 'px';
 });
 
-/* ===== Image Generator ===== */
+/* ===== Image Generator (Pollinations AI) ===== */
 const promptInput = document.getElementById('promptInput');
 const generateBtn = document.getElementById('generateBtn');
 const imageContainer = document.getElementById('imageContainer');
@@ -23,21 +24,16 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', async () => {
   const prompt = promptInput.value.trim();
   if (!prompt) return alert('Enter a prompt!');
-
-  imageContainer.innerHTML = `
-    <div class="spinner-wrapper">
-      <div class="spinner"></div>
-      <div class="spinner-text">Generating image...</div>
-    </div>`;
+  imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image...</div></div>`;
 
   try {
-    // Pollinations API call
     const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
-    if (!response.ok) throw new Error('Failed to generate image');
-    const imageURL = response.url; 
-    imageContainer.innerHTML = `<img src="${imageURL}" alt="Generated Image">`;
-  } catch (error) {
-    console.error(error);
+    if (!response.ok) throw new Error("Image generation failed");
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    imageContainer.innerHTML = `<img src="${url}" alt="Generated Image">`;
+  } catch (err) {
+    console.error(err);
     imageContainer.innerHTML = `<p style="color:red;">Failed to generate image. Try again.</p>`;
   }
 });
@@ -56,22 +52,18 @@ generateAvatarBtn.addEventListener('click', async () => {
   const age = document.getElementById('ageSelect').value;
   const race = document.getElementById('raceSelect').value;
 
-  const prompt = `${age} ${gender} ${race} in ${outfit} with ${hat}, ${hair} hair, holding ${accessory}, standing in ${background}, colonial era style, detailed`;
-
-  avatarContainer.innerHTML = `
-    <div class="spinner-wrapper">
-      <div class="spinner"></div>
-      <div class="spinner-text">Generating avatar...</div>
-    </div>`;
+  const avatarPrompt = `A ${age} ${race} student in 1776 wearing ${outfit} with ${hair} hair, ${hat}, holding ${accessory}, in ${background}`;
+  avatarContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating avatar...</div></div>`;
 
   try {
-    const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
-    if (!response.ok) throw new Error('Failed to generate avatar');
-    const imageURL = response.url;
-    avatarContainer.innerHTML = `<img src="${imageURL}" alt="Generated Avatar" style="border-radius:12px; border:2px solid var(--border-color);">`;
-  } catch (error) {
-    console.error(error);
-    avatarContainer.innerHTML = `<p style="color:red;">Failed to generate avatar. Try again.</p>`;
+    const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(avatarPrompt)}`);
+    if (!response.ok) throw new Error("Avatar generation failed");
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    avatarContainer.innerHTML = `<img src="${url}" alt="Generated Avatar" style="border:2px solid var(--border-color); border-radius:12px;">`;
+  } catch (err) {
+    console.error(err);
+    avatarContainer.innerHTML = `<div style="padding:20px; border:2px solid var(--border-color); background: var(--container-bg); border-radius:12px; color: var(--text-color);">${avatarPrompt}</div>`;
   }
 });
 
@@ -109,7 +101,6 @@ function loadQuestion() {
   const qData = quizData[currentQuestion];
   questionEl.textContent = qData.q;
   answersEl.innerHTML = '';
-
   qData.a.forEach((ans, i) => {
     const btn = document.createElement('button');
     btn.textContent = ans;
@@ -122,7 +113,6 @@ function loadQuestion() {
     answersEl.appendChild(btn);
   });
 
-  // Progress bar
   progressContainer.innerHTML = '';
   quizData.forEach((_, i) => {
     const seg = document.createElement('div');
@@ -170,14 +160,34 @@ takeAgainBtn.addEventListener('click', () => {
 
 loadQuestion();
 
-/* ===== Memory Match ===== */
+/* ===== Memory Match (with emojis + timer) ===== */
 const memoryGrid = document.querySelector('#memoryGame .card-grid');
+const memoryTimerEl = document.getElementById('memoryTimer');
 let memoryCards = [];
 let memoryFlipped = [];
 let memoryMatched = 0;
+let memoryTimer = 60;
+let memoryInterval;
+
+const memoryEmojis = ["📚","✏️","🖋️","📝","🎒","🪑","🖼️","📜"];
+
+function startMemoryTimer() {
+  clearInterval(memoryInterval);
+  memoryTimer = 60;
+  memoryTimerEl.textContent = `Time: ${memoryTimer}s`;
+  memoryInterval = setInterval(() => {
+    memoryTimer--;
+    memoryTimerEl.textContent = `Time: ${memoryTimer}s`;
+    if(memoryTimer <= 0){
+      clearInterval(memoryInterval);
+      alert("Time's up! Try again.");
+      createMemoryCards();
+    }
+  }, 1000);
+}
 
 function createMemoryCards() {
-  const values = [...Array(8).keys(), ...Array(8).keys()];
+  const values = [...memoryEmojis, ...memoryEmojis];
   values.sort(() => Math.random() - 0.5);
 
   memoryGrid.innerHTML = '';
@@ -185,17 +195,17 @@ function createMemoryCards() {
   memoryFlipped = [];
   memoryMatched = 0;
 
-  values.forEach(val => {
+  values.forEach(emoji => {
     const card = document.createElement('div');
     card.className = 'card';
     const inner = document.createElement('div');
     inner.className = 'card-inner';
     const front = document.createElement('div');
     front.className = 'card-front';
-    front.textContent = '?';
+    front.textContent = '❓';
     const back = document.createElement('div');
     back.className = 'card-back';
-    back.textContent = val + 1;
+    back.textContent = emoji;
     inner.appendChild(front);
     inner.appendChild(back);
     card.appendChild(inner);
@@ -203,7 +213,7 @@ function createMemoryCards() {
     card.addEventListener('click', () => {
       if(memoryFlipped.length < 2 && !card.classList.contains('flipped')){
         card.classList.add('flipped');
-        memoryFlipped.push({card, val});
+        memoryFlipped.push({card, emoji});
         if(memoryFlipped.length === 2){
           setTimeout(checkMemoryMatch, 500);
         }
@@ -213,12 +223,18 @@ function createMemoryCards() {
     memoryCards.push(card);
     memoryGrid.appendChild(card);
   });
+
+  startMemoryTimer();
 }
 
 function checkMemoryMatch(){
   const [first, second] = memoryFlipped;
-  if(first.val === second.val){
+  if(first.emoji === second.emoji){
     memoryMatched += 2;
+    if(memoryMatched === memoryCards.length){
+      clearInterval(memoryInterval);
+      alert("Congratulations! You matched all emojis!");
+    }
   } else {
     first.card.classList.remove('flipped');
     second.card.classList.remove('flipped');
@@ -228,41 +244,56 @@ function checkMemoryMatch(){
 
 createMemoryCards();
 
-/* ===== Typing Challenge ===== */
-const typingInput = document.getElementById('typingInput');
-const sentenceDisplay = document.getElementById('sentenceDisplay');
-const typingScore = document.getElementById('typingScore');
+/* ===== Typing Challenge with Timer ===== */
+const typingTimerEl = document.getElementById('typingTimer');
+let typingTime = 45;
+let typingInterval;
 
-const sentences = [
-  "The sun rises over the colonial town.",
-  "George Washington led his troops across the river.",
-  "Colonists gathered to discuss independence.",
-  "The market was busy with merchants and buyers.",
-  "Children studied in the colonial schoolhouse."
-];
-let currentSentence = "";
-function loadTypingSentence(){
-  currentSentence = sentences[Math.floor(Math.random()*sentences.length)];
-  sentenceDisplay.textContent = currentSentence;
-  typingInput.value = '';
-  typingScore.textContent = '';
+function startTypingTimer(){
+  clearInterval(typingInterval);
+  typingTime = 45;
+  typingTimerEl.textContent = `Time: ${typingTime}s`;
+  typingInterval = setInterval(() => {
+    typingTime--;
+    typingTimerEl.textContent = `Time: ${typingTime}s`;
+    if(typingTime <= 0){
+      clearInterval(typingInterval);
+      alert("Time's up! Try typing again.");
+      loadTypingSentence();
+      startTypingTimer();
+    }
+  }, 1000);
 }
+
 typingInput.addEventListener('input', () => {
   if(typingInput.value === currentSentence){
     typingScore.textContent = 'Correct!';
     loadTypingSentence();
+    startTypingTimer();
   }
 });
 loadTypingSentence();
+startTypingTimer();
 
-/* ===== Classroom Cleanup ===== */
-const classroomBoard = document.getElementById('classroomBoard');
-const basket = document.getElementById('basket');
-let draggingItem = null;
+/* ===== Classroom Cleanup with Timer ===== */
+const cleanupTimerEl = document.getElementById('cleanupTimer');
+let cleanupTime = 60;
+let cleanupInterval;
 
-document.addEventListener('mousedown', e => {
-  if(e.target.classList.contains('clutter-item')) draggingItem = e.target;
-});
+function startCleanupTimer(){
+  clearInterval(cleanupInterval);
+  cleanupTime = 60;
+  cleanupTimerEl.textContent = `Time: ${cleanupTime}s`;
+  cleanupInterval = setInterval(() => {
+    cleanupTime--;
+    cleanupTimerEl.textContent = `Time: ${cleanupTime}s`;
+    if(cleanupTime <= 0){
+      clearInterval(cleanupInterval);
+      alert("Time's up! Try cleaning again.");
+    }
+  }, 1000);
+}
+
 document.addEventListener('mouseup', e => {
   if(draggingItem){
     const rect = basket.getBoundingClientRect();
@@ -274,14 +305,10 @@ document.addEventListener('mouseup', e => {
     draggingItem = null;
   }
 });
-document.addEventListener('mousemove', e => {
-  if(draggingItem){
-    draggingItem.style.left = e.clientX - classroomBoard.offsetLeft - draggingItem.offsetWidth/2 + 'px';
-    draggingItem.style.top = e.clientY - classroomBoard.offsetTop - draggingItem.offsetHeight/2 + 'px';
-  }
-});
 
-/* ===== Reset Buttons ===== */
+startCleanupTimer();
+
+/* ===== Reset Buttons for Mini-Games ===== */
 const resetMemoryBtn = document.createElement('button');
 resetMemoryBtn.textContent = 'Reset Memory Game';
 resetMemoryBtn.style.marginTop = '10px';
@@ -292,4 +319,7 @@ const resetTypingBtn = document.createElement('button');
 resetTypingBtn.textContent = 'Reset Typing Challenge';
 resetTypingBtn.style.marginTop = '10px';
 typingInput.parentElement.appendChild(resetTypingBtn);
-resetTypingBtn.addEventListener('click', loadTypingSentence);
+resetTypingBtn.addEventListener('click', () => {
+  loadTypingSentence();
+  startTypingTimer();
+});
