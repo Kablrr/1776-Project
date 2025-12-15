@@ -307,27 +307,44 @@ function resetTypingChallenge() {
 // Prevent copy/paste/drag
 ["paste","copy","cut","drop"].forEach(evt => typingInput.addEventListener(evt, e => e.preventDefault()));
 
-// Timer starts on first input
+// Timer starts on first non-empty input and stops only when sentence is fully typed
 typingInput.addEventListener("input", () => {
-  if(!typingStarted){
+  // Start timer only if input is not empty and typing hasn't started
+  if (!typingStarted && typingInput.value.length > 0) {
     typingStarted = true;
     typingStartTime = Date.now();
     typingTimer = setInterval(() => {
-      const elapsed = (Date.now() - typingStartTime)/1000;
+      const elapsed = (Date.now() - typingStartTime) / 1000;
       typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
     }, 10);
   }
 
-  if(typingInput.value === currentSentence){
+  // Reset timer if input is cleared mid-typing
+  if (typingInput.value.length === 0 && typingStarted) {
     clearInterval(typingTimer);
-    const elapsed = (Date.now() - typingStartTime)/1000;
+    typingStarted = false;
+    typingScore.textContent = "Time: 0.00s";
+  }
+
+  // Check completion
+  if (typingInput.value === currentSentence) {
+    clearInterval(typingTimer);
+    const elapsed = (Date.now() - typingStartTime) / 1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
-    if(typingBestTime === null || elapsed < typingBestTime){
+
+    // Update best time only if faster
+    if (typingBestTime === null || elapsed < typingBestTime) {
       typingBestTime = elapsed;
       typingLeaderboard.textContent = `Best: ${typingBestTime.toFixed(2)} s`;
     }
+
     typingInput.disabled = true;
-    setTimeout(fetchRandomSentence, 1000);
+
+    // Prepare for next sentence
+    setTimeout(() => {
+      typingStarted = false; // reset for the new round
+      fetchRandomSentence();
+    }, 1000);
   }
 });
 
@@ -335,6 +352,7 @@ typingResetBtn.addEventListener("click", resetTypingChallenge);
 
 // Initialize first sentence
 fetchRandomSentence();
+
 
 
 // ===== Classroom Cleanup =====
@@ -471,5 +489,6 @@ document.addEventListener("fullscreenchange", () => {
     fullscreenBtn.textContent = "Enter Fullscreen";
   }
 });
+
 
 
