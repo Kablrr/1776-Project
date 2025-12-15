@@ -23,6 +23,7 @@ const sentenceDisplay = document.getElementById("sentenceDisplay");
 const typingInput = document.getElementById("typingInput");
 const typingScore = document.getElementById("typingScore");
 const typingLeaderboard = document.getElementById("typingLeaderboard");
+const typingResetBtn = document.getElementById("resetTypingBtn");
 
 const classroomBoard = document.getElementById("classroomBoard");
 const basket = document.getElementById("basket");
@@ -31,6 +32,8 @@ const cleanupLeaderboardEl = document.getElementById("cleanupLeaderboard");
 const resetCleanupBtn = document.getElementById("resetCleanupBtn");
 
 const cursorGlow = document.getElementById("cursorGlow");
+const modeSwitch = document.getElementById("modeSwitch");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
 
 // ===== Audio Helper =====
 function playSfx(src) {
@@ -39,7 +42,6 @@ function playSfx(src) {
 }
 
 // ===== Light/Dark Mode =====
-const modeSwitch = document.getElementById("modeSwitch");
 modeSwitch.addEventListener("change", () => {
   document.body.classList.toggle("light-mode", modeSwitch.checked);
 });
@@ -58,21 +60,16 @@ generateBtn.addEventListener("click", async () => {
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     imageContainer.innerHTML = `<img src="${url}" alt="Generated Colonial Scene">`;
-  } catch (e) {
+  } catch {
     imageContainer.innerHTML = `<p style="color:red;">Error generating image. Try again.</p>`;
   }
 });
 
 // ===== Avatar Generator =====
 generateAvatarBtn.addEventListener("click", async () => {
-  const gender = document.getElementById("genderSelect").value;
-  const background = document.getElementById("backgroundSelect").value;
-  const outfit = document.getElementById("outfitSelect").value;
-  const hat = document.getElementById("hatSelect").value;
-  const accessory = document.getElementById("accessorySelect").value;
-  const hair = document.getElementById("hairSelect").value;
-  const age = document.getElementById("ageSelect").value;
-  const race = document.getElementById("raceSelect").value;
+  const selections = ["genderSelect","backgroundSelect","outfitSelect","hatSelect","accessorySelect","hairSelect","ageSelect","raceSelect"]
+    .map(id => document.getElementById(id).value);
+  const [gender, background, outfit, hat, accessory, hair, age, race] = selections;
 
   const avatarPrompt = `A ${age} ${gender} with ${hair} hair, wearing ${outfit} and ${hat}, holding ${accessory}, background: ${background}, heritage: ${race}, colonial-era 1770s American style, oil painting, realistic`;
 
@@ -83,14 +80,15 @@ generateAvatarBtn.addEventListener("click", async () => {
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     avatarContainer.innerHTML = `<img src="${url}" alt="Generated Avatar">`;
-  } catch (e) {
+  } catch {
     avatarContainer.innerHTML = `<p style="color:red;">Error generating avatar. Try again.</p>`;
   }
 });
+
 // ===== Quiz =====
 let currentQuestion = 0;
 let userScore = 0;
-let quizData = [
+const quizData = [
   { q: "Which year did the American Declaration of Independence occur?", a: ["1775","1776","1781","1789"], correct:1 },
   { q: "Who was the primary author of the Declaration of Independence?", a: ["George Washington","Thomas Jefferson","Benjamin Franklin","John Adams"], correct:1 },
   { q: "What was a common school supply in 1776?", a: ["Tablet","Parchment and Quill","Notebook","Chalkboard"], correct:1 },
@@ -107,13 +105,12 @@ function renderQuestion() {
   questionEl.textContent = q.q;
   answersEl.innerHTML = "";
 
-  const answers = q.a.map((answer, idx) => ({ text: answer, isCorrect: idx === q.correct }));
-  answers.sort(() => Math.random() - 0.5);
+  const answers = q.a.map((text, idx) => ({ text, isCorrect: idx === q.correct })).sort(() => Math.random() - 0.5);
 
-  answers.forEach(answerObj => {
+  answers.forEach(a => {
     const btn = document.createElement("button");
-    btn.textContent = answerObj.text;
-    btn.dataset.correct = answerObj.isCorrect;
+    btn.textContent = a.text;
+    btn.dataset.correct = a.isCorrect;
     btn.addEventListener("click", () => {
       Array.from(answersEl.children).forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
@@ -132,8 +129,7 @@ submitBtn.addEventListener("click", () => {
   if (!selected) return;
 
   const isCorrect = selected.dataset.correct === "true";
-
-  if(isCorrect) {
+  if(isCorrect){
     playSfx("correct.mp3");
     userScore++;
     selected.classList.add("correct");
@@ -142,20 +138,20 @@ submitBtn.addEventListener("click", () => {
     selected.classList.add("wrong");
   }
 
-  // Highlight correct answers
+  // Highlight correct answers visually only
   Array.from(answersEl.children).forEach(b => {
     if(b.dataset.correct === "true") b.classList.add("correct");
   });
 
-  // Update progress bar
+  // Update progress
   progressContainer.innerHTML = "";
   quizData.forEach((_, i) => {
-    const segment = document.createElement("div");
-    segment.classList.add("progress-segment");
-    if(i < currentQuestion+1){
-      segment.style.backgroundColor = i < userScore ? "var(--correct-color)" : "var(--wrong-color)";
+    const seg = document.createElement("div");
+    seg.classList.add("progress-segment");
+    if(i < currentQuestion + 1){
+      seg.style.backgroundColor = i < userScore ? "var(--correct-color)" : "var(--wrong-color)";
     }
-    progressContainer.appendChild(segment);
+    progressContainer.appendChild(seg);
   });
 
   nextBtn.classList.remove("hidden");
@@ -186,264 +182,209 @@ takeAgainBtn.addEventListener("click", () => {
 
 // ===== Memory Match =====
 const emojiCards = ["📜","🖋️","🎓","📚","🏺","🪑","🕯️","🔔"];
-let memoryCards = [];
-let flipped = [];
-let memoryStarted = false;
-let memoryTime = 0;
-let memoryTimer;
-let memoryBestTime = null;
+let memoryCards = [], flipped = [], memoryStarted=false, memoryTime=0, memoryTimer=null, memoryBestTime=null;
 
-function startMemoryTimer() {
+function startMemoryTimer(){
   if(memoryStarted) return;
-  memoryStarted = true;
-  memoryTime = 0;
-  memoryTimer = setInterval(() => {
-    memoryTime += 0.01;
+  memoryStarted=true;
+  memoryTime=0;
+  memoryTimer=setInterval(()=>{
+    memoryTime+=0.01;
     memoryTimerEl.textContent = `Time: ${memoryTime.toFixed(2)}s`;
-  }, 10);
+  },10);
 }
 
-function setupMemory() {
-  memoryCards = [...emojiCards, ...emojiCards].sort(() => 0.5 - Math.random());
-  memoryGrid.innerHTML = "";
-  flipped = [];
-
-  memoryCards.forEach(emoji => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `<div class="card-inner"><div class="card-front"></div><div class="card-back">${emoji}</div></div>`;
-
-    card.addEventListener("click", () => {
+function setupMemory(){
+  memoryCards=[...emojiCards,...emojiCards].sort(()=>0.5-Math.random());
+  memoryGrid.innerHTML=""; flipped=[];
+  memoryCards.forEach(emoji=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`<div class="card-inner"><div class="card-front"></div><div class="card-back">${emoji}</div></div>`;
+    card.addEventListener("click",()=>{
       startMemoryTimer();
-      if(card.classList.contains("flipped") || flipped.length === 2) return;
-
+      if(card.classList.contains("flipped") || flipped.length===2) return;
       card.classList.add("flipped");
-      flipped.push({card, emoji});
+      flipped.push({card,emoji});
 
-      if(flipped.length === 2){
-        if(flipped[0].emoji === flipped[1].emoji){
+      if(flipped.length===2){
+        if(flipped[0].emoji===flipped[1].emoji){
           playSfx("correct.mp3");
-          flipped = [];
+          flipped=[];
         } else {
           playSfx("wrong.mp3");
-          setTimeout(() => {
+          setTimeout(()=>{
             flipped[0].card.classList.remove("flipped");
             flipped[1].card.classList.remove("flipped");
-            flipped = [];
-          }, 500);
+            flipped=[];
+          },500);
         }
-
-        if(document.querySelectorAll("#memoryGame .card.flipped").length === memoryCards.length){
+        if(document.querySelectorAll("#memoryGame .card.flipped").length===memoryCards.length){
           clearInterval(memoryTimer);
-          if(memoryBestTime === null || memoryTime < memoryBestTime){
-            memoryBestTime = memoryTime;
-            memoryLeaderboardEl.textContent = `Best: ${memoryBestTime.toFixed(2)} s`;
+          if(memoryBestTime===null||memoryTime<memoryBestTime){
+            memoryBestTime=memoryTime;
+            memoryLeaderboardEl.textContent=`Best: ${memoryBestTime.toFixed(2)} s`;
           }
           playSfx("complete.mp3");
         }
       }
     });
-
     memoryGrid.appendChild(card);
   });
 }
-
-requestAnimationFrame(() => {
-  setupMemory();
-});
-
-resetMemoryBtn.addEventListener("click", () => {
+requestAnimationFrame(setupMemory);
+resetMemoryBtn.addEventListener("click", ()=>{
   clearInterval(memoryTimer);
-  memoryStarted = false;
-  memoryTime = 0;
-  memoryTimerEl.textContent = `Time: 0.00s`;
+  memoryStarted=false; memoryTime=0;
+  memoryTimerEl.textContent="Time: 0.00s";
   setupMemory();
 });
 
 // ===== Typing Challenge =====
-const sentenceDisplay = document.getElementById("sentenceDisplay");
-const typingInput = document.getElementById("typingInput");
-const typingScore = document.getElementById("typingScore");
-const typingLeaderboard = document.getElementById("typingLeaderboard");
-const typingResetBtn = document.getElementById("resetTypingBtn");
+let currentSentence="", typingStarted=false, typingStartTime=0, typingBestTime=null, typingTimer=null;
 
-let currentSentence = "";
-let typingStarted = false;
-let typingStartTime = 0;
-let typingBestTime = null;
-let typingTimer = null;
+async function fetchRandomSentence(){
+  sentenceDisplay.textContent="Loading AI prompt...";
+  typingInput.disabled=true; typingInput.value="";
+  typingScore.textContent="Time: 0.00s";
 
-async function fetchRandomSentence() {
-  sentenceDisplay.textContent = "Loading AI prompt...";
-  typingInput.disabled = true;
-  typingInput.value = "";
-  typingScore.textContent = "Time: 0.00s";
+  try{
+    const randomSeed=Math.floor(Math.random()*10000);
+    const prompt=`Write a 7-12 word colonial-era sentence about school life in 1776. Variation: ${randomSeed}`;
+    const response=await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+    let aiText=await response.text();
+    const words=aiText.trim().split(/\s+/).slice(0,12);
+    currentSentence=words.join(" ")||"Students in 1776 wrote with quills on parchment.";
+  } catch { currentSentence="Students in 1776 wrote with quills on parchment."; }
 
-  try {
-    const randomSeed = Math.floor(Math.random() * 10000);
-    const prompt = `Write a 7-12 word colonial-era sentence about school life in 1776. Variation: ${randomSeed}`;
-    const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-    let aiText = await response.text();
-    const words = aiText.trim().split(/\s+/).slice(0, 12);
-    currentSentence = words.join(" ") || "Students in 1776 wrote with quills on parchment.";
-  } catch(err) {
-    currentSentence = "Students in 1776 wrote with quills on parchment.";
-  }
-
-  sentenceDisplay.textContent = currentSentence;
-  typingInput.disabled = false;
-  typingStarted = false;
-  typingStartTime = 0;
+  sentenceDisplay.textContent=currentSentence;
+  typingInput.disabled=false;
+  typingStarted=false;
+  typingStartTime=0;
   clearInterval(typingTimer);
-  typingScore.textContent = "Time: 0.00s";
+  typingScore.textContent="Time: 0.00s";
 }
 
-// Reset function
-function resetTypingChallenge() {
+function resetTypingChallenge(){
   clearInterval(typingTimer);
   fetchRandomSentence();
 }
 
-// Prevent copy/paste/drag
-["paste","copy","cut","drop"].forEach(evt => typingInput.addEventListener(evt, e => e.preventDefault()));
+["paste","copy","cut","drop"].forEach(evt=>typingInput.addEventListener(evt,e=>e.preventDefault()));
 
-// Timer starts on first non-empty input and stops only when sentence is fully typed
-typingInput.addEventListener("input", () => {
-  // Start timer only if input is not empty and typing hasn't started
-  if (!typingStarted && typingInput.value.length > 0) {
-    typingStarted = true;
-    typingStartTime = Date.now();
-    typingTimer = setInterval(() => {
-      const elapsed = (Date.now() - typingStartTime) / 1000;
-      typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
-    }, 10);
+typingInput.addEventListener("input",()=>{
+  if(!typingStarted && typingInput.value.length>0){
+    typingStarted=true;
+    typingStartTime=Date.now();
+    typingTimer=setInterval(()=>{
+      const elapsed=(Date.now()-typingStartTime)/1000;
+      typingScore.textContent=`Time: ${elapsed.toFixed(2)}s`;
+    },10);
   }
 
-  // Reset timer if input is cleared mid-typing
-  if (typingInput.value.length === 0 && typingStarted) {
+  if(typingInput.value.length===0 && typingStarted){
     clearInterval(typingTimer);
-    typingStarted = false;
-    typingScore.textContent = "Time: 0.00s";
+    typingStarted=false;
+    typingScore.textContent="Time: 0.00s";
   }
 
-  // Check completion
-  if (typingInput.value === currentSentence) {
+  if(typingInput.value===currentSentence){
     clearInterval(typingTimer);
-    const elapsed = (Date.now() - typingStartTime) / 1000;
-    typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
-
-    // Update best time only if faster
-    if (typingBestTime === null || elapsed < typingBestTime) {
-      typingBestTime = elapsed;
-      typingLeaderboard.textContent = `Best: ${typingBestTime.toFixed(2)} s`;
+    const elapsed=(Date.now()-typingStartTime)/1000;
+    typingScore.textContent=`Time: ${elapsed.toFixed(2)}s`;
+    if(typingBestTime===null||elapsed<typingBestTime){
+      typingBestTime=elapsed;
+      typingLeaderboard.textContent=`Best: ${typingBestTime.toFixed(2)} s`;
     }
-
-    typingInput.disabled = true;
-
-    // Prepare for next sentence
-    setTimeout(() => {
-      typingStarted = false; // reset for the new round
+    typingInput.disabled=true;
+    setTimeout(()=>{
+      typingStarted=false;
       fetchRandomSentence();
-    }, 1000);
+    },1000);
   }
 });
 
 typingResetBtn.addEventListener("click", resetTypingChallenge);
-
-// Initialize first sentence
 fetchRandomSentence();
 
-
-
 // ===== Classroom Cleanup =====
-let cleanupStarted = false;
-let cleanupTime = 0;
-let cleanupTimer;
-let cleanupBestTime = null;
-const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"];
-let itemsInPlay = [];
+let cleanupStarted=false, cleanupTime=0, cleanupTimer=null, cleanupBestTime=null, itemsInPlay=[];
+const classroomItems=["📚","🖋️","🕯️","📜","🪑","🏺"];
 
-classroomBoard.style.backgroundImage = "url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg')";
-classroomBoard.style.backgroundSize = "cover";
-classroomBoard.style.backgroundPosition = "center";
-classroomBoard.style.userSelect = "none";
+classroomBoard.style.backgroundImage="url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg')";
+classroomBoard.style.backgroundSize="cover";
+classroomBoard.style.backgroundPosition="center";
+classroomBoard.style.userSelect="none";
 
-function startCleanupTimer() {
+function startCleanupTimer(){
   if(cleanupStarted) return;
-  cleanupStarted = true;
-  cleanupTime = 0;
-  cleanupTimer = setInterval(() => {
-    cleanupTime += 0.01;
-    cleanupTimerEl.textContent = `Time: ${cleanupTime.toFixed(2)}s`;
-  }, 10);
+  cleanupStarted=true;
+  cleanupTime=0;
+  cleanupTimer=setInterval(()=>{
+    cleanupTime+=0.01;
+    cleanupTimerEl.textContent=`Time: ${cleanupTime.toFixed(2)}s`;
+  },10);
 }
 
-function resetCleanup() {
+function resetCleanup(){
   clearInterval(cleanupTimer);
-  cleanupStarted = false;
-  cleanupTime = 0;
-  cleanupTimerEl.textContent = `Time: 0.00s`;
+  cleanupStarted=false; cleanupTime=0;
+  cleanupTimerEl.textContent="Time: 0.00s";
+  itemsInPlay.forEach(i=>classroomBoard.removeChild(i));
+  itemsInPlay=[];
 
-  itemsInPlay.forEach(item => classroomBoard.removeChild(item));
-  itemsInPlay = [];
-
-  classroomItems.forEach(emoji => {
-    const item = document.createElement("div");
+  classroomItems.forEach(emoji=>{
+    const item=document.createElement("div");
     item.classList.add("clutter-item");
-    item.textContent = emoji;
-    item.style.position = "absolute";
-    item.style.fontSize = "32px";
-    item.style.cursor = "grab";
+    item.textContent=emoji;
+    item.style.position="absolute";
+    item.style.fontSize="32px";
+    item.style.cursor="grab";
 
-    requestAnimationFrame(() => {
-      const boardRect = classroomBoard.getBoundingClientRect();
-      const x = Math.random() * (boardRect.width - 40);
-      const y = Math.random() * (boardRect.height - 40);
-      item.style.left = `${x}px`;
-      item.style.top = `${y}px`;
+    requestAnimationFrame(()=>{
+      const rect=classroomBoard.getBoundingClientRect();
+      item.style.left=`${Math.random()*(rect.width-40)}px`;
+      item.style.top=`${Math.random()*(rect.height-40)}px`;
     });
 
-    item.addEventListener("mousedown", e => {
-      e.preventDefault();
-      startCleanupTimer();
-      const boardRect = classroomBoard.getBoundingClientRect();
-      const offsetX = e.clientX - item.getBoundingClientRect().left;
-      const offsetY = e.clientY - item.getBoundingClientRect().top;
+    item.addEventListener("mousedown", e=>{
+      e.preventDefault(); startCleanupTimer();
+      const boardRect=classroomBoard.getBoundingClientRect();
+      const offsetX=e.clientX-item.getBoundingClientRect().left;
+      const offsetY=e.clientY-item.getBoundingClientRect().top;
 
       function onMouseMove(e){
-        const newX = e.clientX - boardRect.left - offsetX;
-        const newY = e.clientY - boardRect.top - offsetY;
-        item.style.left = `${Math.max(0, Math.min(newX, boardRect.width-40))}px`;
-        item.style.top = `${Math.max(0, Math.min(newY, boardRect.height-40))}px`;
+        const x=e.clientX-boardRect.left-offsetX;
+        const y=e.clientY-boardRect.top-offsetY;
+        item.style.left=`${Math.max(0,Math.min(x,boardRect.width-40))}px`;
+        item.style.top=`${Math.max(0,Math.min(y,boardRect.height-40))}px`;
       }
 
       function onMouseUp(){
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-
-        const basketRect = basket.getBoundingClientRect();
-        const itemRect = item.getBoundingClientRect();
-        const overlapX = itemRect.left + itemRect.width/2 > basketRect.left &&
-                         itemRect.left + itemRect.width/2 < basketRect.right;
-        const overlapY = itemRect.top + itemRect.height/2 > basketRect.top &&
-                         itemRect.top + itemRect.height/2 < basketRect.bottom;
+        document.removeEventListener("mousemove",onMouseMove);
+        document.removeEventListener("mouseup",onMouseUp);
+        const basketRect=basket.getBoundingClientRect();
+        const itemRect=item.getBoundingClientRect();
+        const overlapX=itemRect.left+itemRect.width/2>basketRect.left &&
+                       itemRect.left+itemRect.width/2<basketRect.right;
+        const overlapY=itemRect.top+itemRect.height/2>basketRect.top &&
+                       itemRect.top+itemRect.height/2<basketRect.bottom;
 
         if(overlapX && overlapY){
           classroomBoard.removeChild(item);
-          itemsInPlay = itemsInPlay.filter(i => i !== item);
-
-          if(itemsInPlay.length === 0){
+          itemsInPlay=itemsInPlay.filter(i=>i!==item);
+          if(itemsInPlay.length===0){
             clearInterval(cleanupTimer);
-            if(cleanupBestTime === null || cleanupTime < cleanupBestTime){
-              cleanupBestTime = cleanupTime;
-              cleanupLeaderboardEl.textContent = `Best: ${cleanupBestTime.toFixed(2)} s`;
+            if(cleanupBestTime===null||cleanupTime<cleanupBestTime){
+              cleanupBestTime=cleanupTime;
+              cleanupLeaderboardEl.textContent=`Best: ${cleanupBestTime.toFixed(2)} s`;
             }
           }
         }
       }
 
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
+      document.addEventListener("mousemove",onMouseMove);
+      document.addEventListener("mouseup",onMouseUp);
     });
 
     classroomBoard.appendChild(item);
@@ -451,44 +392,29 @@ function resetCleanup() {
   });
 }
 
-requestAnimationFrame(() => resetCleanup());
+requestAnimationFrame(resetCleanup);
 resetCleanupBtn.addEventListener("click", resetCleanup);
 
 // ===== Cursor Glow =====
 document.addEventListener("mousemove", e => {
-  const x = e.clientX + window.scrollX;
-  const y = e.clientY + window.scrollY;
-  cursorGlow.style.left = `${x}px`;
-  cursorGlow.style.top = `${y}px`;
+  const x=e.clientX+window.scrollX;
+  const y=e.clientY+window.scrollY;
+  cursorGlow.style.left=`${x}px`;
+  cursorGlow.style.top=`${y}px`;
+  cursorGlow.style.zIndex=9999; // ensure always on top
 });
 
-// Prevent initial auto-scroll
-window.scrollTo(0, 0);
-
-// ===== Fullscreen Button =====
-const fullscreenBtn = document.getElementById("fullscreenBtn");
-
-fullscreenBtn.addEventListener("click", () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().then(() => {
-      fullscreenBtn.textContent = "Exit Fullscreen";
-    }).catch(err => {
-      console.error(`Error attempting to enable fullscreen: ${err.message}`);
-    });
+// ===== Fullscreen =====
+fullscreenBtn.addEventListener("click",()=>{
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().then(()=>fullscreenBtn.textContent="Exit Fullscreen");
   } else {
-    document.exitFullscreen().then(() => {
-      fullscreenBtn.textContent = "Enter Fullscreen";
-    }).catch(err => {
-      console.error(`Error attempting to exit fullscreen: ${err.message}`);
-    });
+    document.exitFullscreen().then(()=>fullscreenBtn.textContent="Enter Fullscreen");
   }
 });
 
-document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement) {
-    fullscreenBtn.textContent = "Enter Fullscreen";
-  }
+document.addEventListener("fullscreenchange",()=>{
+  if(!document.fullscreenElement) fullscreenBtn.textContent="Enter Fullscreen";
 });
 
-
-
+window.scrollTo(0,0);
