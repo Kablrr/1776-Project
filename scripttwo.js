@@ -267,15 +267,19 @@ let cleanupStarted = false;
 let cleanupTime = 0;
 let cleanupTimer;
 
-const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"];
+const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"]; // Emojis to pick up
 let itemsInPlay = [];
 
+// Set the background
 classroomBoard.style.backgroundImage = "url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg')";
 classroomBoard.style.backgroundSize = "cover";
 classroomBoard.style.backgroundPosition = "center";
 
+// Prevent text selection while dragging
+classroomBoard.style.userSelect = "none";
+
 function startCleanupTimer() {
-  if(cleanupStarted) return;
+  if (cleanupStarted) return;
   cleanupStarted = true;
   cleanupTime = 0;
   cleanupTimer = setInterval(() => {
@@ -284,59 +288,66 @@ function startCleanupTimer() {
   }, 10);
 }
 
+// Reset cleanup game
 function resetCleanup() {
   clearInterval(cleanupTimer);
   cleanupStarted = false;
   cleanupTime = 0;
   cleanupTimerEl.textContent = `Time: 0.00s`;
 
+  // Remove old items
   itemsInPlay.forEach(item => classroomBoard.removeChild(item));
   itemsInPlay = [];
 
+  // Add new items at random positions
   classroomItems.forEach(emoji => {
     const item = document.createElement("div");
     item.classList.add("clutter-item");
     item.textContent = emoji;
-    const x = Math.random() * (classroomBoard.clientWidth - 40);
-    const y = Math.random() * (classroomBoard.clientHeight - 40);
+
+    const boardRect = classroomBoard.getBoundingClientRect();
+    const x = Math.random() * (boardRect.width - 40);
+    const y = Math.random() * (boardRect.height - 40);
     item.style.left = `${x}px`;
     item.style.top = `${y}px`;
     item.style.position = "absolute";
     item.style.fontSize = "32px";
     item.style.cursor = "grab";
 
+    // Dragging
     item.addEventListener("mousedown", e => {
+      e.preventDefault(); // Prevent text selection
       startCleanupTimer();
       const offsetX = e.clientX - item.getBoundingClientRect().left;
       const offsetY = e.clientY - item.getBoundingClientRect().top;
 
       function onMouseMove(e) {
-        item.style.left = `${e.clientX - classroomBoard.getBoundingClientRect().left - offsetX}px`;
-        item.style.top = `${e.clientY - classroomBoard.getBoundingClientRect().top - offsetY}px`;
+        const newX = e.clientX - boardRect.left - offsetX;
+        const newY = e.clientY - boardRect.top - offsetY;
+        item.style.left = `${Math.max(0, Math.min(newX, boardRect.width - 40))}px`;
+        item.style.top = `${Math.max(0, Math.min(newY, boardRect.height - 40))}px`;
       }
 
       function onMouseUp() {
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
 
+        // Check precise basket collision
         const basketRect = basket.getBoundingClientRect();
         const itemRect = item.getBoundingClientRect();
-        if (
-          itemRect.left + itemRect.width/2 > basketRect.left &&
-          itemRect.right - itemRect.width/2 < basketRect.right &&
-          itemRect.top + itemRect.height/2 > basketRect.top &&
-          itemRect.bottom - itemRect.height/2 < basketRect.bottom
-        ) {
+        const overlapX = itemRect.left + itemRect.width/2 > basketRect.left &&
+                         itemRect.left + itemRect.width/2 < basketRect.right;
+        const overlapY = itemRect.top + itemRect.height/2 > basketRect.top &&
+                         itemRect.top + itemRect.height/2 < basketRect.bottom;
+
+        if(overlapX && overlapY){
           classroomBoard.removeChild(item);
           itemsInPlay = itemsInPlay.filter(i => i !== item);
-          correctSfx.currentTime = 0;
-          correctSfx.play();
 
+          // Stop timer if all items collected
           if(itemsInPlay.length === 0){
             clearInterval(cleanupTimer);
             cleanupLeaderboardEl.textContent = `Best: ${cleanupTime.toFixed(2)} s`;
-            completeSfx.currentTime = 0;
-            completeSfx.play();
           }
         }
       }
@@ -350,8 +361,11 @@ function resetCleanup() {
   });
 }
 
-resetCleanup();
+// Attach reset button
 resetCleanupBtn.addEventListener("click", resetCleanup);
+
+// Initial setup
+resetCleanup();
 
 // ===== Cursor Glow =====
 const cursorGlow = document.getElementById("cursorGlow");
@@ -359,4 +373,5 @@ document.addEventListener("mousemove", e=>{
   cursorGlow.style.left = e.clientX + "px";
   cursorGlow.style.top = e.clientY + "px";
 });
+
 
