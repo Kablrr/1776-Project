@@ -250,6 +250,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   transform: rotateY(180deg);
   border: 2px solid #b08a57;
 }
+/* ===== Classroom Cleanup Revamp ===== */
 .classroom-board {
   position: relative;
   width: 100%;
@@ -260,6 +261,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   border: 2px solid #b08a57;
   border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 12px rgba(255,255,255,0.08);
 }
 
 #basket {
@@ -267,24 +269,74 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   height: 120px;
   background-color: #6e4b2f;
   border: 3px solid #b08a57;
-  border-radius: 12px;
+  border-radius: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 2rem;
-  transition: background-color 0.3s ease;
+  font-size: 2.5rem;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
   margin: 20px auto 0 auto;
   cursor: pointer;
 }
 
-
-.clutter-item {
-  position: absolute;
-  font-size: 2rem;
-  cursor: grab;
-  user-select: none;
+#basket:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 14px rgba(0,0,0,0.5);
 }
 
+/* Clutter Items */
+.clutter-item {
+  position: absolute;
+  font-size: 2.2rem;
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.clutter-item:active {
+  transform: scale(1.2);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+}
+
+/* Timer & Score Display */
+#cleanupTimer, #cleanupScore {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #bfae97;
+  margin-top: 10px;
+}
+
+/* Start & Reset Buttons */
+#startCleanupBtn, #resetCleanupBtn {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px 5px;
+  font-weight: bold;
+  border-radius: 12px;
+  border: 1px solid #6e4b2f;
+  background: linear-gradient(to bottom, #b08a57, #6e4b2f);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#startCleanupBtn:hover, #resetCleanupBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+}
+
+/* Highlight Basket On Drag */
+#basket.drag-over {
+  background-color: #b08a57 !important;
+  box-shadow: 0 0 15px #b08a57;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .classroom-board { height: 250px; }
+  #basket { width: 90px; height: 90px; font-size: 2rem; }
+  .clutter-item { font-size: 1.8rem; }
 }
 
 
