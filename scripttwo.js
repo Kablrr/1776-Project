@@ -293,6 +293,12 @@ function resetTypingChallenge() {
   fetchRandomSentence();
 }
 
+// Prevent copy, cut, paste, and drag-drop in the typing input
+typingInput.addEventListener("paste", e => e.preventDefault());
+typingInput.addEventListener("copy", e => e.preventDefault());
+typingInput.addEventListener("cut", e => e.preventDefault());
+typingInput.addEventListener("drop", e => e.preventDefault());
+
 fetchRandomSentence();
 
 typingInput.addEventListener("input", () => {
@@ -436,3 +442,4 @@ document.addEventListener("mousemove", e => {
 
 // Prevent initial auto-scroll to memory game
 window.scrollTo(0, 0);
+
