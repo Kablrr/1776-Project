@@ -1,29 +1,54 @@
-// ===== Cursor Glow =====
+// ================= CURSOR GLOW =================
 const cursorGlow = document.getElementById('cursorGlow');
 document.addEventListener('mousemove', e => {
   cursorGlow.style.top = `${e.clientY}px`;
   cursorGlow.style.left = `${e.clientX}px`;
 });
 
-// ===== Sounds =====
+// ================= SOUNDS =================
 const correctSound = new Audio('sounds/correct.mp3');
-correctSound.volume = 0.3; // slightly loud, for positive feedback
+correctSound.volume = 0.3;
 
 const wrongSound = new Audio('sounds/wrong.mp3');
-wrongSound.volume = 0.4; // a bit softer, not harsh
+wrongSound.volume = 0.4;
 
 const completeSound = new Audio('sounds/complete.mp3');
-completeSound.volume = 0.2; // quiet celebration sound
+completeSound.volume = 0.2;
 
-// ===== Spinner Helper =====
-function createSpinner(text='May take a moment to generate...') {
+// ---- Unlock audio (REQUIRED for browsers) ----
+let audioUnlocked = false;
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+  [correctSound, wrongSound, completeSound].forEach(s => {
+    s.play().then(() => {
+      s.pause();
+      s.currentTime = 0;
+    }).catch(() => {});
+  });
+  audioUnlocked = true;
+  document.removeEventListener('click', unlockAudio);
+  document.removeEventListener('keydown', unlockAudio);
+}
+
+document.addEventListener('click', unlockAudio);
+document.addEventListener('keydown', unlockAudio);
+
+// ---- Safe sound play helper ----
+function playSound(sound) {
+  sound.currentTime = 0;
+  sound.play().catch(() => {});
+}
+
+// ================= SPINNER =================
+function createSpinner(text = 'May take a moment to generate...') {
   const wrapper = document.createElement('div');
   wrapper.className = 'spinner-wrapper';
   wrapper.innerHTML = `<div class="spinner"></div><div class="spinner-text">${text}</div>`;
   return wrapper;
 }
 
-// ===== Text-to-Image Generator =====
+// ================= TEXT TO IMAGE =================
 const generateBtn = document.getElementById('generateBtn');
 const promptInput = document.getElementById('promptInput');
 const imageContainer = document.getElementById('imageContainer');
@@ -31,6 +56,7 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return alert('Enter a colonial scene!');
+
   const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
 
   imageContainer.innerHTML = '';
@@ -44,18 +70,27 @@ generateBtn.addEventListener('click', () => {
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
 
-  img.onload = () => { spinner.remove(); imageContainer.appendChild(img); completeSound.play(); };
-  img.onerror = () => { spinner.remove(); alert('Failed to generate image. Try again.'); };
+  img.onload = () => {
+    spinner.remove();
+    imageContainer.appendChild(img);
+    playSound(completeSound);
+  };
+
+  img.onerror = () => {
+    spinner.remove();
+    alert('Failed to generate image.');
+  };
+
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
-// ===== Avatar Generator =====
+// ================= AVATAR GENERATOR =================
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
 
 generateAvatarBtn.addEventListener('click', () => {
   const fields = ['gender','background','outfit','hat','accessory','hair','age','race'];
-  const values = fields.map(f => document.getElementById(f+'Select').value);
+  const values = fields.map(f => document.getElementById(f + 'Select').value);
   const [gender, background, outfit, hat, accessory, hair, age, heritage] = values;
 
   const prompt = `Colonial American portrait 1776. ${age} ${gender} of ${heritage} heritage, wearing ${outfit} and ${hat}. Hairstyle: ${hair}. Accessory: ${accessory}. Background: ${background}. Oil painting style.`;
@@ -65,18 +100,22 @@ generateAvatarBtn.addEventListener('click', () => {
   avatarContainer.appendChild(spinner);
 
   const img = new Image();
-  img.alt = '1776 Avatar';
   img.style.maxWidth = '220px';
   img.style.width = '100%';
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '14px';
 
-  img.onload = () => { spinner.remove(); avatarContainer.appendChild(img); completeSound.play(); };
-  img.onerror = () => { spinner.remove(); alert('Failed to generate avatar. Try again.'); };
+  img.onload = () => {
+    spinner.remove();
+    avatarContainer.appendChild(img);
+    playSound(completeSound);
+  };
+
+  img.onerror = () => spinner.remove();
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
-// ===== Quiz =====
+// ================= QUIZ =================
 const quizData = [
   {q:"Year Declaration of Independence was signed?", o:["1775","1776","1777","1781"], a:"1776"},
   {q:"Commander of Continental Army?", o:["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], a:"George Washington"},
@@ -102,9 +141,9 @@ const scoreEl = document.getElementById('score');
 function initProgressBar() {
   progressContainer.innerHTML = '';
   quizData.forEach(() => {
-    const segment = document.createElement('div');
-    segment.className = 'progress-segment';
-    progressContainer.appendChild(segment);
+    const div = document.createElement('div');
+    div.className = 'progress-segment';
+    progressContainer.appendChild(div);
   });
 }
 
@@ -120,300 +159,84 @@ function loadQuestion() {
   [...q.o].sort(() => Math.random() - 0.5).forEach(opt => {
     const btn = document.createElement('button');
     btn.textContent = opt;
-    btn.addEventListener('click', () => {
+    btn.onclick = () => {
       document.querySelectorAll('#answers button').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       submitBtn.disabled = false;
-    });
+    };
     answersEl.appendChild(btn);
   });
 }
 
-function markProgress(isCorrect) {
-  const segments = document.querySelectorAll('.progress-segment');
-  if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4f7c4a' : '#8c3a2b';
-}
-
 submitBtn.addEventListener('click', () => {
   const selected = document.querySelector('#answers button.selected');
-  if(!selected) return;
+  if (!selected) return;
+
   const isCorrect = selected.textContent === quizData[currentQuestion].a;
+  if (isCorrect) playSound(correctSound);
+  else playSound(wrongSound);
 
-  Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
-    btn.disabled = true;
-    if(btn.textContent === quizData[currentQuestion].a) btn.classList.add('correct');
-  });
-
-  if(isCorrect) correctSound.play();
-  else wrongSound.play();
-  if(!isCorrect) selected.classList.add('wrong');
-
-  markProgress(isCorrect);
   quizScore += isCorrect ? 1 : 0;
-
-  submitBtn.classList.add('hidden');
-  nextBtn.classList.remove('hidden');
-});
-
-nextBtn.addEventListener('click', () => {
   currentQuestion++;
-  if(currentQuestion >= quizData.length) showScore();
-  else loadQuestion();
-});
 
-function showScore(){
-  questionEl.textContent = 'Quiz Completed!';
-  answersEl.innerHTML = '';
-  submitBtn.classList.add('hidden');
-  nextBtn.classList.add('hidden');
-  takeAgainBtn.classList.remove('hidden');
-  scoreEl.textContent = `Your Score: ${quizScore} / ${quizData.length}`;
-  scoreEl.classList.remove('hidden');
-  completeSound.play();
-}
-
-takeAgainBtn.addEventListener('click', () => {
-  currentQuestion = 0;
-  quizScore = 0;
-  scoreEl.classList.add('hidden');
-  takeAgainBtn.classList.add('hidden');
-  initProgressBar();
-  loadQuestion();
+  if (currentQuestion >= quizData.length) {
+    questionEl.textContent = 'Quiz Completed!';
+    answersEl.innerHTML = '';
+    scoreEl.textContent = `Your Score: ${quizScore} / ${quizData.length}`;
+    scoreEl.classList.remove('hidden');
+    playSound(completeSound);
+  } else {
+    loadQuestion();
+  }
 });
 
 initProgressBar();
 loadQuestion();
 
-// ===== Memory Match =====
+// ================= MEMORY MATCH =================
 const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
-let memoryDeck = [...memoryEmojis, ...memoryEmojis];
 const memoryGrid = document.querySelector('#memoryGame .card-grid');
 let memoryFlipped = [], memoryMatches = 0;
 
-function shuffle(array){ return array.sort(() => Math.random() - 0.5); }
-
 function initMemoryGame() {
   memoryGrid.innerHTML = '';
-  memoryDeck = shuffle([...memoryEmojis, ...memoryEmojis]);
-  memoryFlipped = [];
   memoryMatches = 0;
+  memoryFlipped = [];
 
-  memoryDeck.forEach(emoji => {
+  [...memoryEmojis, ...memoryEmojis].sort(() => Math.random() - 0.5).forEach(emoji => {
     const card = document.createElement('div');
     card.className = 'card';
     card.dataset.value = emoji;
     card.innerHTML = `<div class="card-inner"><div class="card-front">?</div><div class="card-back">${emoji}</div></div>`;
-    card.addEventListener('click', () => flipCard(card));
+    card.onclick = () => flipCard(card);
     memoryGrid.appendChild(card);
   });
-
-  document.getElementById('memoryScore').textContent = '';
 }
 
 function flipCard(card) {
-  if(memoryFlipped.length >= 2 || card.classList.contains('matched') || card.classList.contains('flipped')) return;
+  if (memoryFlipped.length === 2 || card.classList.contains('flipped')) return;
   card.classList.add('flipped');
   memoryFlipped.push(card);
-  if(memoryFlipped.length === 2) setTimeout(checkMatch, 800);
-}
 
-function checkMatch() {
-  const [c1,c2] = memoryFlipped;
-  if(c1.dataset.value === c2.dataset.value) {
-    c1.classList.add('matched');
-    c2.classList.add('matched');
-    memoryMatches++;
-  } else {
-    c1.classList.remove('flipped');
-    c2.classList.remove('flipped');
-  }
-  memoryFlipped = [];
-  if(memoryMatches === memoryEmojis.length) {
-    document.getElementById('memoryScore').textContent = '🎉 You matched all cards! 🎉';
-    completeSound.play();
+  if (memoryFlipped.length === 2) {
+    setTimeout(() => {
+      const [a,b] = memoryFlipped;
+      if (a.dataset.value === b.dataset.value) {
+        memoryMatches++;
+        if (memoryMatches === memoryEmojis.length) playSound(completeSound);
+      } else {
+        a.classList.remove('flipped');
+        b.classList.remove('flipped');
+      }
+      memoryFlipped = [];
+    }, 700);
   }
 }
 
 initMemoryGame();
 
-// ===== Typing Challenge =====
-const typingQuote = "Learn your lessons well in the colonial classroom.";
-const sentenceDisplay = document.getElementById('sentenceDisplay');
-const typingInput = document.getElementById('typingInput');
-const typingScore = document.getElementById('typingScore');
-let typingStart = null, typingTimerInterval = null;
-
-function loadTypingQuote() {
-  sentenceDisplay.innerHTML = `<span>"${typingQuote}"</span>`;
-  typingInput.value = '';
-  typingScore.textContent = '';
-  typingScore.classList.remove('error');
-  typingStart = null;
-  typingInput.disabled = false;
-  typingInput.focus();
-  clearInterval(typingTimerInterval);
-}
-
-typingInput.addEventListener('input', () => {
-  const typed = typingInput.value;
-  if(!typingStart) {
-    typingStart = Date.now();
-    typingTimerInterval = setInterval(() => {
-      const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
-      typingScore.textContent = `⌛ Time: ${elapsed}s`;
-    },50);
-  }
-
-  if(typed === typingQuote) {
-    const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
-    typingScore.textContent = `✅ Perfect! Time: ${elapsed} seconds`;
-    typingInput.disabled = true;
-    clearInterval(typingTimerInterval);
-    completeSound.play();
-  } else if(!typingQuote.startsWith(typed)) {
-    typingScore.textContent = '❌ Typing error! Check spelling & punctuation.';
-    typingScore.classList.add('error');
-    wrongSound.play();
-  } else typingScore.classList.remove('error');
-});
-
-typingInput.addEventListener('blur', () => clearInterval(typingTimerInterval));
-typingInput.addEventListener('focus', () => {
-  if(typingStart) typingTimerInterval = setInterval(() => {
-    const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
-    typingScore.textContent = `⌛ Time: ${elapsed}s`;
-  },50);
-});
-
-const typingResetBtn = document.createElement('button');
-typingResetBtn.textContent = 'Reset Typing';
-typingResetBtn.style.marginTop = '10px';
-typingResetBtn.addEventListener('click', loadTypingQuote);
-sentenceDisplay.parentNode.appendChild(typingResetBtn);
-loadTypingQuote();
-
-// ===== Classroom Cleanup =====
-const cleanupBoard = document.getElementById('classroomBoard');
-const cleanupScore = document.getElementById('cleanupScore');
-const cleanupTimer = document.getElementById('cleanupTimer');
-const basket = document.getElementById('basket');
-const resetBtn = document.getElementById('resetCleanupBtn');
-
-// Create Start button if not present
-let startBtn = document.getElementById('startCleanupBtn');
-if (!startBtn) {
-  startBtn = document.createElement('button');
-  startBtn.id = 'startCleanupBtn';
-  startBtn.textContent = 'Start Cleanup';
-  cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
-}
-
-const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
-let startTime = 0, timerInterval, gameStarted = false;
-
-function setupBoard() {
-  // Clear previous items
-  cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
-  cleanupScore.textContent = '';
-  cleanupTimer.textContent = 'Time: 0.00s';
-  clearInterval(timerInterval);
-  gameStarted = false;
-
-  const basketRect = basket.getBoundingClientRect();
-
-  clutterItems.forEach(emoji => {
-    const div = document.createElement('div');
-    div.className = 'clutter-item';
-    div.textContent = emoji;
-
-    const itemSize = 40;
-    let x, y;
-
-    do {
-      x = Math.random() * (cleanupBoard.clientWidth - itemSize);
-      y = Math.random() * (cleanupBoard.clientHeight - itemSize - 60); // avoid basket area
-    } while (
-      x + itemSize > basket.offsetLeft &&
-      x < basket.offsetLeft + basket.offsetWidth &&
-      y + itemSize > basket.offsetTop &&
-      y < basket.offsetTop + basket.offsetHeight
-    );
-
-    div.style.position = 'absolute';
-    div.style.left = x + 'px';
-    div.style.top = y + 'px';
-    div.style.cursor = 'grab';
-    div.draggable = false;
-    cleanupBoard.appendChild(div);
-  });
-
-  startBtn.style.display = 'inline-block';
-}
-
-function updateTimer() {
-  if(!gameStarted) return;
-  const elapsed = ((Date.now() - startTime)/1000).toFixed(2);
-  cleanupTimer.textContent = `Time: ${elapsed}s`;
-}
-
-function startCleanupGame() {
-  startBtn.style.display = 'none';
-  gameStarted = true;
-  startTime = Date.now();
-  updateTimer();
-  timerInterval = setInterval(updateTimer, 50);
-
-  cleanupBoard.querySelectorAll('.clutter-item').forEach(div => {
-    div.draggable = true;
-    div.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', div.textContent));
-  });
-}
-
-basket.addEventListener('dragover', e => e.preventDefault());
-basket.addEventListener('dragenter', e => { 
-  e.preventDefault(); 
-  if(!gameStarted) return; 
-  basket.classList.add('drag-over'); 
-});
-basket.addEventListener('dragleave', e => { 
-  e.preventDefault(); 
-  if(!gameStarted) return; 
-  basket.classList.remove('drag-over'); 
-});
-basket.addEventListener('drop', e => {
-  e.preventDefault();
-  if(!gameStarted) return;
-  const emoji = e.dataTransfer.getData('text/plain');
-  const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d => d.textContent === emoji);
-  if(target) target.remove();
-  basket.classList.remove('drag-over');
-  checkCompletion();
-});
-
-function checkCompletion() {
-  const remaining = cleanupBoard.querySelectorAll('.clutter-item').length;
-  if(remaining === 0) {
-    clearInterval(timerInterval);
-    const totalTime = ((Date.now() - startTime)/1000).toFixed(2);
-    cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
-    completeSound.play();
-  }
-}
-
-resetBtn.addEventListener('click', setupBoard);
-startBtn.addEventListener('click', startCleanupGame);
-
-// Initialize
-setupBoard();
-
-
-// ===== Light/Dark Mode Toggle =====
+// ================= LIGHT / DARK MODE =================
 const modeSwitch = document.getElementById('modeSwitch');
 modeSwitch.addEventListener('change', () => {
-  if (modeSwitch.checked) document.body.classList.add('light-mode');
-  else document.body.classList.remove('light-mode');
+  document.body.classList.toggle('light-mode', modeSwitch.checked);
 });
-
-
-
-
