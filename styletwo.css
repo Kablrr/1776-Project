@@ -262,7 +262,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   max-width: 600px;
   height: 350px;
   margin: 20px auto;
-  background: url('https://img.freepik.com/premium-vector/classroom-vector-art-enhance-educational-content-with-vibrant-graphics_1132808-309.jpg') no-repeat center/cover;
+  background: url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg') no-repeat center/cover;
   background-size: cover;
   border: 2px solid #b08a57;
   border-radius: 14px;
@@ -339,6 +339,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   #basket { width: 90px; height: 90px; font-size: 2rem; }
   .clutter-item { font-size: 1.8rem; }
 }
+
 
 
 
