@@ -259,16 +259,16 @@ async function fetchRandomSentence() {
   typingScore.textContent = "";
 
   try {
-    const prompt = "Write a short colonial-era sentence about school life in 1776, 7-12 words.";
+    // Force short 7-12 word sentence about colonial school life
+    const prompt = "Write a 7-12 word colonial-era sentence about school life in 1776.";
     const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
-    const aiText = await response.text();
-
-    // Trim to max 12 words
-    let words = aiText.trim().split(/\s+/);
-    if (words.length > 12) words = words.slice(0, 12);
-    currentSentence = words.join(' ') || "Students in 1776 wrote with quills.";
+    let aiText = await response.text();
+    
+    // Take only the first 12 words if AI gives longer text
+    const words = aiText.trim().split(/\s+/).slice(0, 12);
+    currentSentence = words.join(" ") || "Students in 1776 wrote with quills on parchment.";
   } catch(err) {
-    currentSentence = "Students in 1776 wrote with quills.";
+    currentSentence = "Students in 1776 wrote with quills on parchment.";
   }
 
   sentenceDisplay.textContent = currentSentence;
@@ -278,24 +278,23 @@ async function fetchRandomSentence() {
   typingStartTime = 0;
 }
 
-// Load first sentence
 fetchRandomSentence();
 
 typingInput.addEventListener("input", () => {
-  if (!typingStarted) {
+  if(!typingStarted){
     typingStarted = true;
     typingStartTime = Date.now();
   }
 
-  if (typingInput.value === currentSentence) {
-    const elapsed = (Date.now() - typingStartTime) / 1000;
+  if(typingInput.value === currentSentence){
+    const elapsed = (Date.now() - typingStartTime)/1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
     typingLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
-
     typingInput.disabled = true;
     setTimeout(fetchRandomSentence, 1000);
   }
 });
+
 
 
 // ===== Classroom Cleanup =====
@@ -402,5 +401,6 @@ document.addEventListener("mousemove", e => {
   cursorGlow.style.left = `${x}px`;
   cursorGlow.style.top = `${y}px`;
 });
+
 
 
