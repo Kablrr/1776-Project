@@ -87,27 +87,40 @@ generateAvatarBtn.addEventListener("click", async () => {
 // ===== Quiz =====
 let currentQuestion = 0;
 let userScore = 0;
+
+// Add more questions as desired
 let quizData = [
   { q: "Which year did the American Declaration of Independence occur?", a: ["1775","1776","1781","1789"], correct:1 },
   { q: "Who was the primary author of the Declaration of Independence?", a: ["George Washington","Thomas Jefferson","Benjamin Franklin","John Adams"], correct:1 },
   { q: "What was a common school supply in 1776?", a: ["Tablet","Parchment and Quill","Notebook","Chalkboard"], correct:1 },
-  { q: "Which battle is considered the turning point of the American Revolution?", a: ["Battle of Bunker Hill","Battle of Saratoga","Battle of Yorktown","Battle of Lexington"], correct:1 },
-  { q: "Who was the commander-in-chief of the Continental Army?", a: ["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], correct:2 },
-  { q: "Which document formally ended the Revolutionary War?", a: ["Declaration of Independence","Articles of Confederation","Treaty of Paris 1783","Bill of Rights"], correct:2 },
-  { q: "What was a common classroom activity in colonial schools?", a: ["Typing on a keyboard","Reciting lessons by rote","Drawing with crayons","Using calculators"], correct:1 },
-  { q: "Which of these items would students use in 1776?", a: ["Ink pen","Quill","Fountain pen","Marker"], correct:1 },
-  { q: "Which famous figure signed the Declaration of Independence?", a: ["Paul Revere","Benjamin Franklin","Alexander Hamilton","John Hancock"], correct:3 },
-  { q: "Which colony was the first to declare independence?", a: ["Virginia","Pennsylvania","Massachusetts","Delaware"], correct:2 }
+  { q: "Which city hosted the signing of the Declaration of Independence?", a: ["New York","Philadelphia","Boston","Washington D.C."], correct:1 },
+  { q: "What was the original purpose of colonial schools?", a: ["Trade skills","Religious instruction","Sports","Art"], correct:1 },
+  { q: "Which famous figure was known as the 'Father of the Constitution'?", a: ["Thomas Jefferson","George Washington","James Madison","Benjamin Franklin"], correct:2 },
+  { q: "What writing instrument was commonly used in 1776?", a: ["Ballpoint pen","Pencil","Quill and ink","Marker"], correct:2 },
+  { q: "Which event sparked the American Revolutionary War?", a: ["Boston Tea Party","Signing of Declaration","Battle of Yorktown","Stamp Act"], correct:0 }
 ];
 
+// Optional: randomize question order
+quizData.sort(() => Math.random() - 0.5);
 
 function renderQuestion() {
   const q = quizData[currentQuestion];
   questionEl.textContent = q.q;
   answersEl.innerHTML = "";
-  q.a.forEach((answer, idx) => {
+
+  // Map answers to objects so we can track which is correct
+  const answers = q.a.map((answer, idx) => ({
+    text: answer,
+    isCorrect: idx === q.correct
+  }));
+
+  // Shuffle answers
+  answers.sort(() => Math.random() - 0.5);
+
+  answers.forEach(answerObj => {
     const btn = document.createElement("button");
-    btn.textContent = answer;
+    btn.textContent = answerObj.text;
+    btn.dataset.correct = answerObj.isCorrect;
     btn.addEventListener("click", () => {
       Array.from(answersEl.children).forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
@@ -115,6 +128,7 @@ function renderQuestion() {
     });
     answersEl.appendChild(btn);
   });
+
   submitBtn.disabled = true;
   nextBtn.classList.add("hidden");
 }
@@ -122,29 +136,27 @@ renderQuestion();
 
 submitBtn.addEventListener("click", () => {
   const selected = Array.from(answersEl.children).find(b => b.classList.contains("selected"));
-  const correctIdx = quizData[currentQuestion].correct;
+  const isCorrect = selected.dataset.correct === "true";
 
-  Array.from(answersEl.children).forEach((b,i) => {
+  Array.from(answersEl.children).forEach(b => {
     b.classList.remove("selected");
-    if(i === correctIdx) b.classList.add("correct");
-    else if(b === selected) b.classList.add("wrong");
+    if (b.dataset.correct === "true") b.classList.add("correct");
+    else if (b === selected) b.classList.add("wrong");
   });
 
-  if(Array.from(answersEl.children).indexOf(selected) === correctIdx) {
+  if (isCorrect) {
     userScore++;
-    correctSfx.currentTime = 0;
-    correctSfx.play();
+    new Audio('correct.mp3').play(); // correct sound
   } else {
-    wrongSfx.currentTime = 0;
-    wrongSfx.play();
+    new Audio('wrong.mp3').play(); // wrong sound
   }
 
   // Update progress bar
   progressContainer.innerHTML = "";
-  quizData.forEach((_,i) => {
+  quizData.forEach((_, i) => {
     const segment = document.createElement("div");
     segment.classList.add("progress-segment");
-    if(i < currentQuestion + 1){
+    if (i < currentQuestion + 1) {
       segment.style.backgroundColor = i < userScore ? "var(--correct-color)" : "var(--wrong-color)";
     }
     progressContainer.appendChild(segment);
@@ -156,15 +168,14 @@ submitBtn.addEventListener("click", () => {
 
 nextBtn.addEventListener("click", () => {
   currentQuestion++;
-  if(currentQuestion >= quizData.length){
+  if (currentQuestion >= quizData.length) {
     questionEl.textContent = "Quiz Completed!";
     answersEl.innerHTML = "";
     nextBtn.classList.add("hidden");
     scoreEl.textContent = `Score: ${userScore} / ${quizData.length}`;
     scoreEl.classList.remove("hidden");
     takeAgainBtn.classList.remove("hidden");
-    completeSfx.currentTime = 0;
-    completeSfx.play();
+    new Audio('complete.mp3').play(); // complete sound
   } else renderQuestion();
 });
 
@@ -173,8 +184,13 @@ takeAgainBtn.addEventListener("click", () => {
   userScore = 0;
   scoreEl.classList.add("hidden");
   takeAgainBtn.classList.add("hidden");
+
+  // Optional: reshuffle questions each attempt
+  quizData.sort(() => Math.random() - 0.5);
+
   renderQuestion();
 });
+
 
 // ===== Memory Match =====
 const emojiCards = ["📜","🖋️","🎓","📚","🏺","🪑","🕯️","🔔"];
@@ -434,6 +450,7 @@ document.addEventListener("mousemove", e => {
   cursorGlow.style.left = `${x}px`;
   cursorGlow.style.top = `${y}px`;
 });
+
 
 
 
