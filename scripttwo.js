@@ -230,25 +230,100 @@ let cleanupStarted = false;
 let cleanupTime = 0;
 let cleanupTimer;
 
-function startCleanupTimer(){
-  if(cleanupStarted) return;
+const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"]; // Emojis to pick up
+let itemsInPlay = [];
+
+// Set the background
+classroomBoard.style.backgroundImage = "url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg')";
+classroomBoard.style.backgroundSize = "cover";
+classroomBoard.style.backgroundPosition = "center";
+
+// Start timer only on first interaction
+function startCleanupTimer() {
+  if (cleanupStarted) return;
   cleanupStarted = true;
   cleanupTime = 0;
-  cleanupTimer = setInterval(()=> {
+  cleanupTimer = setInterval(() => {
     cleanupTime += 0.01;
     cleanupTimerEl.textContent = `Time: ${cleanupTime.toFixed(2)}s`;
-  },10);
+  }, 10);
 }
 
-// Start cleanup timer only on interaction
-basket.addEventListener("mousedown", startCleanupTimer);
-
-resetCleanupBtn.addEventListener("click", ()=> {
+// Reset cleanup
+function resetCleanup() {
   clearInterval(cleanupTimer);
-  cleanupStarted=false;
-  cleanupTime=0;
+  cleanupStarted = false;
+  cleanupTime = 0;
   cleanupTimerEl.textContent = `Time: 0.00s`;
-});
+
+  // Clear old items
+  itemsInPlay.forEach(item => classroomBoard.removeChild(item));
+  itemsInPlay = [];
+
+  // Create new items at random positions
+  classroomItems.forEach(emoji => {
+    const item = document.createElement("div");
+    item.classList.add("clutter-item");
+    item.textContent = emoji;
+    // random position within board
+    const x = Math.random() * (classroomBoard.clientWidth - 40);
+    const y = Math.random() * (classroomBoard.clientHeight - 40);
+    item.style.left = `${x}px`;
+    item.style.top = `${y}px`;
+    item.style.position = "absolute";
+    item.style.fontSize = "32px";
+    item.style.cursor = "grab";
+
+    // Make draggable
+    item.addEventListener("mousedown", e => {
+      startCleanupTimer();
+      const offsetX = e.clientX - item.getBoundingClientRect().left;
+      const offsetY = e.clientY - item.getBoundingClientRect().top;
+
+      function onMouseMove(e) {
+        item.style.left = `${e.clientX - classroomBoard.getBoundingClientRect().left - offsetX}px`;
+        item.style.top = `${e.clientY - classroomBoard.getBoundingClientRect().top - offsetY}px`;
+      }
+
+      function onMouseUp() {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+
+        // Check if over basket
+        const basketRect = basket.getBoundingClientRect();
+        const itemRect = item.getBoundingClientRect();
+        if (
+          itemRect.left + itemRect.width/2 > basketRect.left &&
+          itemRect.right - itemRect.width/2 < basketRect.right &&
+          itemRect.top + itemRect.height/2 > basketRect.top &&
+          itemRect.bottom - itemRect.height/2 < basketRect.bottom
+        ) {
+          // Remove item from board
+          classroomBoard.removeChild(item);
+          itemsInPlay = itemsInPlay.filter(i => i !== item);
+
+          // Stop timer when all items collected
+          if (itemsInPlay.length === 0) {
+            clearInterval(cleanupTimer);
+            cleanupLeaderboardEl.textContent = `Best: ${cleanupTime.toFixed(2)} s`;
+          }
+        }
+      }
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    });
+
+    classroomBoard.appendChild(item);
+    itemsInPlay.push(item);
+  });
+}
+
+// Attach reset button
+resetCleanupBtn.addEventListener("click", resetCleanup);
+
+// Initial setup
+resetCleanup();
 
 // ===== Cursor Glow =====
 const cursorGlow = document.getElementById("cursorGlow");
@@ -256,3 +331,4 @@ document.addEventListener("mousemove", e=>{
   cursorGlow.style.left = e.clientX + "px";
   cursorGlow.style.top = e.clientY + "px";
 });
+
