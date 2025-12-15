@@ -244,7 +244,7 @@ resetMemoryBtn.addEventListener("click", ()=>{
 let currentSentence = "", lastSentence = "", typingStarted=false, typingStartTime=0, typingBestTime=null, typingTimer=null;
 
 async function fetchRandomSentence(){
-  sentenceDisplay.textContent="Loading AI prompt...";
+  sentenceDisplay.textContent="Loading prompt...";
   typingInput.disabled=true;
   typingInput.value="";
   typingScore.textContent="Time: 0.00s";
@@ -428,3 +428,4 @@ document.addEventListener("fullscreenchange", ()=>{
 });
 
 window.scrollTo(0,0);
+
