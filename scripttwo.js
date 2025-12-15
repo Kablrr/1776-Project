@@ -190,7 +190,6 @@ takeAgainBtn.addEventListener('click', () => {
   loadQuestion();
 });
 
-// Initialize Quiz
 initProgressBar();
 loadQuestion();
 
@@ -337,14 +336,33 @@ function setupBoard() {
   clearInterval(timerInterval);
   gameStarted = false;
 
+  // Get basket position
+  const basketLeft = basket.offsetLeft;
+  const basketTop = basket.offsetTop;
+  const basketWidth = basket.offsetWidth;
+  const basketHeight = basket.offsetHeight;
+
   clutterItems.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
-    const maxX = cleanupBoard.clientWidth - 40;
-    const maxY = cleanupBoard.clientHeight - 40;
-    div.style.left = Math.random() * maxX + 'px';
-    div.style.top = Math.random() * maxY + 'px';
+
+    const itemSize = 40;
+    let x, y;
+
+    // Randomly place items without overlapping basket
+    do {
+      x = Math.random() * (cleanupBoard.clientWidth - itemSize);
+      y = Math.random() * (cleanupBoard.clientHeight - itemSize);
+    } while (
+      x + itemSize > basketLeft &&
+      x < basketLeft + basketWidth &&
+      y + itemSize > basketTop &&
+      y < basketTop + basketHeight
+    );
+
+    div.style.left = x + 'px';
+    div.style.top = y + 'px';
     div.draggable = false;
     cleanupBoard.appendChild(div);
   });
