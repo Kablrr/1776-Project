@@ -164,7 +164,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   border: 2px solid var(--border-color);
   border-radius: 12px;
   margin: 10px auto;
-  background-image: url('YOUR_FREEPIK_IMAGE_HERE'); /* Replace with Freepik URL */
+  background-image: url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg'); /* Replace with Freepik URL */
   background-size: cover;
   background-position: center;
 }
@@ -181,3 +181,4 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   .main-layout { grid-template-columns: 1fr; }
   .dropdowns { grid-template-columns: repeat(2, minmax(220px, 1fr)); margin: 20px auto; }
 }
+
