@@ -6,7 +6,7 @@ document.addEventListener('mousemove', e => {
 });
 
 // ===== Spinner Helper =====
-function createSpinner(text='May take a moment to generate...') {
+function createSpinner(text = 'May take a moment to generate...') {
   const wrapper = document.createElement('div');
   wrapper.className = 'spinner-wrapper';
   wrapper.innerHTML = `<div class="spinner"></div><div class="spinner-text">${text}</div>`;
@@ -21,8 +21,8 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return alert('Enter a colonial scene!');
-
   const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
+
   imageContainer.innerHTML = '';
   const spinner = createSpinner();
   imageContainer.appendChild(spinner);
@@ -78,6 +78,16 @@ generateAvatarBtn.addEventListener('click', () => {
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
+// ===== Light/Dark Mode Toggle =====
+const modeSwitch = document.getElementById('modeSwitch');
+modeSwitch.addEventListener('change', () => {
+  if(modeSwitch.checked) {
+    document.body.classList.add('light-mode');
+  } else {
+    document.body.classList.remove('light-mode');
+  }
+});
+
 // ===== Quiz =====
 const quizData = [
   {q:"Year Declaration of Independence was signed?", o:["1775","1776","1777","1781"], a:"1776"},
@@ -92,7 +102,7 @@ const quizData = [
   {q:"Which treaty ended war?", o:["Paris","Versailles","London","Madrid"], a:"Paris"}
 ];
 
-let currentQuestion = 0, score = 0;
+let currentQuestion = 0;
 const progressContainer = document.getElementById('progressContainer');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
@@ -133,7 +143,7 @@ function loadQuestion() {
 
 function markProgress(isCorrect) {
   const segments = document.querySelectorAll('.progress-segment');
-  if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4f7c4a' : '#8c3a2b';
+  if(segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4f7c4a' : '#8c3a2b';
 }
 
 submitBtn.addEventListener('click', () => {
@@ -147,7 +157,6 @@ submitBtn.addEventListener('click', () => {
   });
 
   if(!isCorrect) selected.classList.add('wrong');
-
   markProgress(isCorrect);
   submitBtn.classList.add('hidden');
   nextBtn.classList.remove('hidden');
@@ -165,13 +174,12 @@ function showScore(){
   submitBtn.classList.add('hidden');
   nextBtn.classList.add('hidden');
   takeAgainBtn.classList.remove('hidden');
-  scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
+  scoreEl.textContent = `🎉 You completed the quiz! 🎉`;
   scoreEl.classList.remove('hidden');
 }
 
 takeAgainBtn.addEventListener('click', () => {
   currentQuestion = 0;
-  score = 0;
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
   initProgressBar();
@@ -238,7 +246,7 @@ const typingScore = document.getElementById('typingScore');
 let typingStart = null, typingTimerInterval = null;
 
 function loadTypingQuote() {
-  sentenceDisplay.innerHTML = `<span>"${typingQuote}"</span>`;
+  sentenceDisplay.textContent = `"${typingQuote}"`;
   typingInput.value = '';
   typingScore.textContent = '';
   typingStart = null;
@@ -259,17 +267,27 @@ typingInput.addEventListener('input', () => {
 
   if(typed === typingQuote) {
     const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
-    typingScore.textContent = `✅ Perfect! Time: ${elapsed} seconds`;
+    typingScore.textContent = `✅ Perfect! Time: ${elapsed}s`;
     typingInput.disabled = true;
     clearInterval(typingTimerInterval);
+    typingScore.classList.remove('error');
   } else if(!typingQuote.startsWith(typed)) {
     typingScore.textContent = '❌ Typing error! Check spelling & punctuation.';
     typingScore.classList.add('error');
-  } else typingScore.classList.remove('error');
+  } else {
+    typingScore.classList.remove('error');
+  }
 });
 
 typingInput.addEventListener('blur', () => clearInterval(typingTimerInterval));
-typingInput.addEventListener('focus', () => { if(typingStart) typingTimerInterval = setInterval(() => { const elapsed = ((Date.now() - typingStart)/1000).toFixed(2); typingScore.textContent = `⌛ Time: ${elapsed}s`; },50); });
+typingInput.addEventListener('focus', () => {
+  if(typingStart) {
+    typingTimerInterval = setInterval(() => {
+      const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
+      typingScore.textContent = `⌛ Time: ${elapsed}s`;
+    },50);
+  }
+});
 
 const typingResetBtn = document.createElement('button');
 typingResetBtn.textContent = 'Reset Typing';
@@ -284,16 +302,9 @@ const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
 const resetBtn = document.getElementById('resetCleanupBtn');
 const basket = document.getElementById('basket');
-const startBtn = document.getElementById('startCleanupBtn') || document.createElement('button');
-
-if(!document.getElementById('startCleanupBtn')){
-  startBtn.textContent = 'Start Cleanup';
-  startBtn.id = 'startCleanupBtn';
-  cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
-}
+let startTime = 0, timerInterval = null, gameStarted = false;
 
 const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
-let startTime = 0, timerInterval, gameStarted = false;
 
 function setupBoard() {
   cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
@@ -302,34 +313,20 @@ function setupBoard() {
   clearInterval(timerInterval);
   gameStarted = false;
 
-  const basketRect = basket.getBoundingClientRect();
-  const boardRect = cleanupBoard.getBoundingClientRect();
-
   clutterItems.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
 
     const itemSize = 40;
-    let x, y;
-
-    do {
-      x = Math.random() * (cleanupBoard.clientWidth - itemSize);
-      y = Math.random() * (cleanupBoard.clientHeight - itemSize);
-    } while (
-      x + itemSize > basket.offsetLeft &&
-      x < basket.offsetLeft + basket.offsetWidth &&
-      y + itemSize > basket.offsetTop &&
-      y < basket.offsetTop + basket.offsetHeight
-    );
+    let x = Math.random() * (cleanupBoard.clientWidth - itemSize);
+    let y = Math.random() * (cleanupBoard.clientHeight - itemSize);
 
     div.style.left = x + 'px';
     div.style.top = y + 'px';
     div.draggable = false;
     cleanupBoard.appendChild(div);
   });
-
-  startBtn.style.display = 'inline-block';
 }
 
 function updateTimer() {
@@ -339,10 +336,8 @@ function updateTimer() {
 }
 
 function startCleanupGame() {
-  startBtn.style.display = 'none';
   gameStarted = true;
   startTime = Date.now();
-  updateTimer();
   timerInterval = setInterval(updateTimer, 50);
 
   cleanupBoard.querySelectorAll('.clutter-item').forEach(div => {
@@ -361,32 +356,14 @@ basket.addEventListener('drop', e => {
   const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d => d.textContent === emoji);
   if(target) target.remove();
   basket.classList.remove('drag-over');
-  checkCompletion();
-});
-
-function checkCompletion() {
-  const remaining = cleanupBoard.querySelectorAll('.clutter-item').length;
-  if(remaining === 0) {
+  if(cleanupBoard.querySelectorAll('.clutter-item').length === 0) {
     clearInterval(timerInterval);
     const totalTime = ((Date.now() - startTime)/1000).toFixed(2);
-    cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
-  }
-}
-
-resetBtn.addEventListener('click', setupBoard);
-startBtn.addEventListener('click', startCleanupGame);
-
-setupBoard();
-// ===== Light/Dark Mode Toggle =====
-const modeSwitch = document.getElementById('modeSwitch');
-
-modeSwitch.addEventListener('change', () => {
-  if (modeSwitch.checked) {
-    document.body.classList.remove('dark');
-    document.body.classList.add('light');
-  } else {
-    document.body.classList.remove('light');
-    document.body.classList.add('dark');
+    cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime}s! 🎉`;
   }
 });
 
+resetBtn.addEventListener('click', setupBoard);
+cleanupBoard.parentNode.querySelector('#startCleanupBtn')?.addEventListener('click', startCleanupGame);
+
+setupBoard();
