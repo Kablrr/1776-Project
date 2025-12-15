@@ -90,8 +90,16 @@ let userScore = 0;
 let quizData = [
   { q: "Which year did the American Declaration of Independence occur?", a: ["1775","1776","1781","1789"], correct:1 },
   { q: "Who was the primary author of the Declaration of Independence?", a: ["George Washington","Thomas Jefferson","Benjamin Franklin","John Adams"], correct:1 },
-  { q: "What was a common school supply in 1776?", a: ["Tablet","Parchment and Quill","Notebook","Chalkboard"], correct:1 }
+  { q: "What was a common school supply in 1776?", a: ["Tablet","Parchment and Quill","Notebook","Chalkboard"], correct:1 },
+  { q: "Which battle is considered the turning point of the American Revolution?", a: ["Battle of Bunker Hill","Battle of Saratoga","Battle of Yorktown","Battle of Lexington"], correct:1 },
+  { q: "Who was the commander-in-chief of the Continental Army?", a: ["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], correct:2 },
+  { q: "Which document formally ended the Revolutionary War?", a: ["Declaration of Independence","Articles of Confederation","Treaty of Paris 1783","Bill of Rights"], correct:2 },
+  { q: "What was a common classroom activity in colonial schools?", a: ["Typing on a keyboard","Reciting lessons by rote","Drawing with crayons","Using calculators"], correct:1 },
+  { q: "Which of these items would students use in 1776?", a: ["Ink pen","Quill","Fountain pen","Marker"], correct:1 },
+  { q: "Which famous figure signed the Declaration of Independence?", a: ["Paul Revere","Benjamin Franklin","Alexander Hamilton","John Hancock"], correct:3 },
+  { q: "Which colony was the first to declare independence?", a: ["Virginia","Pennsylvania","Massachusetts","Delaware"], correct:2 }
 ];
+
 
 function renderQuestion() {
   const q = quizData[currentQuestion];
@@ -351,3 +359,4 @@ document.addEventListener("mousemove", e=>{
   cursorGlow.style.left = e.clientX + "px";
   cursorGlow.style.top = e.clientY + "px";
 });
+
