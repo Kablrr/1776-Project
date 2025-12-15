@@ -260,41 +260,63 @@ resetMemoryBtn.addEventListener("click", () => {
   setupMemory();
 });
 
-// ===== Typing Challenge =====
-const colonialSentence = "Students in 1776 wrote with quills on parchment and learned by rote.";
+// ===== Typing Challenge (AI-generated sentences) =====
+const sentenceDisplay = document.getElementById("sentenceDisplay");
+const typingInput = document.getElementById("typingInput");
+const typingScore = document.getElementById("typingScore");
+const typingLeaderboard = document.getElementById("typingLeaderboard");
+
+let currentSentence = "";
 let typingStarted = false;
 let typingStartTime;
-let typingTimer;
 
-function resetTypingChallenge() {
-  clearInterval(typingTimer);
+// Fetch a new AI-generated sentence
+async function fetchRandomSentence() {
+  sentenceDisplay.textContent = "Loading AI prompt...";
+  typingInput.disabled = true;
   typingInput.value = "";
   typingScore.textContent = "";
+
+  try {
+    const prompt = "Write a short colonial era sentence for a typing challenge about school life in 1776.";
+    const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+    const aiText = await response.text();
+
+    currentSentence = aiText.trim() || "Students in 1776 wrote with quills on parchment.";
+  } catch (err) {
+    currentSentence = "Students in 1776 wrote with quills on parchment.";
+  }
+
+  sentenceDisplay.textContent = currentSentence;
+  typingInput.disabled = false;
+  typingInput.focus();
   typingStarted = false;
 }
 
+// Call this on load or when resetting
+fetchRandomSentence();
+
+// Handle typing input
 typingInput.addEventListener("input", () => {
   if (!typingStarted) {
     typingStarted = true;
     typingStartTime = Date.now();
-    typingTimer = setInterval(() => {
-      const elapsed = (Date.now() - typingStartTime) / 1000;
-      typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
-    }, 10); // update every 10ms
   }
 
-  if (typingInput.value === colonialSentence) {
-    clearInterval(typingTimer);
+  const typedValue = typingInput.value;
+
+  // If fully typed correctly
+  if (typedValue === currentSentence) {
     const elapsed = (Date.now() - typingStartTime) / 1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
     typingLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
-
-    // Automatically reset for the next round after a short delay
-    setTimeout(resetTypingChallenge, 1500);
+    
+    // Automatically fetch a new sentence after 1 second
+    typingInput.disabled = true;
+    setTimeout(fetchRandomSentence, 1000);
   }
 });
 
-sentenceDisplay.textContent = colonialSentence;
 
 // ===== Classroom Cleanup =====
 let cleanupStarted = false;
@@ -407,6 +429,7 @@ document.addEventListener("mousemove", e=>{
   cursorGlow.style.left = e.clientX + "px";
   cursorGlow.style.top = e.clientY + "px";
 });
+
 
 
 
