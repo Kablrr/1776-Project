@@ -159,16 +159,30 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   position: relative;
   width: 100%;
   max-width: 650px;
-  height: 250px;
+  height: 300px; /* slightly taller to match floor area */
+  background-image: url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg'); /* Freepik / SlidesDocs background */
+  background-size: cover;
+  background-position: center;
   border: 2px solid var(--border-color);
   border-radius: 12px;
   margin: 10px auto;
-  background-color: var(--parchment);
-  background-image: url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg'); /* Replace with Freepik URL */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  overflow: hidden; /* ensures clutter items stay within board */
 }
+#basket {
+  position: absolute;
+  bottom: 20px; /* adjust vertical placement */
+  right: 50px;  /* adjust horizontal placement */
+  font-size: 64px; /* make basket bigger to match floor scale */
+  pointer-events: auto;
+  cursor: grab;
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+#basket.drag-over {
+  transform: scale(1.1); /* pop effect when dragging items over */
+}
+
 
 .clutter-item { position: absolute; font-size: 32px; cursor: grab; }
 #basket { position: absolute; bottom: 10px; right: 10px; font-size: 48px; pointer-events: auto; }
@@ -183,5 +197,6 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   .main-layout { grid-template-columns: 1fr; }
   .dropdowns { grid-template-columns: repeat(2, minmax(220px, 1fr)); margin: 20px auto; }
 }
+
 
 
