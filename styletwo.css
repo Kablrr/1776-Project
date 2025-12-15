@@ -257,7 +257,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   max-width: 600px;
   height: 350px;
   margin: 20px auto;
-  background: url('https://images.unsplash.com/photo-1601582583749-d6b1f466f5a5?fm=jpg&q=60&w=1200') no-repeat center/cover;
+  background: url('https://img.freepik.com/premium-vector/classroom-vector-art-enhance-educational-content-with-vibrant-graphics_1132808-309.jpg?semt=ais_hybrid&w=740&q=80') no-repeat center/cover;
   border: 2px solid #b08a57;
   border-radius: 14px;
   overflow: hidden;
@@ -338,6 +338,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   #basket { width: 90px; height: 90px; font-size: 2rem; }
   .clutter-item { font-size: 1.8rem; }
 }
+
 
 
 
