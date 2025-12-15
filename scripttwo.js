@@ -29,6 +29,11 @@ const cleanupTimerEl = document.getElementById("cleanupTimer");
 const cleanupLeaderboardEl = document.getElementById("cleanupLeaderboard");
 const resetCleanupBtn = document.getElementById("resetCleanupBtn");
 
+// ===== Audio =====
+const correctSfx = new Audio("correct.mp3");
+const wrongSfx = new Audio("wrong.mp3");
+const completeSfx = new Audio("complete.mp3");
+
 // ===== Light/Dark Mode =====
 const modeSwitch = document.getElementById("modeSwitch");
 modeSwitch.addEventListener("change", () => {
@@ -40,15 +45,12 @@ generateBtn.addEventListener("click", async () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return;
 
-  // Colonial / 1776 style prompt wording
   const prompt = `${userPrompt}, colonial-era scene, historical clothing, wooden desks, parchment and quills, oil painting style, early American 18th century, realistic lighting`;
 
   imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image...</div></div>`;
 
   try {
-    const response = await fetch(
-      `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`
-    );
+    const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     imageContainer.innerHTML = `<img src="${url}" alt="Generated Colonial Scene">`;
@@ -73,9 +75,7 @@ generateAvatarBtn.addEventListener("click", async () => {
   avatarContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating avatar...</div></div>`;
 
   try {
-    const response = await fetch(
-      `https://image.pollinations.ai/prompt/${encodeURIComponent(avatarPrompt)}`
-    );
+    const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(avatarPrompt)}`);
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     avatarContainer.innerHTML = `<img src="${url}" alt="Generated Avatar">`;
@@ -122,16 +122,22 @@ submitBtn.addEventListener("click", () => {
     else if(b === selected) b.classList.add("wrong");
   });
 
-  if(Array.from(answersEl.children).indexOf(selected) === correctIdx) userScore++;
+  if(Array.from(answersEl.children).indexOf(selected) === correctIdx) {
+    userScore++;
+    correctSfx.currentTime = 0;
+    correctSfx.play();
+  } else {
+    wrongSfx.currentTime = 0;
+    wrongSfx.play();
+  }
 
-  // Correct progress bar update
+  // Update progress bar
   progressContainer.innerHTML = "";
   quizData.forEach((_,i) => {
     const segment = document.createElement("div");
     segment.classList.add("progress-segment");
-    if(i < currentQuestion+1){
-      if(i < userScore) segment.style.backgroundColor = "var(--correct-color)";
-      else segment.style.backgroundColor = "var(--wrong-color)";
+    if(i < currentQuestion + 1){
+      segment.style.backgroundColor = i < userScore ? "var(--correct-color)" : "var(--wrong-color)";
     }
     progressContainer.appendChild(segment);
   });
@@ -149,6 +155,8 @@ nextBtn.addEventListener("click", () => {
     scoreEl.textContent = `Score: ${userScore} / ${quizData.length}`;
     scoreEl.classList.remove("hidden");
     takeAgainBtn.classList.remove("hidden");
+    completeSfx.currentTime = 0;
+    completeSfx.play();
   } else renderQuestion();
 });
 
@@ -181,6 +189,10 @@ function startMemoryTimer(){
 function setupMemory(){
   memoryCards = [...emojiCards, ...emojiCards].sort(() => 0.5-Math.random());
   memoryGrid.innerHTML = "";
+  flipped = [];
+  memoryStarted = false;
+  memoryTime = 0;
+
   memoryCards.forEach((emoji) => {
     const card = document.createElement("div");
     card.className = "card";
@@ -190,16 +202,31 @@ function setupMemory(){
       if(card.classList.contains("flipped")) return;
       card.classList.add("flipped");
       flipped.push({card, emoji});
+
       if(flipped.length === 2){
         if(flipped[0].emoji !== flipped[1].emoji){
-          setTimeout(()=>{flipped[0].card.classList.remove("flipped"); flipped[1].card.classList.remove("flipped"); flipped=[];},500);
-        } else flipped = [];
+          wrongSfx.currentTime = 0;
+          wrongSfx.play();
+          setTimeout(() => {
+            flipped[0].card.classList.remove("flipped");
+            flipped[1].card.classList.remove("flipped");
+            flipped = [];
+          }, 500);
+        } else {
+          correctSfx.currentTime = 0;
+          correctSfx.play();
+          flipped = [];
+        }
+
         if(document.querySelectorAll("#memoryGame .card.flipped").length === memoryCards.length){
           clearInterval(memoryTimer);
           memoryLeaderboardEl.textContent = `Best: ${memoryTime.toFixed(2)} s`;
+          completeSfx.currentTime = 0;
+          completeSfx.play();
         }
       }
     });
+
     memoryGrid.appendChild(card);
   });
 }
@@ -220,6 +247,8 @@ typingInput.addEventListener("input", () => {
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
     typingLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
     typingInput.disabled = true;
+    completeSfx.currentTime = 0;
+    completeSfx.play();
   }
 });
 
@@ -230,17 +259,15 @@ let cleanupStarted = false;
 let cleanupTime = 0;
 let cleanupTimer;
 
-const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"]; // Emojis to pick up
+const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"];
 let itemsInPlay = [];
 
-// Set the background
 classroomBoard.style.backgroundImage = "url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg')";
 classroomBoard.style.backgroundSize = "cover";
 classroomBoard.style.backgroundPosition = "center";
 
-// Start timer only on first interaction
 function startCleanupTimer() {
-  if (cleanupStarted) return;
+  if(cleanupStarted) return;
   cleanupStarted = true;
   cleanupTime = 0;
   cleanupTimer = setInterval(() => {
@@ -249,23 +276,19 @@ function startCleanupTimer() {
   }, 10);
 }
 
-// Reset cleanup
 function resetCleanup() {
   clearInterval(cleanupTimer);
   cleanupStarted = false;
   cleanupTime = 0;
   cleanupTimerEl.textContent = `Time: 0.00s`;
 
-  // Clear old items
   itemsInPlay.forEach(item => classroomBoard.removeChild(item));
   itemsInPlay = [];
 
-  // Create new items at random positions
   classroomItems.forEach(emoji => {
     const item = document.createElement("div");
     item.classList.add("clutter-item");
     item.textContent = emoji;
-    // random position within board
     const x = Math.random() * (classroomBoard.clientWidth - 40);
     const y = Math.random() * (classroomBoard.clientHeight - 40);
     item.style.left = `${x}px`;
@@ -274,7 +297,6 @@ function resetCleanup() {
     item.style.fontSize = "32px";
     item.style.cursor = "grab";
 
-    // Make draggable
     item.addEventListener("mousedown", e => {
       startCleanupTimer();
       const offsetX = e.clientX - item.getBoundingClientRect().left;
@@ -289,7 +311,6 @@ function resetCleanup() {
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
 
-        // Check if over basket
         const basketRect = basket.getBoundingClientRect();
         const itemRect = item.getBoundingClientRect();
         if (
@@ -298,14 +319,16 @@ function resetCleanup() {
           itemRect.top + itemRect.height/2 > basketRect.top &&
           itemRect.bottom - itemRect.height/2 < basketRect.bottom
         ) {
-          // Remove item from board
           classroomBoard.removeChild(item);
           itemsInPlay = itemsInPlay.filter(i => i !== item);
+          correctSfx.currentTime = 0;
+          correctSfx.play();
 
-          // Stop timer when all items collected
-          if (itemsInPlay.length === 0) {
+          if(itemsInPlay.length === 0){
             clearInterval(cleanupTimer);
             cleanupLeaderboardEl.textContent = `Best: ${cleanupTime.toFixed(2)} s`;
+            completeSfx.currentTime = 0;
+            completeSfx.play();
           }
         }
       }
@@ -319,11 +342,8 @@ function resetCleanup() {
   });
 }
 
-// Attach reset button
-resetCleanupBtn.addEventListener("click", resetCleanup);
-
-// Initial setup
 resetCleanup();
+resetCleanupBtn.addEventListener("click", resetCleanup);
 
 // ===== Cursor Glow =====
 const cursorGlow = document.getElementById("cursorGlow");
@@ -331,4 +351,3 @@ document.addEventListener("mousemove", e=>{
   cursorGlow.style.left = e.clientX + "px";
   cursorGlow.style.top = e.clientY + "px";
 });
-
