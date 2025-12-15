@@ -1,37 +1,28 @@
 /* ===============================
    Kabir Malhi - 1776 Project JS
-   Fully Fixed + Pollinations AI
    =============================== */
 
 /* ===== Light/Dark Mode ===== */
 const modeSwitch = document.getElementById('modeSwitch');
-modeSwitch.checked = localStorage.getItem('theme') === 'light';
-document.body.classList.toggle('light-mode', modeSwitch.checked);
-
 modeSwitch.addEventListener('change', () => {
   document.body.classList.toggle('light-mode', modeSwitch.checked);
-  localStorage.setItem('theme', modeSwitch.checked ? 'light' : 'dark');
 });
 
 /* ===== Cursor Glow ===== */
 const cursorGlow = document.getElementById('cursorGlow');
-let mouseX = 0, mouseY = 0;
-document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+document.addEventListener('mousemove', e => {
+  cursorGlow.style.left = e.clientX + 'px';
+  cursorGlow.style.top = e.clientY + 'px';
+});
 
-function updateGlow(){
-  cursorGlow.style.transform = `translate(${mouseX - 90}px, ${mouseY - 90}px)`;
-  requestAnimationFrame(updateGlow);
-}
-updateGlow();
-
-/* ===== Image Generator (Pollinations AI) ===== */
+/* ===== Image Generator ===== */
 const promptInput = document.getElementById('promptInput');
 const generateBtn = document.getElementById('generateBtn');
 const imageContainer = document.getElementById('imageContainer');
 
-generateBtn.addEventListener('click', () => {
+generateBtn.addEventListener('click', async () => {
   const prompt = promptInput.value.trim();
-  if(!prompt) return alert('Enter a prompt!');
+  if (!prompt) return alert('Enter a prompt!');
 
   imageContainer.innerHTML = `
     <div class="spinner-wrapper">
@@ -39,20 +30,23 @@ generateBtn.addEventListener('click', () => {
       <div class="spinner-text">Generating image...</div>
     </div>`;
 
-  setTimeout(() => {
-    const encodedPrompt = encodeURIComponent(prompt);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
-    imageContainer.innerHTML = `
-      <img src="${imageUrl}" alt="Generated Image" 
-           style="border:2px solid var(--border-color); border-radius:12px;">`;
-  }, 500);
+  try {
+    // Pollinations API call
+    const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
+    if (!response.ok) throw new Error('Failed to generate image');
+    const imageURL = response.url; 
+    imageContainer.innerHTML = `<img src="${imageURL}" alt="Generated Image">`;
+  } catch (error) {
+    console.error(error);
+    imageContainer.innerHTML = `<p style="color:red;">Failed to generate image. Try again.</p>`;
+  }
 });
 
-/* ===== Avatar Generator (Pollinations AI) ===== */
+/* ===== Avatar Generator ===== */
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
 
-generateAvatarBtn.addEventListener('click', () => {
+generateAvatarBtn.addEventListener('click', async () => {
   const gender = document.getElementById('genderSelect').value;
   const background = document.getElementById('backgroundSelect').value;
   const outfit = document.getElementById('outfitSelect').value;
@@ -62,20 +56,23 @@ generateAvatarBtn.addEventListener('click', () => {
   const age = document.getElementById('ageSelect').value;
   const race = document.getElementById('raceSelect').value;
 
+  const prompt = `${age} ${gender} ${race} in ${outfit} with ${hat}, ${hair} hair, holding ${accessory}, standing in ${background}, colonial era style, detailed`;
+
   avatarContainer.innerHTML = `
     <div class="spinner-wrapper">
       <div class="spinner"></div>
       <div class="spinner-text">Generating avatar...</div>
     </div>`;
 
-  setTimeout(() => {
-    const avatarPrompt = `${age} ${gender} ${race} with ${hair} hair, wearing ${hat}, ${outfit}, holding ${accessory}, in ${background}`;
-    const encodedPrompt = encodeURIComponent(avatarPrompt);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
-    avatarContainer.innerHTML = `
-      <img src="${imageUrl}" alt="Generated Avatar" 
-           style="border:2px solid var(--border-color); border-radius:12px;">`;
-  }, 500);
+  try {
+    const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
+    if (!response.ok) throw new Error('Failed to generate avatar');
+    const imageURL = response.url;
+    avatarContainer.innerHTML = `<img src="${imageURL}" alt="Generated Avatar" style="border-radius:12px; border:2px solid var(--border-color);">`;
+  } catch (error) {
+    console.error(error);
+    avatarContainer.innerHTML = `<p style="color:red;">Failed to generate avatar. Try again.</p>`;
+  }
 });
 
 /* ===== Quiz ===== */
@@ -107,12 +104,12 @@ const progressContainer = document.getElementById('progressContainer');
 function loadQuestion() {
   selectedAnswer = null;
   submitBtn.disabled = true;
-  submitBtn.classList.remove('hidden');
   nextBtn.classList.add('hidden');
 
   const qData = quizData[currentQuestion];
   questionEl.textContent = qData.q;
   answersEl.innerHTML = '';
+
   qData.a.forEach((ans, i) => {
     const btn = document.createElement('button');
     btn.textContent = ans;
@@ -125,6 +122,7 @@ function loadQuestion() {
     answersEl.appendChild(btn);
   });
 
+  // Progress bar
   progressContainer.innerHTML = '';
   quizData.forEach((_, i) => {
     const seg = document.createElement('div');
@@ -149,6 +147,7 @@ nextBtn.addEventListener('click', () => {
   currentQuestion++;
   if(currentQuestion < quizData.length){
     loadQuestion();
+    submitBtn.classList.remove('hidden');
   } else {
     questionEl.textContent = '';
     answersEl.innerHTML = '';
@@ -156,7 +155,6 @@ nextBtn.addEventListener('click', () => {
     scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
     scoreEl.classList.remove('hidden');
     takeAgainBtn.classList.remove('hidden');
-    submitBtn.classList.add('hidden');
     nextBtn.classList.add('hidden');
   }
 });
@@ -167,7 +165,10 @@ takeAgainBtn.addEventListener('click', () => {
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
   loadQuestion();
+  submitBtn.classList.remove('hidden');
 });
+
+loadQuestion();
 
 /* ===== Memory Match ===== */
 const memoryGrid = document.querySelector('#memoryGame .card-grid');
@@ -223,9 +224,6 @@ function checkMemoryMatch(){
     second.card.classList.remove('flipped');
   }
   memoryFlipped = [];
-  if(memoryMatched === memoryCards.length){
-    setTimeout(() => alert('You matched all cards! 🎉'), 200);
-  }
 }
 
 createMemoryCards();
@@ -234,6 +232,7 @@ createMemoryCards();
 const typingInput = document.getElementById('typingInput');
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingScore = document.getElementById('typingScore');
+
 const sentences = [
   "The sun rises over the colonial town.",
   "George Washington led his troops across the river.",
@@ -241,51 +240,26 @@ const sentences = [
   "The market was busy with merchants and buyers.",
   "Children studied in the colonial schoolhouse."
 ];
-
 let currentSentence = "";
-let startTime = Date.now();
-
 function loadTypingSentence(){
   currentSentence = sentences[Math.floor(Math.random()*sentences.length)];
   sentenceDisplay.textContent = currentSentence;
   typingInput.value = '';
   typingScore.textContent = '';
-  typingInput.style.borderColor = 'var(--border-color)';
-  startTime = Date.now();
 }
-
 typingInput.addEventListener('input', () => {
-  const typed = typingInput.value;
-  if(currentSentence.startsWith(typed)){
-    typingInput.style.borderColor = 'var(--border-color)';
-  } else {
-    typingInput.style.borderColor = 'var(--wrong-color)';
-  }
-  if(typed === currentSentence){
-    const elapsed = ((Date.now() - startTime)/1000).toFixed(2);
-    typingScore.textContent = `Correct! Time: ${elapsed}s`;
+  if(typingInput.value === currentSentence){
+    typingScore.textContent = 'Correct!';
     loadTypingSentence();
   }
 });
-
 loadTypingSentence();
 
 /* ===== Classroom Cleanup ===== */
 const classroomBoard = document.getElementById('classroomBoard');
 const basket = document.getElementById('basket');
-
-// Create clutter items dynamically
-for(let i=0;i<8;i++){
-  const item = document.createElement('div');
-  item.className = 'clutter-item';
-  item.textContent = '📚';
-  item.style.fontSize = '28px';
-  item.style.left = `${Math.random() * 80}%`;
-  item.style.top = `${Math.random() * 80}%`;
-  classroomBoard.appendChild(item);
-}
-
 let draggingItem = null;
+
 document.addEventListener('mousedown', e => {
   if(e.target.classList.contains('clutter-item')) draggingItem = e.target;
 });
@@ -319,6 +293,3 @@ resetTypingBtn.textContent = 'Reset Typing Challenge';
 resetTypingBtn.style.marginTop = '10px';
 typingInput.parentElement.appendChild(resetTypingBtn);
 resetTypingBtn.addEventListener('click', loadTypingSentence);
-
-/* ===== Initial Quiz Load ===== */
-loadQuestion();
