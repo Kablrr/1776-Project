@@ -40,7 +40,8 @@ generateBtn.addEventListener("click", async () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return;
 
-  const prompt = `${userPrompt}, colonial-era classroom, 1776, historical clothing, wooden desks, parchment and quills, oil painting style, realistic lighting`;
+  // Colonial / 1776 style prompt wording
+  const prompt = `${userPrompt}, colonial-era scene, historical clothing, wooden desks, parchment and quills, oil painting style, early American 18th century, realistic lighting`;
 
   imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image...</div></div>`;
 
@@ -50,7 +51,7 @@ generateBtn.addEventListener("click", async () => {
     );
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
-    imageContainer.innerHTML = `<img src="${url}" alt="Generated Colonial Scene" style="max-width:100%; border-radius:14px;">`;
+    imageContainer.innerHTML = `<img src="${url}" alt="Generated Colonial Scene">`;
   } catch (e) {
     imageContainer.innerHTML = `<p style="color:red;">Error generating image. Try again.</p>`;
   }
@@ -67,7 +68,7 @@ generateAvatarBtn.addEventListener("click", async () => {
   const age = document.getElementById("ageSelect").value;
   const race = document.getElementById("raceSelect").value;
 
-  const avatarPrompt = `A ${age} ${gender} with ${hair} hair, wearing ${outfit} and ${hat}, holding ${accessory}, background: ${background}, heritage: ${race}, colonial-era style 1776, oil painting, realistic`;
+  const avatarPrompt = `A ${age} ${gender} with ${hair} hair, wearing ${outfit} and ${hat}, holding ${accessory}, background: ${background}, heritage: ${race}, colonial-era 1770s American style, oil painting, realistic`;
 
   avatarContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating avatar...</div></div>`;
 
@@ -77,7 +78,7 @@ generateAvatarBtn.addEventListener("click", async () => {
     );
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
-    avatarContainer.innerHTML = `<img src="${url}" alt="Generated Avatar" style="max-width:100%; border-radius:14px;">`;
+    avatarContainer.innerHTML = `<img src="${url}" alt="Generated Avatar">`;
   } catch (e) {
     avatarContainer.innerHTML = `<p style="color:red;">Error generating avatar. Try again.</p>`;
   }
@@ -114,21 +115,23 @@ renderQuestion();
 submitBtn.addEventListener("click", () => {
   const selected = Array.from(answersEl.children).find(b => b.classList.contains("selected"));
   const correctIdx = quizData[currentQuestion].correct;
+
   Array.from(answersEl.children).forEach((b,i) => {
     b.classList.remove("selected");
     if(i === correctIdx) b.classList.add("correct");
-    else if(b===selected) b.classList.add("wrong");
+    else if(b === selected) b.classList.add("wrong");
   });
 
   if(Array.from(answersEl.children).indexOf(selected) === correctIdx) userScore++;
 
-  // Update progress bar correctly
+  // Correct progress bar update
   progressContainer.innerHTML = "";
   quizData.forEach((_,i) => {
     const segment = document.createElement("div");
     segment.classList.add("progress-segment");
-    if(i < currentQuestion){
-      segment.style.backgroundColor = i < userScore ? "var(--correct-color)" : "var(--wrong-color)";
+    if(i < currentQuestion+1){
+      if(i < userScore) segment.style.backgroundColor = "var(--correct-color)";
+      else segment.style.backgroundColor = "var(--wrong-color)";
     }
     progressContainer.appendChild(segment);
   });
@@ -178,7 +181,7 @@ function startMemoryTimer(){
 function setupMemory(){
   memoryCards = [...emojiCards, ...emojiCards].sort(() => 0.5-Math.random());
   memoryGrid.innerHTML = "";
-  memoryCards.forEach((emoji, idx) => {
+  memoryCards.forEach((emoji) => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `<div class="card-inner"><div class="card-front"></div><div class="card-back">${emoji}</div></div>`;
@@ -231,16 +234,16 @@ function startCleanupTimer(){
   if(cleanupStarted) return;
   cleanupStarted = true;
   cleanupTime = 0;
-  cleanupTimer = setInterval(()=>{
+  cleanupTimer = setInterval(()=> {
     cleanupTime += 0.01;
     cleanupTimerEl.textContent = `Time: ${cleanupTime.toFixed(2)}s`;
   },10);
 }
 
-// Example: start timer on basket interaction
+// Start cleanup timer only on interaction
 basket.addEventListener("mousedown", startCleanupTimer);
 
-resetCleanupBtn.addEventListener("click", ()=>{
+resetCleanupBtn.addEventListener("click", ()=> {
   clearInterval(cleanupTimer);
   cleanupStarted=false;
   cleanupTime=0;
