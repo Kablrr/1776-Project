@@ -32,10 +32,11 @@ const resetCleanupBtn = document.getElementById("resetCleanupBtn");
 
 const cursorGlow = document.getElementById("cursorGlow");
 
-// ===== Audio =====
-const correctSfx = new Audio("correct.mp3");
-const wrongSfx = new Audio("wrong.mp3");
-const completeSfx = new Audio("complete.mp3");
+// ===== Audio Helper =====
+function playSfx(src) {
+  const sound = new Audio(src);
+  sound.play();
+}
 
 // ===== Light/Dark Mode =====
 const modeSwitch = document.getElementById("modeSwitch");
@@ -133,13 +134,11 @@ submitBtn.addEventListener("click", () => {
 
   Array.from(answersEl.children).forEach(b => {
     b.classList.remove("selected");
-    if(b.dataset.correct === "true") b.classList.add("correct");
-    else if(b === selected) b.classList.add("wrong");
+    if(b.dataset.correct === "true") playSfx("correct.mp3");
+    else if(b === selected) playSfx("wrong.mp3");
   });
 
   if(isCorrect) userScore++;
-  if(isCorrect) correctSfx.play();
-  else wrongSfx.play();
 
   progressContainer.innerHTML = "";
   quizData.forEach((_, i) => {
@@ -164,7 +163,7 @@ nextBtn.addEventListener("click", () => {
     scoreEl.textContent = `Score: ${userScore} / ${quizData.length}`;
     scoreEl.classList.remove("hidden");
     takeAgainBtn.classList.remove("hidden");
-    completeSfx.play();
+    playSfx("complete.mp3");
   } else renderQuestion();
 });
 
@@ -215,10 +214,10 @@ function setupMemory() {
 
       if(flipped.length === 2){
         if(flipped[0].emoji === flipped[1].emoji){
-          correctSfx.play();
+          playSfx("correct.mp3");
           flipped = [];
         } else {
-          wrongSfx.play();
+          playSfx("wrong.mp3");
           setTimeout(() => {
             flipped[0].card.classList.remove("flipped");
             flipped[1].card.classList.remove("flipped");
@@ -232,7 +231,7 @@ function setupMemory() {
             memoryBestTime = memoryTime;
             memoryLeaderboardEl.textContent = `Best: ${memoryBestTime.toFixed(2)} s`;
           }
-          completeSfx.play();
+          playSfx("complete.mp3");
         }
       }
     });
@@ -261,7 +260,6 @@ let typingStartTime = 0;
 let typingBestTime = null;
 let typingTimer = null;
 
-// Function to fetch a new sentence
 async function fetchRandomSentence() {
   sentenceDisplay.textContent = "Loading AI prompt...";
   typingInput.disabled = true;
@@ -272,8 +270,6 @@ async function fetchRandomSentence() {
     const prompt = "Write a 7-12 word colonial-era sentence about school life in 1776.";
     const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
     let aiText = await response.text();
-
-    // Only take the first 12 words if AI gives more
     const words = aiText.trim().split(/\s+/).slice(0, 12);
     currentSentence = words.join(" ") || "Students in 1776 wrote with quills on parchment.";
   } catch(err) {
@@ -286,12 +282,10 @@ async function fetchRandomSentence() {
   typingStarted = false;
   typingStartTime = 0;
 
-  // Stop previous timer if any
   clearInterval(typingTimer);
   typingScore.textContent = "Time: 0.00s";
 }
 
-// Reset function to fetch a new sentence manually
 function resetTypingChallenge() {
   clearInterval(typingTimer);
   typingInput.value = "";
@@ -299,14 +293,12 @@ function resetTypingChallenge() {
   fetchRandomSentence();
 }
 
-fetchRandomSentence(); // initial load
+fetchRandomSentence();
 
 typingInput.addEventListener("input", () => {
   if(!typingStarted){
     typingStarted = true;
     typingStartTime = Date.now();
-
-    // Start live timer
     typingTimer = setInterval(() => {
       const elapsed = (Date.now() - typingStartTime) / 1000;
       typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
@@ -315,26 +307,21 @@ typingInput.addEventListener("input", () => {
 
   if(typingInput.value === currentSentence){
     clearInterval(typingTimer);
-
     const elapsed = (Date.now() - typingStartTime)/1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
-
     if(typingBestTime === null || elapsed < typingBestTime){
       typingBestTime = elapsed;
       typingLeaderboard.textContent = `Best: ${typingBestTime.toFixed(2)} s`;
     }
-
     typingInput.disabled = true;
     setTimeout(fetchRandomSentence, 1000);
   }
 });
 
-// Optional: reset button integration if you have one
 const typingResetBtn = document.getElementById("resetTypingBtn");
 if(typingResetBtn){
   typingResetBtn.addEventListener("click", resetTypingChallenge);
 }
-
 
 // ===== Classroom Cleanup =====
 let cleanupStarted = false;
@@ -449,4 +436,3 @@ document.addEventListener("mousemove", e => {
 
 // Prevent initial auto-scroll to memory game
 window.scrollTo(0, 0);
-
