@@ -100,8 +100,6 @@ let quizData = [
   { q: "What writing instrument was commonly used in 1776?", a: ["Ballpoint pen","Pencil","Quill and ink","Marker"], correct:2 },
   { q: "Which event sparked the American Revolutionary War?", a: ["Boston Tea Party","Signing of Declaration","Battle of Yorktown","Stamp Act"], correct:0 }
 ];
-
-// Shuffle questions initially
 quizData.sort(() => Math.random() - 0.5);
 
 function renderQuestion() {
@@ -109,12 +107,7 @@ function renderQuestion() {
   questionEl.textContent = q.q;
   answersEl.innerHTML = "";
 
-  // Map answers to objects
-  const answers = q.a.map((answer, idx) => ({
-    text: answer,
-    isCorrect: idx === q.correct
-  }));
-  // Shuffle answers
+  const answers = q.a.map((answer, idx) => ({ text: answer, isCorrect: idx === q.correct }));
   answers.sort(() => Math.random() - 0.5);
 
   answers.forEach(answerObj => {
@@ -144,6 +137,7 @@ submitBtn.addEventListener("click", () => {
     else if(b === selected) b.classList.add("wrong");
   });
 
+  if(isCorrect) userScore++;
   if(isCorrect) correctSfx.play();
   else wrongSfx.play();
 
@@ -153,12 +147,10 @@ submitBtn.addEventListener("click", () => {
     const segment = document.createElement("div");
     segment.classList.add("progress-segment");
     if(i < currentQuestion+1){
-      segment.style.backgroundColor = i < userScore + (isCorrect ? 1 : 0) ? "var(--correct-color)" : "var(--wrong-color)";
+      segment.style.backgroundColor = i < userScore ? "var(--correct-color)" : "var(--wrong-color)";
     }
     progressContainer.appendChild(segment);
   });
-
-  if(isCorrect) userScore++;
 
   nextBtn.classList.remove("hidden");
   submitBtn.disabled = true;
@@ -209,7 +201,7 @@ function setupMemory() {
   memoryGrid.innerHTML = "";
   flipped = [];
 
-  memoryCards.forEach((emoji) => {
+  memoryCards.forEach(emoji => {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `<div class="card-inner"><div class="card-front"></div><div class="card-back">${emoji}</div></div>`;
@@ -245,11 +237,8 @@ function setupMemory() {
     memoryGrid.appendChild(card);
   });
 }
-
-// Initial memory setup
 setupMemory();
 
-// Reset memory game
 resetMemoryBtn.addEventListener("click", () => {
   clearInterval(memoryTimer);
   memoryStarted = false;
@@ -293,13 +282,10 @@ typingInput.addEventListener("input", () => {
     typingStartTime = Date.now();
   }
 
-  const typedValue = typingInput.value;
-
-  if(typedValue === currentSentence){
+  if(typingInput.value === currentSentence){
     const elapsed = (Date.now() - typingStartTime)/1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
     typingLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
-
     typingInput.disabled = true;
     setTimeout(fetchRandomSentence, 1000);
   }
@@ -312,7 +298,6 @@ let cleanupTimer;
 const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"];
 let itemsInPlay = [];
 
-// Background
 classroomBoard.style.backgroundImage = "url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg')";
 classroomBoard.style.backgroundSize = "cover";
 classroomBoard.style.backgroundPosition = "center";
@@ -397,7 +382,7 @@ function resetCleanup() {
 
 resetCleanupBtn.addEventListener("click", resetCleanup);
 resetCleanup();
-  
+
 // ===== Cursor Glow =====
 document.addEventListener("mousemove", e => {
   const x = e.clientX + window.scrollX;
