@@ -304,14 +304,23 @@ loadTypingQuote();
 const cleanupBoard = document.getElementById('classroomBoard');
 const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
-const resetBtn = document.getElementById('resetCleanupBtn');
 const basket = document.getElementById('basket');
-const startBtn = document.getElementById('startCleanupBtn') || document.createElement('button');
+const resetBtn = document.getElementById('resetCleanupBtn');
+
+// Create Start button if not present
+let startBtn = document.getElementById('startCleanupBtn');
+if (!startBtn) {
+  startBtn = document.createElement('button');
+  startBtn.id = 'startCleanupBtn';
+  startBtn.textContent = 'Start Cleanup';
+  cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
+}
 
 const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
 let startTime = 0, timerInterval, gameStarted = false;
 
 function setupBoard() {
+  // Clear previous items
   cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
   cleanupScore.textContent = '';
   cleanupTimer.textContent = 'Time: 0.00s';
@@ -319,7 +328,6 @@ function setupBoard() {
   gameStarted = false;
 
   const basketRect = basket.getBoundingClientRect();
-  const boardRect = cleanupBoard.getBoundingClientRect();
 
   clutterItems.forEach(emoji => {
     const div = document.createElement('div');
@@ -339,8 +347,10 @@ function setupBoard() {
       y < basket.offsetTop + basket.offsetHeight
     );
 
+    div.style.position = 'absolute';
     div.style.left = x + 'px';
     div.style.top = y + 'px';
+    div.style.cursor = 'grab';
     div.draggable = false;
     cleanupBoard.appendChild(div);
   });
@@ -393,7 +403,9 @@ function checkCompletion() {
 resetBtn.addEventListener('click', setupBoard);
 startBtn.addEventListener('click', startCleanupGame);
 
+// Initialize
 setupBoard();
+
 
 // ===== Light/Dark Mode Toggle =====
 const modeSwitch = document.getElementById('modeSwitch');
@@ -407,3 +419,4 @@ modeSwitch.addEventListener('change', () => {
     document.body.classList.remove('light-mode');
   }
 });
+
