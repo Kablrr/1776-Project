@@ -21,8 +21,8 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return alert('Enter a colonial scene!');
-  const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
 
+  const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
   imageContainer.innerHTML = '';
   const spinner = createSpinner();
   imageContainer.appendChild(spinner);
@@ -78,16 +78,6 @@ generateAvatarBtn.addEventListener('click', () => {
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
-// ===== Light/Dark Mode Toggle =====
-const modeSwitch = document.getElementById('modeSwitch');
-modeSwitch.addEventListener('change', () => {
-  if(modeSwitch.checked) {
-    document.body.classList.add('light-mode');
-  } else {
-    document.body.classList.remove('light-mode');
-  }
-});
-
 // ===== Quiz =====
 const quizData = [
   {q:"Year Declaration of Independence was signed?", o:["1775","1776","1777","1781"], a:"1776"},
@@ -103,6 +93,7 @@ const quizData = [
 ];
 
 let currentQuestion = 0;
+let score = 0;
 const progressContainer = document.getElementById('progressContainer');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
@@ -143,20 +134,21 @@ function loadQuestion() {
 
 function markProgress(isCorrect) {
   const segments = document.querySelectorAll('.progress-segment');
-  if(segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4f7c4a' : '#8c3a2b';
+  if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? 'var(--correct-color)' : 'var(--wrong-color)';
 }
 
 submitBtn.addEventListener('click', () => {
   const selected = document.querySelector('#answers button.selected');
   if(!selected) return;
   const isCorrect = selected.textContent === quizData[currentQuestion].a;
+  if(isCorrect) score++;
 
   Array.from(document.querySelectorAll('#answers button')).forEach(btn => {
     btn.disabled = true;
     if(btn.textContent === quizData[currentQuestion].a) btn.classList.add('correct');
   });
-
   if(!isCorrect) selected.classList.add('wrong');
+
   markProgress(isCorrect);
   submitBtn.classList.add('hidden');
   nextBtn.classList.remove('hidden');
@@ -168,18 +160,19 @@ nextBtn.addEventListener('click', () => {
   else loadQuestion();
 });
 
-function showScore(){
+function showScore() {
   questionEl.textContent = 'Quiz Completed!';
   answersEl.innerHTML = '';
   submitBtn.classList.add('hidden');
   nextBtn.classList.add('hidden');
   takeAgainBtn.classList.remove('hidden');
-  scoreEl.textContent = `🎉 You completed the quiz! 🎉`;
+  scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
   scoreEl.classList.remove('hidden');
 }
 
 takeAgainBtn.addEventListener('click', () => {
   currentQuestion = 0;
+  score = 0;
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
   initProgressBar();
@@ -193,7 +186,8 @@ loadQuestion();
 const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
 let memoryDeck = [...memoryEmojis, ...memoryEmojis];
 const memoryGrid = document.querySelector('#memoryGame .card-grid');
-let memoryFlipped = [], memoryMatches = 0;
+let memoryFlipped = [];
+let memoryMatches = 0;
 
 function shuffle(array){ return array.sort(() => Math.random() - 0.5); }
 
@@ -246,9 +240,10 @@ const typingScore = document.getElementById('typingScore');
 let typingStart = null, typingTimerInterval = null;
 
 function loadTypingQuote() {
-  sentenceDisplay.textContent = `"${typingQuote}"`;
+  sentenceDisplay.innerHTML = `<span>"${typingQuote}"</span>`;
   typingInput.value = '';
   typingScore.textContent = '';
+  typingScore.classList.remove('error');
   typingStart = null;
   typingInput.disabled = false;
   typingInput.focus();
@@ -267,27 +262,16 @@ typingInput.addEventListener('input', () => {
 
   if(typed === typingQuote) {
     const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
-    typingScore.textContent = `✅ Perfect! Time: ${elapsed}s`;
+    typingScore.textContent = `✅ Perfect! Time: ${elapsed} seconds`;
     typingInput.disabled = true;
     clearInterval(typingTimerInterval);
-    typingScore.classList.remove('error');
   } else if(!typingQuote.startsWith(typed)) {
     typingScore.textContent = '❌ Typing error! Check spelling & punctuation.';
     typingScore.classList.add('error');
-  } else {
-    typingScore.classList.remove('error');
-  }
+  } else typingScore.classList.remove('error');
 });
 
 typingInput.addEventListener('blur', () => clearInterval(typingTimerInterval));
-typingInput.addEventListener('focus', () => {
-  if(typingStart) {
-    typingTimerInterval = setInterval(() => {
-      const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
-      typingScore.textContent = `⌛ Time: ${elapsed}s`;
-    },50);
-  }
-});
 
 const typingResetBtn = document.createElement('button');
 typingResetBtn.textContent = 'Reset Typing';
@@ -302,9 +286,12 @@ const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
 const resetBtn = document.getElementById('resetCleanupBtn');
 const basket = document.getElementById('basket');
-let startTime = 0, timerInterval = null, gameStarted = false;
+const startBtn = document.createElement('button');
+startBtn.textContent = 'Start Cleanup';
+cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
 
 const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
+let startTime = 0, timerInterval = null, gameStarted = false;
 
 function setupBoard() {
   cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
@@ -317,16 +304,16 @@ function setupBoard() {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
-
     const itemSize = 40;
     let x = Math.random() * (cleanupBoard.clientWidth - itemSize);
     let y = Math.random() * (cleanupBoard.clientHeight - itemSize);
-
     div.style.left = x + 'px';
     div.style.top = y + 'px';
     div.draggable = false;
     cleanupBoard.appendChild(div);
   });
+
+  startBtn.style.display = 'inline-block';
 }
 
 function updateTimer() {
@@ -336,8 +323,10 @@ function updateTimer() {
 }
 
 function startCleanupGame() {
+  startBtn.style.display = 'none';
   gameStarted = true;
   startTime = Date.now();
+  updateTimer();
   timerInterval = setInterval(updateTimer, 50);
 
   cleanupBoard.querySelectorAll('.clutter-item').forEach(div => {
@@ -347,23 +336,27 @@ function startCleanupGame() {
 }
 
 basket.addEventListener('dragover', e => e.preventDefault());
-basket.addEventListener('dragenter', e => { e.preventDefault(); if(!gameStarted) return; basket.classList.add('drag-over'); });
-basket.addEventListener('dragleave', e => { e.preventDefault(); if(!gameStarted) return; basket.classList.remove('drag-over'); });
+basket.addEventListener('dragenter', e => { e.preventDefault(); basket.classList.add('drag-over'); });
+basket.addEventListener('dragleave', e => { e.preventDefault(); basket.classList.remove('drag-over'); });
 basket.addEventListener('drop', e => {
   e.preventDefault();
-  if(!gameStarted) return;
   const emoji = e.dataTransfer.getData('text/plain');
   const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d => d.textContent === emoji);
   if(target) target.remove();
   basket.classList.remove('drag-over');
-  if(cleanupBoard.querySelectorAll('.clutter-item').length === 0) {
+  if(cleanupBoard.querySelectorAll('.clutter-item').length === 0){
     clearInterval(timerInterval);
     const totalTime = ((Date.now() - startTime)/1000).toFixed(2);
-    cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime}s! 🎉`;
+    cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
   }
 });
 
 resetBtn.addEventListener('click', setupBoard);
-cleanupBoard.parentNode.querySelector('#startCleanupBtn')?.addEventListener('click', startCleanupGame);
-
+startBtn.addEventListener('click', startCleanupGame);
 setupBoard();
+
+// ===== Light/Dark Mode Toggle =====
+const modeSwitch = document.getElementById('modeSwitch');
+modeSwitch.addEventListener('change', () => {
+  document.body.classList.toggle('light-mode', modeSwitch.checked);
+});
