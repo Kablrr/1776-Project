@@ -1,6 +1,6 @@
 /* ===============================
    Kabir Malhi - 1776 Project JS
-   Fully Fixed Version
+   Fully Fixed + Pollinations AI
    =============================== */
 
 /* ===== Light/Dark Mode ===== */
@@ -24,14 +24,14 @@ function updateGlow(){
 }
 updateGlow();
 
-/* ===== Image Generator ===== */
+/* ===== Image Generator (Pollinations AI) ===== */
 const promptInput = document.getElementById('promptInput');
 const generateBtn = document.getElementById('generateBtn');
 const imageContainer = document.getElementById('imageContainer');
 
 generateBtn.addEventListener('click', () => {
   const prompt = promptInput.value.trim();
-  if (!prompt) return alert('Enter a prompt!');
+  if(!prompt) return alert('Enter a prompt!');
 
   imageContainer.innerHTML = `
     <div class="spinner-wrapper">
@@ -41,14 +41,14 @@ generateBtn.addEventListener('click', () => {
 
   setTimeout(() => {
     const encodedPrompt = encodeURIComponent(prompt);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
     imageContainer.innerHTML = `
-      <img src="https://via.placeholder.com/400x250?text=${encodedPrompt}" 
-           alt="Generated Image"
+      <img src="${imageUrl}" alt="Generated Image" 
            style="border:2px solid var(--border-color); border-radius:12px;">`;
-  }, 1500);
+  }, 500);
 });
 
-/* ===== Avatar Generator ===== */
+/* ===== Avatar Generator (Pollinations AI) ===== */
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
 
@@ -69,19 +69,13 @@ generateAvatarBtn.addEventListener('click', () => {
     </div>`;
 
   setTimeout(() => {
-    const avatarText = `${gender}, ${age}, ${race}, ${hair} hair, ${hat}, ${outfit}, ${accessory}, ${background}`;
+    const avatarPrompt = `${age} ${gender} ${race} with ${hair} hair, wearing ${hat}, ${outfit}, holding ${accessory}, in ${background}`;
+    const encodedPrompt = encodeURIComponent(avatarPrompt);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
     avatarContainer.innerHTML = `
-      <div style="
-        padding:20px; 
-        border:2px solid var(--border-color); 
-        background: var(--container-bg); 
-        border-radius:12px; 
-        color: var(--text-color);
-        font-weight:bold;
-        text-align:center;">
-        ${avatarText}
-      </div>`;
-  }, 1000);
+      <img src="${imageUrl}" alt="Generated Avatar" 
+           style="border:2px solid var(--border-color); border-radius:12px;">`;
+  }, 500);
 });
 
 /* ===== Quiz ===== */
@@ -229,7 +223,6 @@ function checkMemoryMatch(){
     second.card.classList.remove('flipped');
   }
   memoryFlipped = [];
-
   if(memoryMatched === memoryCards.length){
     setTimeout(() => alert('You matched all cards! 🎉'), 200);
   }
@@ -326,3 +319,6 @@ resetTypingBtn.textContent = 'Reset Typing Challenge';
 resetTypingBtn.style.marginTop = '10px';
 typingInput.parentElement.appendChild(resetTypingBtn);
 resetTypingBtn.addEventListener('click', loadTypingSentence);
+
+/* ===== Initial Quiz Load ===== */
+loadQuestion();
