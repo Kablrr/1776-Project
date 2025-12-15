@@ -141,7 +141,6 @@ submitBtn.addEventListener("click", () => {
   if(isCorrect) correctSfx.play();
   else wrongSfx.play();
 
-  // Update progress
   progressContainer.innerHTML = "";
   quizData.forEach((_, i) => {
     const segment = document.createElement("div");
@@ -185,6 +184,7 @@ let flipped = [];
 let memoryStarted = false;
 let memoryTime = 0;
 let memoryTimer;
+let memoryBestTime = null;
 
 function startMemoryTimer() {
   if(memoryStarted) return;
@@ -228,7 +228,10 @@ function setupMemory() {
 
         if(document.querySelectorAll("#memoryGame .card.flipped").length === memoryCards.length){
           clearInterval(memoryTimer);
-          memoryLeaderboardEl.textContent = `Best: ${memoryTime.toFixed(2)} s`;
+          if(memoryBestTime === null || memoryTime < memoryBestTime){
+            memoryBestTime = memoryTime;
+            memoryLeaderboardEl.textContent = `Best: ${memoryBestTime.toFixed(2)} s`;
+          }
           completeSfx.play();
         }
       }
@@ -251,6 +254,7 @@ resetMemoryBtn.addEventListener("click", () => {
 let currentSentence = "";
 let typingStarted = false;
 let typingStartTime = 0;
+let typingBestTime = null;
 
 async function fetchRandomSentence() {
   sentenceDisplay.textContent = "Loading AI prompt...";
@@ -259,12 +263,10 @@ async function fetchRandomSentence() {
   typingScore.textContent = "";
 
   try {
-    // Force short 7-12 word sentence about colonial school life
     const prompt = "Write a 7-12 word colonial-era sentence about school life in 1776.";
     const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
     let aiText = await response.text();
-    
-    // Take only the first 12 words if AI gives longer text
+
     const words = aiText.trim().split(/\s+/).slice(0, 12);
     currentSentence = words.join(" ") || "Students in 1776 wrote with quills on parchment.";
   } catch(err) {
@@ -289,18 +291,22 @@ typingInput.addEventListener("input", () => {
   if(typingInput.value === currentSentence){
     const elapsed = (Date.now() - typingStartTime)/1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
-    typingLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
+
+    if(typingBestTime === null || elapsed < typingBestTime){
+      typingBestTime = elapsed;
+      typingLeaderboard.textContent = `Best: ${typingBestTime.toFixed(2)} s`;
+    }
+
     typingInput.disabled = true;
     setTimeout(fetchRandomSentence, 1000);
   }
 });
 
-
-
 // ===== Classroom Cleanup =====
 let cleanupStarted = false;
 let cleanupTime = 0;
 let cleanupTimer;
+let cleanupBestTime = null;
 const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"];
 let itemsInPlay = [];
 
@@ -325,7 +331,6 @@ function resetCleanup() {
   cleanupTime = 0;
   cleanupTimerEl.textContent = `Time: 0.00s`;
 
-  // Remove existing items
   itemsInPlay.forEach(item => classroomBoard.removeChild(item));
   itemsInPlay = [];
 
@@ -337,7 +342,6 @@ function resetCleanup() {
     item.style.fontSize = "32px";
     item.style.cursor = "grab";
 
-    // Wait until board is rendered to place items correctly
     requestAnimationFrame(() => {
       const boardRect = classroomBoard.getBoundingClientRect();
       const x = Math.random() * (boardRect.width - 40);
@@ -349,7 +353,7 @@ function resetCleanup() {
     item.addEventListener("mousedown", e => {
       e.preventDefault();
       startCleanupTimer();
-      const boardRect = classroomBoard.getBoundingClientRect(); // calculate here for accurate drag
+      const boardRect = classroomBoard.getBoundingClientRect();
       const offsetX = e.clientX - item.getBoundingClientRect().left;
       const offsetY = e.clientY - item.getBoundingClientRect().top;
 
@@ -377,7 +381,10 @@ function resetCleanup() {
 
           if(itemsInPlay.length === 0){
             clearInterval(cleanupTimer);
-            cleanupLeaderboardEl.textContent = `Best: ${cleanupTime.toFixed(2)} s`;
+            if(cleanupBestTime === null || cleanupTime < cleanupBestTime){
+              cleanupBestTime = cleanupTime;
+              cleanupLeaderboardEl.textContent = `Best: ${cleanupBestTime.toFixed(2)} s`;
+            }
           }
         }
       }
@@ -401,7 +408,3 @@ document.addEventListener("mousemove", e => {
   cursorGlow.style.left = `${x}px`;
   cursorGlow.style.top = `${y}px`;
 });
-
-
-
-
