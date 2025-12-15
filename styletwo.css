@@ -280,10 +280,14 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   justify-content: center;
   align-items: center;
   font-size: 2.5rem;
-  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  margin: 20px auto 0 auto;
+  position: absolute;          /* Fix: absolute inside board */
+  bottom: 20px;                /* Place at bottom center */
+  left: 50%;
+  transform: translateX(-50%);
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 
 #basket:hover {
   transform: translateY(-2px);
@@ -339,6 +343,7 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   #basket { width: 90px; height: 90px; font-size: 2rem; }
   .clutter-item { font-size: 1.8rem; }
 }
+
 
 
 
