@@ -195,41 +195,59 @@ takeAgainBtn.addEventListener('click', () => {
 initProgressBar();
 loadQuestion();
 
-// ===== Typing Challenge =====
+// ===== Typing Challenge Revamp =====
 const typingQuote = "Learn your lessons well in the colonial classroom.";
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingInput = document.getElementById('typingInput');
 const typingScore = document.getElementById('typingScore');
 const correctSoundTyping = new Audio('correct.mp3');
 
-let typingStart = 0;
+let typingStart = null; // Start time will be set on first keystroke
 
 function loadTypingQuote() {
   sentenceDisplay.innerHTML = `<span>"${typingQuote}"</span>`;
   typingInput.value = '';
-  typingStart = Date.now();
   typingScore.textContent = '';
+  typingStart = null;
+  typingInput.disabled = false;
+  typingInput.focus();
 }
+
+// Call to load initial sentence
+loadTypingQuote();
 
 typingInput.addEventListener('input', () => {
   const typed = typingInput.value;
+
+  // Start timer on first keystroke
+  if (!typingStart) typingStart = Date.now();
+
+  // Correct completion
   if (typed === typingQuote) {
-    const time = ((Date.now() - typingStart) / 1000).toFixed(2);
-    typingInput.value = '';
-    typingScore.textContent = `✅ Perfect! Time: ${time} seconds`;
+    const elapsed = ((Date.now() - typingStart) / 1000).toFixed(2);
+    typingScore.textContent = `✅ Perfect! Time: ${elapsed} seconds`;
     typingScore.classList.remove('error');
     correctSoundTyping.play();
-    typingStart = Date.now(); // reset immediately
-  } else if (!typingQuote.startsWith(typed)) {
-    typingScore.textContent = `❌ Typing error! Check your spelling and punctuation.`;
+    typingInput.disabled = true; // Stop typing until reset
+  } 
+  // Error in typing
+  else if (!typingQuote.startsWith(typed)) {
+    typingScore.textContent = `❌ Typing error! Check spelling & punctuation.`;
     typingScore.classList.add('error');
-  } else {
+  } 
+  // In-progress, no errors
+  else {
     typingScore.textContent = '';
     typingScore.classList.remove('error');
   }
 });
 
-loadTypingQuote();
+// Optional: Reset button for typing game
+const typingResetBtn = document.createElement('button');
+typingResetBtn.textContent = 'Reset Typing';
+typingResetBtn.style.marginTop = '10px';
+typingResetBtn.addEventListener('click', loadTypingQuote);
+sentenceDisplay.parentNode.appendChild(typingResetBtn);
 
 // ===== Memory Match =====
 const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
@@ -401,6 +419,7 @@ startBtn.addEventListener('click', startCleanupGame);
 
 // Initialize board
 setupBoard();
+
 
 
 
