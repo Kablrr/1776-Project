@@ -11,29 +11,43 @@ document.addEventListener('mousemove', e => {
   cursorGlow.style.top = e.clientY + 'px';
 });
 
-/* ===== Image Generator (Dummy Placeholder) ===== */
+/* ===== Image Generator ===== */
 const generateBtn = document.getElementById('generateBtn');
 const imageContainer = document.getElementById('imageContainer');
+
 generateBtn.addEventListener('click', () => {
-  const prompt = document.getElementById('promptInput').value;
+  const prompt = document.getElementById('promptInput').value.trim();
   if (!prompt) return;
-  imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image for "${prompt}"...</div></div>`;
+  
+  imageContainer.innerHTML = `<div class="spinner-wrapper">
+    <div class="spinner"></div>
+    <div class="spinner-text">Generating image for "${prompt}"...</div>
+  </div>`;
+  
   setTimeout(() => {
     imageContainer.innerHTML = `<img src="https://via.placeholder.com/400x300?text=${encodeURIComponent(prompt)}" alt="Generated Image">`;
   }, 1200);
 });
 
-/* ===== Avatar Generator (Dummy Placeholder) ===== */
+/* ===== Avatar Generator ===== */
 const generateAvatarBtn = document.getElementById('generateAvatarBtn');
 const avatarContainer = document.getElementById('avatarContainer');
+
 generateAvatarBtn.addEventListener('click', () => {
   const gender = document.getElementById('genderSelect').value;
-  const bg = document.getElementById('backgroundSelect').value;
+  const background = document.getElementById('backgroundSelect').value;
   const outfit = document.getElementById('outfitSelect').value;
-  avatarContainer.innerHTML = `<img src="https://via.placeholder.com/200x300?text=${gender}+${outfit}+in+${bg}" alt="Avatar">`;
+  const hat = document.getElementById('hatSelect').value;
+  const accessory = document.getElementById('accessorySelect').value;
+  const hair = document.getElementById('hairSelect').value;
+  const age = document.getElementById('ageSelect').value;
+  const heritage = document.getElementById('raceSelect').value;
+
+  // Placeholder avatar image
+  avatarContainer.innerHTML = `<img src="https://via.placeholder.com/200x300?text=${encodeURIComponent(gender+'+'+outfit+'+'+background+'+'+hat+'+'+accessory+'+'+hair+'+'+age+'+'+heritage)}" alt="Avatar">`;
 });
 
-/* ===== Quiz (10 Questions) ===== */
+/* ===== Quiz ===== */
 const quizData = [
   { q: "Year Declaration of Independence was signed?", a: ["1775","1776","1777","1781"], correct: 1 },
   { q: "Commander of Continental Army?", a: ["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], correct: 2 },
@@ -121,7 +135,7 @@ takeAgainBtn.addEventListener('click', () => {
 
 loadQuestion();
 
-/* ===== Memory Match Game ===== */
+/* ===== Memory Match with Reset ===== */
 const memoryGrid = document.querySelector('#memoryGame .card-grid');
 const memoryTimerEl = document.getElementById('memoryTimer');
 const memoryResetBtn = document.createElement('button');
@@ -179,7 +193,7 @@ function flipMemoryCard(card,symbol){
 memoryResetBtn.addEventListener('click', startMemoryGame);
 startMemoryGame();
 
-/* ===== Typing Challenge ===== */
+/* ===== Typing Challenge with Reset ===== */
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingInput = document.getElementById('typingInput');
 const typingScoreEl = document.getElementById('typingScore');
@@ -188,11 +202,13 @@ typingResetBtn.textContent = 'Reset';
 document.getElementById('typingGame').appendChild(typingResetBtn);
 
 let typingSentence = "The colonial school children wrote with quills.";
+
 function startTypingGame(){
   sentenceDisplay.textContent = typingSentence;
   typingInput.value = '';
   typingScoreEl.textContent = '';
 }
+
 typingInput.addEventListener('input', () => {
   const value = typingInput.value;
   if(typingSentence.startsWith(value)){
@@ -203,6 +219,7 @@ typingInput.addEventListener('input', () => {
     typingScoreEl.classList.add('error');
   }
 });
+
 typingResetBtn.addEventListener('click', startTypingGame);
 startTypingGame();
 
