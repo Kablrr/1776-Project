@@ -1,271 +1,238 @@
-// ================= CURSOR GLOW =================
-const cursorGlow = document.getElementById('cursorGlow');
-document.addEventListener('mousemove', e => {
-  cursorGlow.style.top = `${e.clientY}px`;
-  cursorGlow.style.left = `${e.clientX}px`;
+/* ===== Theme Toggle ===== */
+const modeSwitch = document.getElementById('modeSwitch');
+modeSwitch.addEventListener('change', () => {
+  document.body.classList.toggle('light-mode', modeSwitch.checked);
 });
 
-// ================= SOUNDS =================
-const correctSound = new Audio('sounds/correct.mp3'); correctSound.volume = 0.3;
-const wrongSound = new Audio('sounds/wrong.mp3'); wrongSound.volume = 0.4;
-const completeSound = new Audio('sounds/complete.mp3'); completeSound.volume = 0.2;
+/* ===== Cursor Glow ===== */
+const cursorGlow = document.getElementById('cursorGlow');
+document.addEventListener('mousemove', e => {
+  cursorGlow.style.left = e.clientX + 'px';
+  cursorGlow.style.top = e.clientY + 'px';
+});
 
-// Unlock audio on first interaction
-let audioUnlocked = false;
-function unlockAudio() {
-  if (audioUnlocked) return;
-  [correctSound, wrongSound, completeSound].forEach(s => {
-    s.play().then(() => { s.pause(); s.currentTime = 0; }).catch(()=>{});
-  });
-  audioUnlocked = true;
-  document.removeEventListener('click', unlockAudio);
-  document.removeEventListener('keydown', unlockAudio);
-}
-document.addEventListener('click', unlockAudio);
-document.addEventListener('keydown', unlockAudio);
-
-function playSound(sound) { sound.currentTime = 0; sound.play().catch(()=>{}); }
-
-// ================= SPINNER =================
-function createSpinner(text='May take a moment to generate...') {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'spinner-wrapper';
-  wrapper.innerHTML = `<div class="spinner"></div><div class="spinner-text">${text}</div>`;
-  return wrapper;
-}
-
-// ================= TEXT TO IMAGE =================
-const generateBtn = document.getElementById('generateBtn');
+/* ===== Image Generator ===== */
 const promptInput = document.getElementById('promptInput');
+const generateBtn = document.getElementById('generateBtn');
 const imageContainer = document.getElementById('imageContainer');
 
 generateBtn.addEventListener('click', () => {
-  const userPrompt = promptInput.value.trim();
-  if (!userPrompt) return alert('Enter a colonial scene!');
-  const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
-
+  const prompt = promptInput.value.trim();
+  if (!prompt) return;
+  
+  // Example placeholder, replace with actual AI/image API if desired
+  const img = document.createElement('img');
+  img.src = `https://via.placeholder.com/400x250.png?text=${encodeURIComponent(prompt)}`;
+  img.alt = prompt;
+  img.style.marginTop = '15px';
   imageContainer.innerHTML = '';
-  const spinner = createSpinner();
-  imageContainer.appendChild(spinner);
-
-  const img = new Image();
-  img.style.maxWidth = '300px';
-  img.style.borderRadius = '12px';
-  img.onload = () => { spinner.remove(); imageContainer.appendChild(img); playSound(completeSound); };
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+  imageContainer.appendChild(img);
 });
 
-// ================= AVATAR GENERATOR =================
-const generateAvatarBtn = document.getElementById('generateAvatarBtn');
+/* ===== Avatar Generator ===== */
 const avatarContainer = document.getElementById('avatarContainer');
+document.getElementById('generateAvatarBtn').addEventListener('click', () => {
+  const gender = document.getElementById('genderSelect').value;
+  const background = document.getElementById('backgroundSelect').value;
+  const outfit = document.getElementById('outfitSelect').value;
+  const hat = document.getElementById('hatSelect').value;
+  const accessory = document.getElementById('accessorySelect').value;
+  const hair = document.getElementById('hairSelect').value;
+  const age = document.getElementById('ageSelect').value;
+  const race = document.getElementById('raceSelect').value;
 
-generateAvatarBtn.addEventListener('click', () => {
-  const fields = ['gender','background','outfit','hat','accessory','hair','age','race'];
-  const values = fields.map(f => document.getElementById(f+'Select').value);
-  const [gender, background, outfit, hat, accessory, hair, age, heritage] = values;
-  const prompt = `Colonial American portrait 1776. ${age} ${gender} of ${heritage} heritage, wearing ${outfit} and ${hat}. Oil painting.`;
-
+  // Placeholder: replace with actual avatar generator API
+  const img = document.createElement('img');
+  img.src = `https://via.placeholder.com/300x400.png?text=${encodeURIComponent(gender + ' ' + age + ' ' + race)}`;
+  img.alt = '1776 Avatar';
   avatarContainer.innerHTML = '';
-  const spinner = createSpinner();
-  avatarContainer.appendChild(spinner);
-
-  const img = new Image();
-  img.style.maxWidth = '220px';
-  img.onload = () => { spinner.remove(); avatarContainer.appendChild(img); playSound(completeSound); };
-  img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+  avatarContainer.appendChild(img);
 });
 
-// ================= QUIZ =================
+/* ===== Quiz ===== */
 const quizData = [
-  {q:"Year Declaration of Independence was signed?", o:["1775","1776","1777","1781"], a:"1776"},
-  {q:"Commander of Continental Army?", o:["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], a:"George Washington"},
-  {q:"Document ending Revolutionary War?", o:["Bill of Rights","Treaty of Paris","Articles of Confederation","Constitution"], a:"Treaty of Paris"},
-  {q:"Which city was first capital of USA?", o:["Philadelphia","New York","Boston","Washington DC"], a:"New York"},
-  {q:"Who wrote most of the Declaration?", o:["Jefferson","Adams","Washington","Franklin"], a:"Jefferson"}
+  { q: "What year did the Declaration of Independence get signed?", a: ["1776","1789","1492","1804"], correct: 0 },
+  { q: "Who was the first President of the United States?", a: ["George Washington","Thomas Jefferson","John Adams","Benjamin Franklin"], correct: 0 },
+  { q: "What was a common material for colonial clothing?", a: ["Cotton","Polyester","Nylon","Silk"], correct: 0 }
 ];
-
-let currentQuestion = 0, quizScore = 0;
+let currentQuestion = 0;
+let score = 0;
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
 const submitBtn = document.getElementById('submitBtn');
+const nextBtn = document.getElementById('nextBtn');
+const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
 
-function loadQuestion() {
-  submitBtn.disabled = true;
+function showQuestion() {
   const q = quizData[currentQuestion];
   questionEl.textContent = q.q;
   answersEl.innerHTML = '';
-  q.o.forEach(opt => {
+  q.a.forEach((ans, idx) => {
     const btn = document.createElement('button');
-    btn.textContent = opt;
-    btn.onclick = () => {
-      document.querySelectorAll('#answers button').forEach(b=>b.classList.remove('selected'));
+    btn.textContent = ans;
+    btn.addEventListener('click', () => {
+      Array.from(answersEl.children).forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       submitBtn.disabled = false;
-    };
+    });
     answersEl.appendChild(btn);
   });
+  submitBtn.disabled = true;
+  nextBtn.classList.add('hidden');
 }
-
-submitBtn.onclick = () => {
-  const selected = document.querySelector('#answers button.selected');
+submitBtn.addEventListener('click', () => {
+  const selected = Array.from(answersEl.children).find(b => b.classList.contains('selected'));
   if (!selected) return;
-  const correct = selected.textContent === quizData[currentQuestion].a;
-  playSound(correct ? correctSound : wrongSound);
-  quizScore += correct ? 1 : 0;
+  const q = quizData[currentQuestion];
+  const idx = Array.from(answersEl.children).indexOf(selected);
+  if (idx === q.correct) {
+    selected.classList.add('correct');
+    score++;
+  } else {
+    selected.classList.add('wrong');
+    answersEl.children[q.correct].classList.add('correct');
+  }
+  submitBtn.classList.add('hidden');
+  nextBtn.classList.remove('hidden');
+});
+nextBtn.addEventListener('click', () => {
   currentQuestion++;
-  if(currentQuestion >= quizData.length){
-    questionEl.textContent = 'Quiz Completed!';
+  if (currentQuestion < quizData.length) {
+    showQuestion();
+    submitBtn.classList.remove('hidden');
+  } else {
+    questionEl.textContent = "Quiz Finished!";
     answersEl.innerHTML = '';
-    scoreEl.textContent = `Score: ${quizScore}/${quizData.length}`;
+    scoreEl.textContent = `Your score: ${score}/${quizData.length}`;
     scoreEl.classList.remove('hidden');
-    playSound(completeSound);
-  } else loadQuestion();
-};
+    nextBtn.classList.add('hidden');
+    takeAgainBtn.classList.remove('hidden');
+  }
+});
+takeAgainBtn.addEventListener('click', () => {
+  currentQuestion = 0;
+  score = 0;
+  scoreEl.classList.add('hidden');
+  takeAgainBtn.classList.add('hidden');
+  submitBtn.classList.remove('hidden');
+  showQuestion();
+});
+showQuestion();
 
-loadQuestion();
-
-// ================= MEMORY MATCH + LEADERBOARD =================
-const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
-const memoryGrid = document.querySelector('#memoryGame .card-grid');
-const memoryTimer = document.getElementById('memoryTimer');
+/* ===== Memory Match ===== */
+const memoryGame = document.querySelector('#memoryGame .card-grid');
+const memoryTimerEl = document.getElementById('memoryTimer');
 const memoryLeaderboard = document.getElementById('memoryLeaderboard');
+let memoryStartTime, memoryInterval, memoryBestTime = localStorage.getItem('memoryBest') || '--';
+memoryLeaderboard.textContent = `Best: ${memoryBestTime} s`;
 
-let memoryFlipped = [], memoryMatches = 0;
-let memoryStart = null, memoryInterval = null;
-let memoryBest = null; // personal best for session
-
-function startMemoryTimer(){
-  memoryStart = Date.now();
-  memoryInterval = setInterval(()=>{
-    memoryTimer.textContent = `Time: ${((Date.now()-memoryStart)/1000).toFixed(2)}s`;
-  },50);
-}
-
-function initMemoryGame(){
-  memoryGrid.innerHTML = '';
-  memoryFlipped=[]; memoryMatches=0;
-  memoryTimer.textContent='Time: 0.00s';
-  clearInterval(memoryInterval); memoryStart=null;
-
-  [...memoryEmojis, ...memoryEmojis].sort(()=>Math.random()-0.5).forEach(e=>{
+const icons = ['🪑','📚','🖋️','⚔️','🪑','📚','🖋️','⚔️'];
+function shuffle(a){return a.sort(()=>0.5-Math.random());}
+function createMemoryCards(){
+  memoryGame.innerHTML = '';
+  const shuffled = shuffle([...icons]);
+  shuffled.forEach(icon => {
     const card = document.createElement('div');
-    card.className='card';
-    card.dataset.value=e;
-    card.innerHTML=`<div class="card-inner"><div class="card-front">?</div><div class="card-back">${e}</div></div>`;
-    card.onclick = ()=>flipCard(card);
-    memoryGrid.appendChild(card);
+    card.className = 'card';
+    card.innerHTML = `<div class="card-inner"><div class="card-front"></div><div class="card-back">${icon}</div></div>`;
+    memoryGame.appendChild(card);
   });
 }
+createMemoryCards();
 
-function flipCard(card){
-  if(memoryFlipped.length===2 || card.classList.contains('flipped')) return;
-  if(!memoryStart) startMemoryTimer();
+let flipped = [];
+memoryGame.addEventListener('click', e => {
+  const card = e.target.closest('.card');
+  if (!card || card.classList.contains('flipped')) return;
   card.classList.add('flipped');
-  memoryFlipped.push(card);
-  if(memoryFlipped.length===2){
-    setTimeout(()=>{
-      const [a,b]=memoryFlipped;
-      if(a.dataset.value===b.dataset.value) {
-        memoryMatches++;
-        if(memoryMatches===memoryEmojis.length){
-          clearInterval(memoryInterval);
-          playSound(completeSound);
-          const finalTime=((Date.now()-memoryStart)/1000).toFixed(2);
-          if(memoryBest===null || finalTime<memoryBest) memoryBest=finalTime;
-          memoryLeaderboard.textContent=`Best: ${memoryBest} s`;
-        }
-      } else {
-        a.classList.remove('flipped'); b.classList.remove('flipped');
+  flipped.push(card);
+  if (flipped.length === 2){
+    if (flipped[0].querySelector('.card-back').textContent === flipped[1].querySelector('.card-back').textContent){
+      flipped = [];
+      if(!memoryStartTime){ memoryStartTime = Date.now(); memoryInterval = setInterval(updateMemoryTimer, 100); }
+      if([...memoryGame.children].every(c=>c.classList.contains('flipped'))){
+        clearInterval(memoryInterval);
+        const time = ((Date.now() - memoryStartTime)/1000).toFixed(2);
+        if(memoryBestTime==='--' || time<memoryBestTime){ memoryBestTime=time; localStorage.setItem('memoryBest', time); }
+        memoryLeaderboard.textContent = `Best: ${memoryBestTime} s`;
+        memoryStartTime=null;
+        memoryTimerEl.textContent=`Time: 0.00s`;
       }
-      memoryFlipped=[];
-    },700);
+    } else {
+      setTimeout(()=>{ flipped.forEach(c=>c.classList.remove('flipped')); flipped=[]; }, 800);
+    }
   }
+});
+
+function updateMemoryTimer(){
+  if(memoryStartTime) memoryTimerEl.textContent = `Time: ${((Date.now()-memoryStartTime)/1000).toFixed(2)}s`;
 }
 
-initMemoryGame();
-
-// ================= TYPING GAME + LEADERBOARD =================
-const typingQuote = "Learn your lessons well in the colonial classroom.";
+/* ===== Typing Challenge ===== */
+const sentences = ["The colonists gather at the town square.","George Washington was the first president.","Colonial schools used slates and quills."];
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingInput = document.getElementById('typingInput');
 const typingScore = document.getElementById('typingScore');
 const typingLeaderboard = document.getElementById('typingLeaderboard');
+let currentSentenceIndex = 0, typingStartTime, typingBestTime = localStorage.getItem('typingBest') || '--';
+typingLeaderboard.textContent = `Best: ${typingBestTime} s`;
 
-let typingStart=null, typingInterval=null;
-let typingBest=null;
+function newTypingSentence(){
+  sentenceDisplay.textContent = sentences[currentSentenceIndex];
+  typingInput.value = '';
+  typingStartTime = Date.now();
+}
+newTypingSentence();
 
-sentenceDisplay.textContent = typingQuote;
-
-typingInput.addEventListener('input', ()=>{
-  if(!typingStart){
-    typingStart=Date.now();
-    typingInterval=setInterval(()=>{
-      typingScore.textContent=`Time: ${((Date.now()-typingStart)/1000).toFixed(2)}s`;
-    },50);
-  }
-
-  if(typingInput.value===typingQuote){
-    clearInterval(typingInterval);
-    const finalTime=((Date.now()-typingStart)/1000).toFixed(2);
-    typingScore.textContent+= " ✅";
-    playSound(completeSound);
-    typingInput.disabled=true;
-    if(typingBest===null || finalTime<typingBest) typingBest=finalTime;
-    typingLeaderboard.textContent=`Best: ${typingBest} s`;
+typingInput.addEventListener('input', () => {
+  if(typingInput.value === sentences[currentSentenceIndex]){
+    const time = ((Date.now()-typingStartTime)/1000).toFixed(2);
+    typingScore.textContent = `Completed in ${time}s`;
+    if(typingBestTime==='--' || time<typingBestTime){ typingBestTime=time; localStorage.setItem('typingBest', time); typingLeaderboard.textContent=`Best: ${typingBestTime} s`; }
+    currentSentenceIndex = (currentSentenceIndex+1)%sentences.length;
+    setTimeout(newTypingSentence, 800);
   }
 });
 
-// ================= CLASSROOM CLEANUP + LEADERBOARD =================
-const cleanupBoard = document.getElementById('classroomBoard');
-const cleanupTimer = document.getElementById('cleanupTimer');
-const basket = document.getElementById('basket');
-const resetCleanupBtn = document.getElementById('resetCleanupBtn');
+/* ===== Classroom Cleanup ===== */
+const classroomBoard = document.getElementById('classroomBoard');
+const cleanupTimerEl = document.getElementById('cleanupTimer');
 const cleanupLeaderboard = document.getElementById('cleanupLeaderboard');
+let cleanupStartTime, cleanupInterval, cleanupBestTime = localStorage.getItem('cleanupBest') || '--';
+cleanupLeaderboard.textContent = `Best: ${cleanupBestTime} s`;
 
-let cleanupStart=null, cleanupInterval=null;
-let cleanupBest=null;
+document.getElementById('resetCleanupBtn').addEventListener('click', initCleanup);
 
-function startCleanupTimer(){
-  cleanupStart=Date.now();
-  cleanupInterval=setInterval(()=>{
-    cleanupTimer.textContent=`Time: ${((Date.now()-cleanupStart)/1000).toFixed(2)}s`;
-  },50);
-}
-
-function resetCleanupGame(){
-  cleanupBoard.querySelectorAll('.clutter-item').forEach(e=>e.remove());
-  ['📚','📜','🖋️','🎩','🗺️'].forEach(item=>{
-    const el=document.createElement('div');
-    el.textContent=item;
-    el.className='clutter-item';
-    el.draggable=true;
-    el.style.left=Math.random()*300+'px';
-    el.style.top=Math.random()*200+'px';
-    el.ondragstart=()=>{ if(!cleanupStart) startCleanupTimer(); };
-    cleanupBoard.appendChild(el);
+function initCleanup(){
+  classroomBoard.innerHTML = '<div id="basket">🧺</div>';
+  cleanupStartTime = Date.now();
+  cleanupInterval = setInterval(()=>{ cleanupTimerEl.textContent = `Time: ${((Date.now()-cleanupStartTime)/1000).toFixed(2)}s`; }, 100);
+  const basket = document.getElementById('basket');
+  basket.addEventListener('dragover', e => e.preventDefault());
+  basket.addEventListener('drop', e => {
+    const item = document.querySelector('.dragging');
+    if(item){ item.remove(); checkCleanupDone(); }
   });
-  cleanupTimer.textContent='Time: 0.00s';
-  cleanupStart=null;
-  clearInterval(cleanupInterval);
-}
-
-basket.ondragover=e=>e.preventDefault();
-basket.ondrop=()=>{
-  const item=document.querySelector('.clutter-item');
-  if(item) item.remove();
-  if(!document.querySelector('.clutter-item')){
-    clearInterval(cleanupInterval);
-    playSound(completeSound);
-    const finalTime=((Date.now()-cleanupStart)/1000).toFixed(2);
-    if(cleanupBest===null || finalTime<cleanupBest) cleanupBest=finalTime;
-    cleanupLeaderboard.textContent=`Best: ${cleanupBest} s`;
+  for(let i=0;i<5;i++){
+    const item = document.createElement('div');
+    item.className = 'clutter-item';
+    item.textContent = ['📚','🖋️','⚔️','🪑','🪄'][i];
+    item.style.top = Math.random()*200+'px';
+    item.style.left = Math.random()*500+'px';
+    item.draggable=true;
+    item.addEventListener('dragstart', e => { item.classList.add('dragging'); });
+    item.addEventListener('dragend', e => { item.classList.remove('dragging'); });
+    classroomBoard.appendChild(item);
   }
-};
-
-resetCleanupBtn.onclick=resetCleanupGame;
-resetCleanupGame();
-
-// ================= LIGHT / DARK MODE =================
-const modeSwitch = document.getElementById('modeSwitch');
-modeSwitch.onchange=()=>document.body.classList.toggle('light-mode', modeSwitch.checked);
+}
+function checkCleanupDone(){
+  if(classroomBoard.querySelectorAll('.clutter-item').length===0){
+    clearInterval(cleanupInterval);
+    const time = ((Date.now()-cleanupStartTime)/1000).toFixed(2);
+    if(cleanupBestTime==='--' || time<cleanupBestTime){ cleanupBestTime=time; localStorage.setItem('cleanupBest', time); }
+    cleanupLeaderboard.textContent=`Best: ${cleanupBestTime} s`;
+    cleanupTimerEl.textContent=`Time: 0.00s`;
+  }
+}
+initCleanup();
