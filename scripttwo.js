@@ -184,53 +184,61 @@ let memoryStarted = false;
 let memoryTime = 0;
 let memoryTimer;
 
-function startMemoryTimer(){
-  if(memoryStarted) return;
+// Sound effects
+const correctSound = new Audio("correct.mp3");
+const completeSound = new Audio("complete.mp3");
+const wrongSound = new Audio("wrong.mp3");
+
+function startMemoryTimer() {
+  if (memoryStarted) return;
   memoryStarted = true;
   memoryTime = 0;
   memoryTimer = setInterval(() => {
     memoryTime += 0.01;
     memoryTimerEl.textContent = `Time: ${memoryTime.toFixed(2)}s`;
-  },10);
+  }, 10);
 }
 
-function setupMemory(){
-  memoryCards = [...emojiCards, ...emojiCards].sort(() => 0.5-Math.random());
+function setupMemory() {
+  memoryCards = [...emojiCards, ...emojiCards].sort(() => 0.5 - Math.random());
   memoryGrid.innerHTML = "";
   flipped = [];
-  memoryStarted = false;
-  memoryTime = 0;
 
   memoryCards.forEach((emoji) => {
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `<div class="card-inner"><div class="card-front"></div><div class="card-back">${emoji}</div></div>`;
+    card.innerHTML = `<div class="card-inner">
+                        <div class="card-front"></div>
+                        <div class="card-back">${emoji}</div>
+                      </div>`;
+
     card.addEventListener("click", () => {
       startMemoryTimer();
-      if(card.classList.contains("flipped")) return;
-      card.classList.add("flipped");
-      flipped.push({card, emoji});
+      if (card.classList.contains("flipped") || flipped.length === 2) return;
 
-      if(flipped.length === 2){
-        if(flipped[0].emoji !== flipped[1].emoji){
-          wrongSfx.currentTime = 0;
-          wrongSfx.play();
+      card.classList.add("flipped");
+      flipped.push({ card, emoji });
+
+      if (flipped.length === 2) {
+        if (flipped[0].emoji === flipped[1].emoji) {
+          // Correct match
+          correctSound.play();
+          flipped = [];
+        } else {
+          wrongSound.play();
           setTimeout(() => {
             flipped[0].card.classList.remove("flipped");
             flipped[1].card.classList.remove("flipped");
             flipped = [];
           }, 500);
-        } else {
-          correctSfx.currentTime = 0;
-          correctSfx.play();
-          flipped = [];
         }
 
-        if(document.querySelectorAll("#memoryGame .card.flipped").length === memoryCards.length){
+        // Check if all matched
+        const allFlipped = document.querySelectorAll("#memoryGame .card.flipped").length;
+        if (allFlipped === memoryCards.length) {
           clearInterval(memoryTimer);
           memoryLeaderboardEl.textContent = `Best: ${memoryTime.toFixed(2)} s`;
-          completeSfx.currentTime = 0;
-          completeSfx.play();
+          completeSound.play();
         }
       }
     });
@@ -238,7 +246,19 @@ function setupMemory(){
     memoryGrid.appendChild(card);
   });
 }
+
+// Initial setup
 setupMemory();
+
+// ===== Reset Button =====
+const resetMemoryBtn = document.getElementById("resetMemoryBtn"); // Make sure this exists in HTML
+resetMemoryBtn.addEventListener("click", () => {
+  clearInterval(memoryTimer);
+  memoryStarted = false;
+  memoryTime = 0;
+  memoryTimerEl.textContent = `Time: 0.00s`;
+  setupMemory();
+});
 
 // ===== Typing Challenge =====
 const colonialSentence = "Students in 1776 wrote with quills on parchment and learned by rote.";
@@ -373,5 +393,6 @@ document.addEventListener("mousemove", e=>{
   cursorGlow.style.left = e.clientX + "px";
   cursorGlow.style.top = e.clientY + "px";
 });
+
 
 
