@@ -93,6 +93,7 @@ const quizData = [
 ];
 
 let currentQuestion = 0, score = 0;
+
 const progressContainer = document.getElementById('progressContainer');
 const questionEl = document.getElementById('question');
 const answersEl = document.getElementById('answers');
@@ -104,6 +105,12 @@ const scoreEl = document.getElementById('score');
 const correctSoundQuiz = new Audio('correct.mp3');
 const wrongSoundQuiz = new Audio('wrong.mp3');
 const completeSoundQuiz = new Audio('complete.mp3');
+
+// Utility function to play a sound without blocking
+function playSound(sound) {
+  const s = sound.cloneNode(); // create new instance
+  s.play();
+}
 
 function initProgressBar() {
   progressContainer.innerHTML = '';
@@ -152,10 +159,10 @@ submitBtn.addEventListener('click', () => {
 
   if(isCorrect){
     score++;
-    correctSoundQuiz.play();
+    playSound(correctSoundQuiz);
   } else {
     selected.classList.add('wrong');
-    wrongSoundQuiz.play();
+    playSound(wrongSoundQuiz);
   }
 
   markProgress(isCorrect);
@@ -178,7 +185,7 @@ function showScore(){
   scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
   scoreEl.classList.remove('hidden');
 
-  completeSoundQuiz.play();
+  playSound(completeSoundQuiz);
 }
 
 takeAgainBtn.addEventListener('click', () => {
@@ -192,6 +199,7 @@ takeAgainBtn.addEventListener('click', () => {
 
 initProgressBar();
 loadQuestion();
+
 
 // ===== Typing Challenge =====
 const typingQuote = "Learn your lessons well in the colonial classroom.";
@@ -415,3 +423,4 @@ resetBtn.addEventListener('click', setupBoard);
 startBtn.addEventListener('click', startCleanupGame);
 
 setupBoard();
+
