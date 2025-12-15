@@ -235,17 +235,20 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   max-width:260px;
 }
 
-/* ===== Cursor Glow ===== */
 #cursorGlow {
-  position:fixed;
-  width:180px;
-  height:180px;
-  pointer-events:none;
-  border-radius:50%;
+  position: fixed;       /* stay relative to viewport, not containers */
+  top: 0;
+  left: 0;
+  width: 180px;
+  height: 180px;
+  pointer-events: none;  /* don’t block clicks */
+  border-radius: 50%;
   background: radial-gradient(circle, rgba(176,138,87,0.25), transparent);
-  mix-blend-mode:screen;
+  mix-blend-mode: screen;
   transform: translate(-50%, -50%);
+  z-index: 99999;        /* ensures it’s above everything */
 }
+
 
 /* ===== Memory Match ===== */
 #memoryGame .card-grid { display:grid; grid-template-columns: repeat(4,80px); gap:10px; justify-content:center; margin:15px 0; }
@@ -353,3 +356,4 @@ button:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.
   .main-layout{ grid-template-columns:1fr; }
   .dropdowns{ grid-template-columns: repeat(2,minmax(220px,1fr)); margin:20px auto; }
 }
+
