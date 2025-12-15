@@ -267,9 +267,13 @@ async function fetchRandomSentence() {
   typingScore.textContent = "Time: 0.00s";
 
   try {
-    const prompt = "Write a 7-12 word colonial-era sentence about school life in 1776.";
+    // Add a random number to prompt to make AI generate a new sentence each time
+    const randomSeed = Math.floor(Math.random() * 10000);
+    const prompt = `Write a 7-12 word colonial-era sentence about school life in 1776. Variation: ${randomSeed}`;
     const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
     let aiText = await response.text();
+
+    // Only take the first 12 words
     const words = aiText.trim().split(/\s+/).slice(0, 12);
     currentSentence = words.join(" ") || "Students in 1776 wrote with quills on parchment.";
   } catch(err) {
@@ -328,7 +332,6 @@ const typingResetBtn = document.getElementById("resetTypingBtn");
 if(typingResetBtn){
   typingResetBtn.addEventListener("click", resetTypingChallenge);
 }
-
 
 // ===== Classroom Cleanup =====
 let cleanupStarted = false;
@@ -443,5 +446,6 @@ document.addEventListener("mousemove", e => {
 
 // Prevent initial auto-scroll to memory game
 window.scrollTo(0, 0);
+
 
 
