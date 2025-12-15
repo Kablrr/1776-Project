@@ -259,18 +259,21 @@ let currentSentence = "";
 let typingStarted = false;
 let typingStartTime = 0;
 let typingBestTime = null;
+let typingTimer = null;
 
+// Function to fetch a new sentence
 async function fetchRandomSentence() {
   sentenceDisplay.textContent = "Loading AI prompt...";
   typingInput.disabled = true;
   typingInput.value = "";
-  typingScore.textContent = "";
+  typingScore.textContent = "Time: 0.00s";
 
   try {
     const prompt = "Write a 7-12 word colonial-era sentence about school life in 1776.";
     const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
     let aiText = await response.text();
 
+    // Only take the first 12 words if AI gives more
     const words = aiText.trim().split(/\s+/).slice(0, 12);
     currentSentence = words.join(" ") || "Students in 1776 wrote with quills on parchment.";
   } catch(err) {
@@ -282,17 +285,37 @@ async function fetchRandomSentence() {
   typingInput.focus();
   typingStarted = false;
   typingStartTime = 0;
+
+  // Stop previous timer if any
+  clearInterval(typingTimer);
+  typingScore.textContent = "Time: 0.00s";
 }
 
-fetchRandomSentence();
+// Reset function to fetch a new sentence manually
+function resetTypingChallenge() {
+  clearInterval(typingTimer);
+  typingInput.value = "";
+  typingScore.textContent = "Time: 0.00s";
+  fetchRandomSentence();
+}
+
+fetchRandomSentence(); // initial load
 
 typingInput.addEventListener("input", () => {
   if(!typingStarted){
     typingStarted = true;
     typingStartTime = Date.now();
+
+    // Start live timer
+    typingTimer = setInterval(() => {
+      const elapsed = (Date.now() - typingStartTime) / 1000;
+      typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
+    }, 10);
   }
 
   if(typingInput.value === currentSentence){
+    clearInterval(typingTimer);
+
     const elapsed = (Date.now() - typingStartTime)/1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
 
@@ -305,6 +328,13 @@ typingInput.addEventListener("input", () => {
     setTimeout(fetchRandomSentence, 1000);
   }
 });
+
+// Optional: reset button integration if you have one
+const typingResetBtn = document.getElementById("resetTypingBtn");
+if(typingResetBtn){
+  typingResetBtn.addEventListener("click", resetTypingChallenge);
+}
+
 
 // ===== Classroom Cleanup =====
 let cleanupStarted = false;
@@ -419,3 +449,4 @@ document.addEventListener("mousemove", e => {
 
 // Prevent initial auto-scroll to memory game
 window.scrollTo(0, 0);
+
