@@ -53,7 +53,7 @@ generateBtn.addEventListener("click", async () => {
 
   const prompt = `${userPrompt}, colonial-era scene, historical clothing, wooden desks, parchment and quills, oil painting style, early American 18th century, realistic lighting`;
 
-  imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image...</div></div>`;
+  imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image may take up to a minute...</div></div>`;
 
   try {
     const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
@@ -73,7 +73,7 @@ generateAvatarBtn.addEventListener("click", async () => {
 
   const avatarPrompt = `A ${age} ${gender} with ${hair} hair, wearing ${outfit} and ${hat}, holding ${accessory}, background: ${background}, heritage: ${race}, colonial-era 1770s American style, oil painting, realistic`;
 
-  avatarContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating avatar...</div></div>`;
+  avatarContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating avatar may take up to a minute...</div></div>`;
 
   try {
     const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(avatarPrompt)}`);
@@ -447,3 +447,4 @@ document.addEventListener("fullscreenchange", ()=>{
 });
 
 window.scrollTo(0,0);
+
