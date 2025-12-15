@@ -232,7 +232,7 @@ function setupMemory(){
     memoryGrid.appendChild(card);
   });
 }
-requestAnimationFrame(setupMemory);
+setupMemory();
 resetMemoryBtn.addEventListener("click", ()=>{
   clearInterval(memoryTimer);
   memoryStarted=false; memoryTime=0;
@@ -241,11 +241,12 @@ resetMemoryBtn.addEventListener("click", ()=>{
 });
 
 // ===== Typing Challenge =====
-let currentSentence="", typingStarted=false, typingStartTime=0, typingBestTime=null, typingTimer=null;
+let currentSentence = "", lastSentence = "", typingStarted=false, typingStartTime=0, typingBestTime=null, typingTimer=null;
 
 async function fetchRandomSentence(){
   sentenceDisplay.textContent="Loading AI prompt...";
-  typingInput.disabled=true; typingInput.value="";
+  typingInput.disabled=true;
+  typingInput.value="";
   typingScore.textContent="Time: 0.00s";
 
   try{
@@ -255,6 +256,13 @@ async function fetchRandomSentence(){
     let aiText=await response.text();
     const words=aiText.trim().split(/\s+/).slice(0,12);
     currentSentence=words.join(" ")||"Students in 1776 wrote with quills on parchment.";
+
+    // prevent repeating same sentence twice
+    if(currentSentence === lastSentence){
+      currentSentence += " (again)";
+    }
+    lastSentence = currentSentence;
+
   } catch { currentSentence="Students in 1776 wrote with quills on parchment."; }
 
   sentenceDisplay.textContent=currentSentence;
@@ -328,7 +336,8 @@ function startCleanupTimer(){
 
 function resetCleanup(){
   clearInterval(cleanupTimer);
-  cleanupStarted=false; cleanupTime=0;
+  cleanupStarted=false;
+  cleanupTime=0;
   cleanupTimerEl.textContent="Time: 0.00s";
   itemsInPlay.forEach(i=>classroomBoard.removeChild(i));
   itemsInPlay=[];
@@ -348,7 +357,8 @@ function resetCleanup(){
     });
 
     item.addEventListener("mousedown", e=>{
-      e.preventDefault(); startCleanupTimer();
+      e.preventDefault();
+      startCleanupTimer();
       const boardRect=classroomBoard.getBoundingClientRect();
       const offsetX=e.clientX-item.getBoundingClientRect().left;
       const offsetY=e.clientY-item.getBoundingClientRect().top;
@@ -392,8 +402,8 @@ function resetCleanup(){
   });
 }
 
-requestAnimationFrame(resetCleanup);
 resetCleanupBtn.addEventListener("click", resetCleanup);
+resetCleanup();
 
 // ===== Cursor Glow =====
 document.addEventListener("mousemove", e => {
@@ -401,11 +411,11 @@ document.addEventListener("mousemove", e => {
   const y=e.clientY+window.scrollY;
   cursorGlow.style.left=`${x}px`;
   cursorGlow.style.top=`${y}px`;
-  cursorGlow.style.zIndex=9999; // ensure always on top
+  cursorGlow.style.zIndex=9999;
 });
 
 // ===== Fullscreen =====
-fullscreenBtn.addEventListener("click",()=>{
+fullscreenBtn.addEventListener("click", ()=>{
   if(!document.fullscreenElement){
     document.documentElement.requestFullscreen().then(()=>fullscreenBtn.textContent="Exit Fullscreen");
   } else {
@@ -413,7 +423,7 @@ fullscreenBtn.addEventListener("click",()=>{
   }
 });
 
-document.addEventListener("fullscreenchange",()=>{
+document.addEventListener("fullscreenchange", ()=>{
   if(!document.fullscreenElement) fullscreenBtn.textContent="Enter Fullscreen";
 });
 
