@@ -17,6 +17,7 @@ const progressContainer = document.getElementById("progressContainer");
 const memoryGrid = document.querySelector("#memoryGame .card-grid");
 const memoryTimerEl = document.getElementById("memoryTimer");
 const memoryLeaderboardEl = document.getElementById("memoryLeaderboard");
+const resetMemoryBtn = document.getElementById("resetMemoryBtn");
 
 const sentenceDisplay = document.getElementById("sentenceDisplay");
 const typingInput = document.getElementById("typingInput");
@@ -28,6 +29,8 @@ const basket = document.getElementById("basket");
 const cleanupTimerEl = document.getElementById("cleanupTimer");
 const cleanupLeaderboardEl = document.getElementById("cleanupLeaderboard");
 const resetCleanupBtn = document.getElementById("resetCleanupBtn");
+
+const cursorGlow = document.getElementById("cursorGlow");
 
 // ===== Audio =====
 const correctSfx = new Audio("correct.mp3");
@@ -87,8 +90,6 @@ generateAvatarBtn.addEventListener("click", async () => {
 // ===== Quiz =====
 let currentQuestion = 0;
 let userScore = 0;
-
-// Add more questions as desired
 let quizData = [
   { q: "Which year did the American Declaration of Independence occur?", a: ["1775","1776","1781","1789"], correct:1 },
   { q: "Who was the primary author of the Declaration of Independence?", a: ["George Washington","Thomas Jefferson","Benjamin Franklin","John Adams"], correct:1 },
@@ -100,7 +101,7 @@ let quizData = [
   { q: "Which event sparked the American Revolutionary War?", a: ["Boston Tea Party","Signing of Declaration","Battle of Yorktown","Stamp Act"], correct:0 }
 ];
 
-// Optional: randomize question order
+// Shuffle questions initially
 quizData.sort(() => Math.random() - 0.5);
 
 function renderQuestion() {
@@ -108,12 +109,11 @@ function renderQuestion() {
   questionEl.textContent = q.q;
   answersEl.innerHTML = "";
 
-  // Map answers to objects so we can track which is correct
+  // Map answers to objects
   const answers = q.a.map((answer, idx) => ({
     text: answer,
     isCorrect: idx === q.correct
   }));
-
   // Shuffle answers
   answers.sort(() => Math.random() - 0.5);
 
@@ -140,27 +140,25 @@ submitBtn.addEventListener("click", () => {
 
   Array.from(answersEl.children).forEach(b => {
     b.classList.remove("selected");
-    if (b.dataset.correct === "true") b.classList.add("correct");
-    else if (b === selected) b.classList.add("wrong");
+    if(b.dataset.correct === "true") b.classList.add("correct");
+    else if(b === selected) b.classList.add("wrong");
   });
 
-  if (isCorrect) {
-    userScore++;
-    new Audio('correct.mp3').play(); // correct sound
-  } else {
-    new Audio('wrong.mp3').play(); // wrong sound
-  }
+  if(isCorrect) correctSfx.play();
+  else wrongSfx.play();
 
-  // Update progress bar
+  // Update progress
   progressContainer.innerHTML = "";
   quizData.forEach((_, i) => {
     const segment = document.createElement("div");
     segment.classList.add("progress-segment");
-    if (i < currentQuestion + 1) {
-      segment.style.backgroundColor = i < userScore ? "var(--correct-color)" : "var(--wrong-color)";
+    if(i < currentQuestion+1){
+      segment.style.backgroundColor = i < userScore + (isCorrect ? 1 : 0) ? "var(--correct-color)" : "var(--wrong-color)";
     }
     progressContainer.appendChild(segment);
   });
+
+  if(isCorrect) userScore++;
 
   nextBtn.classList.remove("hidden");
   submitBtn.disabled = true;
@@ -168,14 +166,14 @@ submitBtn.addEventListener("click", () => {
 
 nextBtn.addEventListener("click", () => {
   currentQuestion++;
-  if (currentQuestion >= quizData.length) {
+  if(currentQuestion >= quizData.length){
     questionEl.textContent = "Quiz Completed!";
     answersEl.innerHTML = "";
     nextBtn.classList.add("hidden");
     scoreEl.textContent = `Score: ${userScore} / ${quizData.length}`;
     scoreEl.classList.remove("hidden");
     takeAgainBtn.classList.remove("hidden");
-    new Audio('complete.mp3').play(); // complete sound
+    completeSfx.play();
   } else renderQuestion();
 });
 
@@ -184,13 +182,9 @@ takeAgainBtn.addEventListener("click", () => {
   userScore = 0;
   scoreEl.classList.add("hidden");
   takeAgainBtn.classList.add("hidden");
-
-  // Optional: reshuffle questions each attempt
   quizData.sort(() => Math.random() - 0.5);
-
   renderQuestion();
 });
-
 
 // ===== Memory Match =====
 const emojiCards = ["📜","🖋️","🎓","📚","🏺","🪑","🕯️","🔔"];
@@ -200,13 +194,8 @@ let memoryStarted = false;
 let memoryTime = 0;
 let memoryTimer;
 
-// Sound effects
-const correctSound = new Audio("correct.mp3");
-const completeSound = new Audio("complete.mp3");
-const wrongSound = new Audio("wrong.mp3");
-
 function startMemoryTimer() {
-  if (memoryStarted) return;
+  if(memoryStarted) return;
   memoryStarted = true;
   memoryTime = 0;
   memoryTimer = setInterval(() => {
@@ -223,25 +212,21 @@ function setupMemory() {
   memoryCards.forEach((emoji) => {
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `<div class="card-inner">
-                        <div class="card-front"></div>
-                        <div class="card-back">${emoji}</div>
-                      </div>`;
+    card.innerHTML = `<div class="card-inner"><div class="card-front"></div><div class="card-back">${emoji}</div></div>`;
 
     card.addEventListener("click", () => {
       startMemoryTimer();
-      if (card.classList.contains("flipped") || flipped.length === 2) return;
+      if(card.classList.contains("flipped") || flipped.length === 2) return;
 
       card.classList.add("flipped");
-      flipped.push({ card, emoji });
+      flipped.push({card, emoji});
 
-      if (flipped.length === 2) {
-        if (flipped[0].emoji === flipped[1].emoji) {
-          // Correct match
-          correctSound.play();
+      if(flipped.length === 2){
+        if(flipped[0].emoji === flipped[1].emoji){
+          correctSfx.play();
           flipped = [];
         } else {
-          wrongSound.play();
+          wrongSfx.play();
           setTimeout(() => {
             flipped[0].card.classList.remove("flipped");
             flipped[1].card.classList.remove("flipped");
@@ -249,12 +234,10 @@ function setupMemory() {
           }, 500);
         }
 
-        // Check if all matched
-        const allFlipped = document.querySelectorAll("#memoryGame .card.flipped").length;
-        if (allFlipped === memoryCards.length) {
+        if(document.querySelectorAll("#memoryGame .card.flipped").length === memoryCards.length){
           clearInterval(memoryTimer);
           memoryLeaderboardEl.textContent = `Best: ${memoryTime.toFixed(2)} s`;
-          completeSound.play();
+          completeSfx.play();
         }
       }
     });
@@ -263,11 +246,10 @@ function setupMemory() {
   });
 }
 
-// Initial setup
+// Initial memory setup
 setupMemory();
 
-// ===== Reset Button =====
-const resetMemoryBtn = document.getElementById("resetMemoryBtn"); // Make sure this exists in HTML
+// Reset memory game
 resetMemoryBtn.addEventListener("click", () => {
   clearInterval(memoryTimer);
   memoryStarted = false;
@@ -276,17 +258,11 @@ resetMemoryBtn.addEventListener("click", () => {
   setupMemory();
 });
 
-// ===== Typing Challenge (AI-generated sentences) =====
-const sentenceDisplay = document.getElementById("sentenceDisplay");
-const typingInput = document.getElementById("typingInput");
-const typingScore = document.getElementById("typingScore");
-const typingLeaderboard = document.getElementById("typingLeaderboard");
-
+// ===== Typing Challenge (AI) =====
 let currentSentence = "";
 let typingStarted = false;
-let typingStartTime;
+let typingStartTime = 0;
 
-// Fetch a new AI-generated sentence
 async function fetchRandomSentence() {
   sentenceDisplay.textContent = "Loading AI prompt...";
   typingInput.disabled = true;
@@ -297,9 +273,8 @@ async function fetchRandomSentence() {
     const prompt = "Write a short colonial era sentence for a typing challenge about school life in 1776.";
     const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
     const aiText = await response.text();
-
     currentSentence = aiText.trim() || "Students in 1776 wrote with quills on parchment.";
-  } catch (err) {
+  } catch(err){
     currentSentence = "Students in 1776 wrote with quills on parchment.";
   }
 
@@ -307,51 +282,44 @@ async function fetchRandomSentence() {
   typingInput.disabled = false;
   typingInput.focus();
   typingStarted = false;
+  typingStartTime = 0;
 }
 
-// Call this on load or when resetting
 fetchRandomSentence();
 
-// Handle typing input
 typingInput.addEventListener("input", () => {
-  if (!typingStarted) {
+  if(!typingStarted){
     typingStarted = true;
     typingStartTime = Date.now();
   }
 
   const typedValue = typingInput.value;
 
-  // If fully typed correctly
-  if (typedValue === currentSentence) {
-    const elapsed = (Date.now() - typingStartTime) / 1000;
+  if(typedValue === currentSentence){
+    const elapsed = (Date.now() - typingStartTime)/1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
     typingLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
-    
-    // Automatically fetch a new sentence after 1 second
+
     typingInput.disabled = true;
     setTimeout(fetchRandomSentence, 1000);
   }
 });
 
-
 // ===== Classroom Cleanup =====
 let cleanupStarted = false;
 let cleanupTime = 0;
 let cleanupTimer;
-
-const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"]; // Emojis to pick up
+const classroomItems = ["📚","🖋️","🕯️","📜","🪑","🏺"];
 let itemsInPlay = [];
 
-// Set the background
+// Background
 classroomBoard.style.backgroundImage = "url('https://image.slidesdocs.com/responsive-images/background/classroom-clock-powerpoint-background_d7e0458f21__960_540.jpg')";
 classroomBoard.style.backgroundSize = "cover";
 classroomBoard.style.backgroundPosition = "center";
-
-// Prevent text selection while dragging
 classroomBoard.style.userSelect = "none";
 
 function startCleanupTimer() {
-  if (cleanupStarted) return;
+  if(cleanupStarted) return;
   cleanupStarted = true;
   cleanupTime = 0;
   cleanupTimer = setInterval(() => {
@@ -360,18 +328,15 @@ function startCleanupTimer() {
   }, 10);
 }
 
-// Reset cleanup game
 function resetCleanup() {
   clearInterval(cleanupTimer);
   cleanupStarted = false;
   cleanupTime = 0;
   cleanupTimerEl.textContent = `Time: 0.00s`;
 
-  // Remove old items
   itemsInPlay.forEach(item => classroomBoard.removeChild(item));
   itemsInPlay = [];
 
-  // Add new items at random positions
   classroomItems.forEach(emoji => {
     const item = document.createElement("div");
     item.classList.add("clutter-item");
@@ -386,25 +351,23 @@ function resetCleanup() {
     item.style.fontSize = "32px";
     item.style.cursor = "grab";
 
-    // Dragging
     item.addEventListener("mousedown", e => {
-      e.preventDefault(); // Prevent text selection
+      e.preventDefault();
       startCleanupTimer();
       const offsetX = e.clientX - item.getBoundingClientRect().left;
       const offsetY = e.clientY - item.getBoundingClientRect().top;
 
-      function onMouseMove(e) {
+      function onMouseMove(e){
         const newX = e.clientX - boardRect.left - offsetX;
         const newY = e.clientY - boardRect.top - offsetY;
-        item.style.left = `${Math.max(0, Math.min(newX, boardRect.width - 40))}px`;
-        item.style.top = `${Math.max(0, Math.min(newY, boardRect.height - 40))}px`;
+        item.style.left = `${Math.max(0, Math.min(newX, boardRect.width-40))}px`;
+        item.style.top = `${Math.max(0, Math.min(newY, boardRect.height-40))}px`;
       }
 
-      function onMouseUp() {
+      function onMouseUp(){
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
 
-        // Check precise basket collision
         const basketRect = basket.getBoundingClientRect();
         const itemRect = item.getBoundingClientRect();
         const overlapX = itemRect.left + itemRect.width/2 > basketRect.left &&
@@ -416,7 +379,6 @@ function resetCleanup() {
           classroomBoard.removeChild(item);
           itemsInPlay = itemsInPlay.filter(i => i !== item);
 
-          // Stop timer if all items collected
           if(itemsInPlay.length === 0){
             clearInterval(cleanupTimer);
             cleanupLeaderboardEl.textContent = `Best: ${cleanupTime.toFixed(2)} s`;
@@ -433,27 +395,13 @@ function resetCleanup() {
   });
 }
 
-// Attach reset button
 resetCleanupBtn.addEventListener("click", resetCleanup);
-
-// Initial setup
 resetCleanup();
-
-// ===== Cursor Glow Fixed =====
-const cursorGlow = document.getElementById("cursorGlow");
-
+  
+// ===== Cursor Glow =====
 document.addEventListener("mousemove", e => {
-  // Account for scrolling
   const x = e.clientX + window.scrollX;
   const y = e.clientY + window.scrollY;
-
   cursorGlow.style.left = `${x}px`;
   cursorGlow.style.top = `${y}px`;
 });
-
-
-
-
-
-
-
