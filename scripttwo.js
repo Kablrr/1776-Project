@@ -1,6 +1,5 @@
 /* ===============================
    Kabir Malhi - 1776 Project JS
-   Fully Fixed Version
    =============================== */
 
 /* ===== Light/Dark Mode ===== */
@@ -24,17 +23,22 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', async () => {
   const prompt = promptInput.value.trim();
   if (!prompt) return alert('Enter a prompt!');
-  imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image...</div></div>`;
+
+  imageContainer.innerHTML = `<div class="spinner-wrapper">
+    <div class="spinner"></div>
+    <div class="spinner-text">Generating image...</div>
+  </div>`;
 
   try {
+    // Pollinations API
     const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
-    if (!response.ok) throw new Error("Image generation failed");
+    if (!response.ok) throw new Error('Failed to generate image');
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     imageContainer.innerHTML = `<img src="${url}" alt="Generated Image">`;
   } catch (err) {
+    imageContainer.innerHTML = `<p style="color:var(--wrong-color);">Error generating image. Try again.</p>`;
     console.error(err);
-    imageContainer.innerHTML = `<p style="color:red;">Failed to generate image. Try again.</p>`;
   }
 });
 
@@ -52,18 +56,22 @@ generateAvatarBtn.addEventListener('click', async () => {
   const age = document.getElementById('ageSelect').value;
   const race = document.getElementById('raceSelect').value;
 
-  const avatarPrompt = `A ${age} ${race} student in 1776 wearing ${outfit} with ${hair} hair, ${hat}, holding ${accessory}, in ${background}`;
-  avatarContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating avatar...</div></div>`;
+  const prompt = `${gender}, ${age}, ${race}, ${hair} hair, ${hat}, ${outfit}, ${accessory}, in a ${background} setting, colonial 1776 style`;
+
+  avatarContainer.innerHTML = `<div class="spinner-wrapper">
+    <div class="spinner"></div>
+    <div class="spinner-text">Generating avatar...</div>
+  </div>`;
 
   try {
-    const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(avatarPrompt)}`);
-    if (!response.ok) throw new Error("Avatar generation failed");
+    const response = await fetch(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`);
+    if (!response.ok) throw new Error('Failed to generate avatar');
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
-    avatarContainer.innerHTML = `<img src="${url}" alt="Generated Avatar" style="border:2px solid var(--border-color); border-radius:12px;">`;
+    avatarContainer.innerHTML = `<img src="${url}" alt="Generated Avatar">`;
   } catch (err) {
+    avatarContainer.innerHTML = `<div style="padding:20px; border:2px solid var(--border-color); color:var(--text-color;">${prompt}</div>`;
     console.error(err);
-    avatarContainer.innerHTML = `<div style="padding:20px; border:2px solid var(--border-color); background: var(--container-bg); border-radius:12px; color: var(--text-color);">${avatarPrompt}</div>`;
   }
 });
 
@@ -97,11 +105,12 @@ function loadQuestion() {
   selectedAnswer = null;
   submitBtn.disabled = true;
   nextBtn.classList.add('hidden');
+  answersEl.innerHTML = '';
 
   const qData = quizData[currentQuestion];
   questionEl.textContent = qData.q;
-  answersEl.innerHTML = '';
-  qData.a.forEach((ans, i) => {
+
+  qData.a.forEach((ans,i) => {
     const btn = document.createElement('button');
     btn.textContent = ans;
     btn.addEventListener('click', () => {
@@ -113,8 +122,9 @@ function loadQuestion() {
     answersEl.appendChild(btn);
   });
 
+  // Progress bar
   progressContainer.innerHTML = '';
-  quizData.forEach((_, i) => {
+  quizData.forEach((_,i) => {
     const seg = document.createElement('div');
     seg.classList.add('progress-segment');
     if(i < currentQuestion) seg.style.backgroundColor = 'var(--correct-color)';
@@ -124,7 +134,7 @@ function loadQuestion() {
 
 submitBtn.addEventListener('click', () => {
   const qData = quizData[currentQuestion];
-  Array.from(answersEl.children).forEach((btn, i) => {
+  Array.from(answersEl.children).forEach((btn,i) => {
     if(i === qData.correct) btn.classList.add('correct');
     if(i === selectedAnswer && selectedAnswer !== qData.correct) btn.classList.add('wrong');
   });
@@ -160,34 +170,16 @@ takeAgainBtn.addEventListener('click', () => {
 
 loadQuestion();
 
-/* ===== Memory Match (with emojis + timer) ===== */
+/* ===== Memory Match (Emojis) ===== */
 const memoryGrid = document.querySelector('#memoryGame .card-grid');
-const memoryTimerEl = document.getElementById('memoryTimer');
 let memoryCards = [];
 let memoryFlipped = [];
 let memoryMatched = 0;
-let memoryTimer = 60;
-let memoryInterval;
-
-const memoryEmojis = ["📚","✏️","🖋️","📝","🎒","🪑","🖼️","📜"];
-
-function startMemoryTimer() {
-  clearInterval(memoryInterval);
-  memoryTimer = 60;
-  memoryTimerEl.textContent = `Time: ${memoryTimer}s`;
-  memoryInterval = setInterval(() => {
-    memoryTimer--;
-    memoryTimerEl.textContent = `Time: ${memoryTimer}s`;
-    if(memoryTimer <= 0){
-      clearInterval(memoryInterval);
-      alert("Time's up! Try again.");
-      createMemoryCards();
-    }
-  }, 1000);
-}
+let memoryStartTime, memoryTimerInterval;
+const emojis = ["📜","🖋️","📚","⚔️","🧺","🎓","🕰️","🍎"];
 
 function createMemoryCards() {
-  const values = [...memoryEmojis, ...memoryEmojis];
+  const values = [...emojis, ...emojis];
   values.sort(() => Math.random() - 0.5);
 
   memoryGrid.innerHTML = '';
@@ -195,17 +187,17 @@ function createMemoryCards() {
   memoryFlipped = [];
   memoryMatched = 0;
 
-  values.forEach(emoji => {
+  values.forEach(val => {
     const card = document.createElement('div');
     card.className = 'card';
     const inner = document.createElement('div');
     inner.className = 'card-inner';
     const front = document.createElement('div');
     front.className = 'card-front';
-    front.textContent = '❓';
+    front.textContent = '?';
     const back = document.createElement('div');
     back.className = 'card-back';
-    back.textContent = emoji;
+    back.textContent = val;
     inner.appendChild(front);
     inner.appendChild(back);
     card.appendChild(inner);
@@ -213,7 +205,7 @@ function createMemoryCards() {
     card.addEventListener('click', () => {
       if(memoryFlipped.length < 2 && !card.classList.contains('flipped')){
         card.classList.add('flipped');
-        memoryFlipped.push({card, emoji});
+        memoryFlipped.push({card,val});
         if(memoryFlipped.length === 2){
           setTimeout(checkMemoryMatch, 500);
         }
@@ -224,16 +216,18 @@ function createMemoryCards() {
     memoryGrid.appendChild(card);
   });
 
-  startMemoryTimer();
+  memoryStartTime = performance.now();
+  if(memoryTimerInterval) clearInterval(memoryTimerInterval);
+  memoryTimerInterval = setInterval(updateMemoryTimer, 50);
 }
 
-function checkMemoryMatch(){
+function checkMemoryMatch() {
   const [first, second] = memoryFlipped;
-  if(first.emoji === second.emoji){
+  if(first.val === second.val){
     memoryMatched += 2;
     if(memoryMatched === memoryCards.length){
-      clearInterval(memoryInterval);
-      alert("Congratulations! You matched all emojis!");
+      clearInterval(memoryTimerInterval);
+      updateMemoryLeaderboard();
     }
   } else {
     first.card.classList.remove('flipped');
@@ -242,58 +236,93 @@ function checkMemoryMatch(){
   memoryFlipped = [];
 }
 
+function updateMemoryTimer(){
+  const elapsed = (performance.now() - memoryStartTime)/1000;
+  document.getElementById('memoryTimer').textContent = `Time: ${elapsed.toFixed(2)}s`;
+}
+
+function updateMemoryLeaderboard(){
+  const bestEl = document.getElementById('memoryLeaderboard');
+  const currentTime = (performance.now() - memoryStartTime)/1000;
+  const previousBest = parseFloat(bestEl.dataset.best) || Infinity;
+  if(currentTime < previousBest){
+    bestEl.dataset.best = currentTime;
+    bestEl.textContent = `Best: ${currentTime.toFixed(2)} s`;
+  }
+}
+
 createMemoryCards();
 
-/* ===== Typing Challenge with Timer ===== */
-const typingTimerEl = document.getElementById('typingTimer');
-let typingTime = 45;
-let typingInterval;
+/* ===== Typing Challenge ===== */
+const typingInput = document.getElementById('typingInput');
+const sentenceDisplay = document.getElementById('sentenceDisplay');
+const typingScore = document.getElementById('typingScore');
+const typingLeaderboard = document.getElementById('typingLeaderboard');
 
-function startTypingTimer(){
-  clearInterval(typingInterval);
-  typingTime = 45;
-  typingTimerEl.textContent = `Time: ${typingTime}s`;
-  typingInterval = setInterval(() => {
-    typingTime--;
-    typingTimerEl.textContent = `Time: ${typingTime}s`;
-    if(typingTime <= 0){
-      clearInterval(typingInterval);
-      alert("Time's up! Try typing again.");
-      loadTypingSentence();
-      startTypingTimer();
-    }
-  }, 1000);
+const sentences = [
+  "The sun rises over the colonial town.",
+  "George Washington led his troops across the river.",
+  "Colonists gathered to discuss independence.",
+  "The market was busy with merchants and buyers.",
+  "Children studied in the colonial schoolhouse."
+];
+
+let currentSentence = "";
+let typingStartTime, typingInterval;
+
+function loadTypingSentence(){
+  currentSentence = sentences[Math.floor(Math.random()*sentences.length)];
+  sentenceDisplay.textContent = currentSentence;
+  typingInput.value = '';
+  typingScore.textContent = '';
+  typingStartTime = performance.now();
+  if(typingInterval) clearInterval(typingInterval);
+  typingInterval = setInterval(updateTypingTimer,50);
+}
+
+function updateTypingTimer(){
+  const elapsed = (performance.now()-typingStartTime)/1000;
+  typingLeaderboard.textContent = `Best: -- s | Current: ${elapsed.toFixed(2)} s`;
 }
 
 typingInput.addEventListener('input', () => {
   if(typingInput.value === currentSentence){
-    typingScore.textContent = 'Correct!';
+    const elapsed = (performance.now()-typingStartTime)/1000;
+    typingScore.textContent = `Correct! Time: ${elapsed.toFixed(2)}s`;
+    const previousBest = parseFloat(typingLeaderboard.dataset.best) || Infinity;
+    if(elapsed < previousBest){
+      typingLeaderboard.dataset.best = elapsed;
+      typingLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
+    }
     loadTypingSentence();
-    startTypingTimer();
   }
 });
-loadTypingSentence();
-startTypingTimer();
 
-/* ===== Classroom Cleanup with Timer ===== */
-const cleanupTimerEl = document.getElementById('cleanupTimer');
-let cleanupTime = 60;
-let cleanupInterval;
+loadTypingSentence();
+
+/* ===== Classroom Cleanup ===== */
+const classroomBoard = document.getElementById('classroomBoard');
+const basket = document.getElementById('basket');
+const resetCleanupBtn = document.getElementById('resetCleanupBtn');
+const cleanupLeaderboard = document.getElementById('cleanupLeaderboard');
+
+let draggingItem = null;
+let cleanupStartTime, cleanupInterval;
 
 function startCleanupTimer(){
-  clearInterval(cleanupInterval);
-  cleanupTime = 60;
-  cleanupTimerEl.textContent = `Time: ${cleanupTime}s`;
-  cleanupInterval = setInterval(() => {
-    cleanupTime--;
-    cleanupTimerEl.textContent = `Time: ${cleanupTime}s`;
-    if(cleanupTime <= 0){
-      clearInterval(cleanupInterval);
-      alert("Time's up! Try cleaning again.");
-    }
-  }, 1000);
+  cleanupStartTime = performance.now();
+  if(cleanupInterval) clearInterval(cleanupInterval);
+  cleanupInterval = setInterval(updateCleanupTimer,50);
 }
 
+function updateCleanupTimer(){
+  const elapsed = (performance.now() - cleanupStartTime)/1000;
+  document.getElementById('cleanupTimer').textContent = `Time: ${elapsed.toFixed(2)}s`;
+}
+
+document.addEventListener('mousedown', e => {
+  if(e.target.classList.contains('clutter-item')) draggingItem = e.target;
+});
 document.addEventListener('mouseup', e => {
   if(draggingItem){
     const rect = basket.getBoundingClientRect();
@@ -301,25 +330,37 @@ document.addEventListener('mouseup', e => {
     if(itemRect.left + itemRect.width/2 > rect.left && itemRect.left + itemRect.width/2 < rect.right &&
        itemRect.top + itemRect.height/2 > rect.top && itemRect.top + itemRect.height/2 < rect.bottom){
       draggingItem.remove();
+      if(document.querySelectorAll('.clutter-item').length === 0){
+        clearInterval(cleanupInterval);
+        const elapsed = (performance.now() - cleanupStartTime)/1000;
+        const previousBest = parseFloat(cleanupLeaderboard.dataset.best) || Infinity;
+        if(elapsed < previousBest){
+          cleanupLeaderboard.dataset.best = elapsed;
+          cleanupLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
+        }
+      }
     }
     draggingItem = null;
   }
 });
-
-startCleanupTimer();
-
-/* ===== Reset Buttons for Mini-Games ===== */
-const resetMemoryBtn = document.createElement('button');
-resetMemoryBtn.textContent = 'Reset Memory Game';
-resetMemoryBtn.style.marginTop = '10px';
-memoryGrid.parentElement.appendChild(resetMemoryBtn);
-resetMemoryBtn.addEventListener('click', createMemoryCards);
-
-const resetTypingBtn = document.createElement('button');
-resetTypingBtn.textContent = 'Reset Typing Challenge';
-resetTypingBtn.style.marginTop = '10px';
-typingInput.parentElement.appendChild(resetTypingBtn);
-resetTypingBtn.addEventListener('click', () => {
-  loadTypingSentence();
-  startTypingTimer();
+document.addEventListener('mousemove', e => {
+  if(draggingItem){
+    draggingItem.style.left = e.clientX - classroomBoard.offsetLeft - draggingItem.offsetWidth/2 + 'px';
+    draggingItem.style.top = e.clientY - classroomBoard.offsetTop - draggingItem.offsetHeight/2 + 'px';
+  }
 });
+
+resetCleanupBtn.addEventListener('click', () => {
+  classroomBoard.innerHTML = '<div id="basket">🧺</div>';
+  for(let i=0;i<6;i++){
+    const item = document.createElement('div');
+    item.className='clutter-item';
+    item.textContent = ["📜","🖋️","📚","⚔️","🕰️","🍎"][i];
+    item.style.top = Math.random()*200+'px';
+    item.style.left = Math.random()*500+'px';
+    classroomBoard.appendChild(item);
+  }
+  startCleanupTimer();
+});
+
+resetCleanupBtn.click();
