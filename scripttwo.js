@@ -264,19 +264,33 @@ resetMemoryBtn.addEventListener("click", () => {
 const colonialSentence = "Students in 1776 wrote with quills on parchment and learned by rote.";
 let typingStarted = false;
 let typingStartTime;
+let typingTimer;
+
+function resetTypingChallenge() {
+  clearInterval(typingTimer);
+  typingInput.value = "";
+  typingScore.textContent = "";
+  typingStarted = false;
+}
 
 typingInput.addEventListener("input", () => {
-  if(!typingStarted){
+  if (!typingStarted) {
     typingStarted = true;
     typingStartTime = Date.now();
+    typingTimer = setInterval(() => {
+      const elapsed = (Date.now() - typingStartTime) / 1000;
+      typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
+    }, 10); // update every 10ms
   }
-  if(typingInput.value === colonialSentence){
-    const elapsed = (Date.now()-typingStartTime)/1000;
+
+  if (typingInput.value === colonialSentence) {
+    clearInterval(typingTimer);
+    const elapsed = (Date.now() - typingStartTime) / 1000;
     typingScore.textContent = `Time: ${elapsed.toFixed(2)}s`;
     typingLeaderboard.textContent = `Best: ${elapsed.toFixed(2)} s`;
-    typingInput.disabled = true;
-    completeSfx.currentTime = 0;
-    completeSfx.play();
+
+    // Automatically reset for the next round after a short delay
+    setTimeout(resetTypingChallenge, 1500);
   }
 });
 
@@ -393,6 +407,7 @@ document.addEventListener("mousemove", e=>{
   cursorGlow.style.left = e.clientX + "px";
   cursorGlow.style.top = e.clientY + "px";
 });
+
 
 
 
