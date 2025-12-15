@@ -429,3 +429,53 @@ document.addEventListener("fullscreenchange", ()=>{
 
 window.scrollTo(0,0);
 
+
+// ===== Touch Drag Support for Classroom Cleanup =====
+function enableTouchDrag(item) {
+  item.addEventListener("touchstart", e => {
+    e.preventDefault();
+    startCleanupTimer();
+    const touch = e.touches[0];
+    const boardRect = classroomBoard.getBoundingClientRect();
+    const offsetX = touch.clientX - item.getBoundingClientRect().left;
+    const offsetY = touch.clientY - item.getBoundingClientRect().top;
+
+    function onTouchMove(e){
+      const touch = e.touches[0];
+      let x = touch.clientX - boardRect.left - offsetX;
+      let y = touch.clientY - boardRect.top - offsetY;
+      item.style.left = `${Math.max(0, Math.min(x, boardRect.width - item.offsetWidth))}px`;
+      item.style.top = `${Math.max(0, Math.min(y, boardRect.height - item.offsetHeight))}px`;
+    }
+
+    function onTouchEnd(){
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+
+      const basketRect = basket.getBoundingClientRect();
+      const itemRect = item.getBoundingClientRect();
+      const overlapX = itemRect.left + itemRect.width/2 > basketRect.left &&
+                       itemRect.left + itemRect.width/2 < basketRect.right;
+      const overlapY = itemRect.top + itemRect.height/2 > basketRect.top &&
+                       itemRect.top + itemRect.height/2 < basketRect.bottom;
+
+      if(overlapX && overlapY){
+        classroomBoard.removeChild(item);
+        itemsInPlay = itemsInPlay.filter(i => i !== item);
+        if(itemsInPlay.length===0){
+          clearInterval(cleanupTimer);
+          if(cleanupBestTime===null || cleanupTime < cleanupBestTime){
+            cleanupBestTime = cleanupTime;
+            cleanupLeaderboardEl.textContent = `Best: ${cleanupBestTime.toFixed(2)} s`;
+          }
+        }
+      }
+    }
+
+    document.addEventListener("touchmove", onTouchMove);
+    document.addEventListener("touchend", onTouchEnd);
+  });
+}
+
+// In resetCleanup(), after creating each clutter item:
+enableTouchDrag(item);
