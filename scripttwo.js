@@ -4,15 +4,20 @@
 
 /* ===== Light/Dark Mode ===== */
 const modeSwitch = document.getElementById('modeSwitch');
+
+// Load theme from localStorage
+modeSwitch.checked = localStorage.getItem('theme') === 'light';
+document.body.classList.toggle('light-mode', modeSwitch.checked);
+
 modeSwitch.addEventListener('change', () => {
   document.body.classList.toggle('light-mode', modeSwitch.checked);
+  localStorage.setItem('theme', modeSwitch.checked ? 'light' : 'dark');
 });
 
 /* ===== Cursor Glow ===== */
 const cursorGlow = document.getElementById('cursorGlow');
 document.addEventListener('mousemove', e => {
-  cursorGlow.style.left = e.clientX + 'px';
-  cursorGlow.style.top = e.clientY + 'px';
+  cursorGlow.style.transform = `translate(${e.clientX - 90}px, ${e.clientY - 90}px)`;
 });
 
 /* ===== Image Generator ===== */
@@ -23,10 +28,19 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', () => {
   const prompt = promptInput.value.trim();
   if (!prompt) return alert('Enter a prompt!');
-  imageContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating image...</div></div>`;
-  // Simulate async image generation
+
+  imageContainer.innerHTML = `
+    <div class="spinner-wrapper">
+      <div class="spinner"></div>
+      <div class="spinner-text">Generating image...</div>
+    </div>`;
+
   setTimeout(() => {
-    imageContainer.innerHTML = `<img src="https://via.placeholder.com/400x250?text=${encodeURIComponent(prompt)}" alt="Generated Image">`;
+    const encodedPrompt = encodeURIComponent(prompt);
+    imageContainer.innerHTML = `
+      <img src="https://via.placeholder.com/400x250?text=${encodedPrompt}" 
+           alt="Generated Image"
+           style="border:2px solid var(--border-color); border-radius:12px;">`;
   }, 1500);
 });
 
@@ -44,10 +58,25 @@ generateAvatarBtn.addEventListener('click', () => {
   const age = document.getElementById('ageSelect').value;
   const race = document.getElementById('raceSelect').value;
 
-  avatarContainer.innerHTML = `<div class="spinner-wrapper"><div class="spinner"></div><div class="spinner-text">Generating avatar...</div></div>`;
+  avatarContainer.innerHTML = `
+    <div class="spinner-wrapper">
+      <div class="spinner"></div>
+      <div class="spinner-text">Generating avatar...</div>
+    </div>`;
+
   setTimeout(() => {
     const avatarText = `${gender}, ${age}, ${race}, ${hair} hair, ${hat}, ${outfit}, ${accessory}, ${background}`;
-    avatarContainer.innerHTML = `<div style="padding:20px; border:2px solid #6e4b2f; background: #2a231f; border-radius:12px; color:#d8c9b4;">${avatarText}</div>`;
+    avatarContainer.innerHTML = `
+      <div style="
+        padding:20px; 
+        border:2px solid var(--border-color); 
+        background: var(--container-bg); 
+        border-radius:12px; 
+        color: var(--text-color);
+        font-weight:bold;
+        text-align:center;">
+        ${avatarText}
+      </div>`;
   }, 1000);
 });
 
@@ -80,6 +109,7 @@ const progressContainer = document.getElementById('progressContainer');
 function loadQuestion() {
   selectedAnswer = null;
   submitBtn.disabled = true;
+  submitBtn.classList.remove('hidden');
   nextBtn.classList.add('hidden');
 
   const qData = quizData[currentQuestion];
@@ -97,12 +127,12 @@ function loadQuestion() {
     answersEl.appendChild(btn);
   });
 
-  // Progress bar
+  // Reset progress bar
   progressContainer.innerHTML = '';
   quizData.forEach((_, i) => {
     const seg = document.createElement('div');
     seg.classList.add('progress-segment');
-    if(i < currentQuestion) seg.style.backgroundColor = '#4f7c4a';
+    if(i < currentQuestion) seg.style.backgroundColor = 'var(--correct-color)';
     progressContainer.appendChild(seg);
   });
 }
@@ -122,7 +152,6 @@ nextBtn.addEventListener('click', () => {
   currentQuestion++;
   if(currentQuestion < quizData.length){
     loadQuestion();
-    submitBtn.classList.remove('hidden');
   } else {
     questionEl.textContent = '';
     answersEl.innerHTML = '';
@@ -130,6 +159,7 @@ nextBtn.addEventListener('click', () => {
     scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
     scoreEl.classList.remove('hidden');
     takeAgainBtn.classList.remove('hidden');
+    submitBtn.classList.add('hidden');
     nextBtn.classList.add('hidden');
   }
 });
@@ -140,7 +170,6 @@ takeAgainBtn.addEventListener('click', () => {
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
   loadQuestion();
-  submitBtn.classList.remove('hidden');
 });
 
 /* ===== Memory Match ===== */
@@ -150,7 +179,7 @@ let memoryFlipped = [];
 let memoryMatched = 0;
 
 function createMemoryCards() {
-  const values = [...Array(8).keys(), ...Array(8).keys()]; // 8 pairs
+  const values = [...Array(8).keys(), ...Array(8).keys()];
   values.sort(() => Math.random() - 0.5);
 
   memoryGrid.innerHTML = '';
@@ -213,24 +242,41 @@ const sentences = [
   "The market was busy with merchants and buyers.",
   "Children studied in the colonial schoolhouse."
 ];
+
 let currentSentence = "";
+let startTime = Date.now();
+
 function loadTypingSentence(){
   currentSentence = sentences[Math.floor(Math.random()*sentences.length)];
   sentenceDisplay.textContent = currentSentence;
   typingInput.value = '';
   typingScore.textContent = '';
+  startTime = Date.now();
 }
+
 typingInput.addEventListener('input', () => {
   if(typingInput.value === currentSentence){
-    typingScore.textContent = 'Correct!';
+    const elapsed = ((Date.now() - startTime)/1000).toFixed(2);
+    typingScore.textContent = `Correct! Time: ${elapsed}s`;
     loadTypingSentence();
   }
 });
+
 loadTypingSentence();
 
 /* ===== Classroom Cleanup ===== */
 const classroomBoard = document.getElementById('classroomBoard');
 const basket = document.getElementById('basket');
+
+// Dynamically create clutter items
+for(let i=0;i<8;i++){
+  const item = document.createElement('div');
+  item.className = 'clutter-item';
+  item.textContent = '📚';
+  item.style.left = Math.random()*550+'px';
+  item.style.top = Math.random()*250+'px';
+  classroomBoard.appendChild(item);
+}
 
 let draggingItem = null;
 document.addEventListener('mousedown', e => {
