@@ -423,12 +423,18 @@ resetCleanupBtn.addEventListener("click", resetCleanup);
 // Initial setup
 resetCleanup();
 
-// ===== Cursor Glow =====
+// ===== Cursor Glow Fixed =====
 const cursorGlow = document.getElementById("cursorGlow");
-document.addEventListener("mousemove", e=>{
-  cursorGlow.style.left = e.clientX + "px";
-  cursorGlow.style.top = e.clientY + "px";
+
+document.addEventListener("mousemove", e => {
+  // Account for scrolling
+  const x = e.clientX + window.scrollX;
+  const y = e.clientY + window.scrollY;
+
+  cursorGlow.style.left = `${x}px`;
+  cursorGlow.style.top = `${y}px`;
 });
+
 
 
 
