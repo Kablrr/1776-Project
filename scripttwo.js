@@ -325,7 +325,7 @@ function resetCleanup() {
   cleanupTime = 0;
   cleanupTimerEl.textContent = `Time: 0.00s`;
 
-  // Remove old items
+  // Remove existing items
   itemsInPlay.forEach(item => classroomBoard.removeChild(item));
   itemsInPlay = [];
 
@@ -337,31 +337,30 @@ function resetCleanup() {
     item.style.fontSize = "32px";
     item.style.cursor = "grab";
 
-    classroomBoard.appendChild(item); // append first
+    // Wait until board is rendered to place items correctly
+    requestAnimationFrame(() => {
+      const boardRect = classroomBoard.getBoundingClientRect();
+      const x = Math.random() * (boardRect.width - 40);
+      const y = Math.random() * (boardRect.height - 40);
+      item.style.left = `${x}px`;
+      item.style.top = `${y}px`;
+    });
 
-    // Set random position after it's in the DOM
-    const boardRect = classroomBoard.getBoundingClientRect();
-    const padding = 10; // small padding so item stays fully inside
-    const x = Math.random() * (boardRect.width - 40 - 2*padding) + padding;
-    const y = Math.random() * (boardRect.height - 40 - 2*padding) + padding;
-    item.style.left = `${x}px`;
-    item.style.top = `${y}px`;
-
-    // Dragging logic
     item.addEventListener("mousedown", e => {
       e.preventDefault();
       startCleanupTimer();
+      const boardRect = classroomBoard.getBoundingClientRect(); // calculate here for accurate drag
       const offsetX = e.clientX - item.getBoundingClientRect().left;
       const offsetY = e.clientY - item.getBoundingClientRect().top;
 
-      function onMouseMove(e) {
+      function onMouseMove(e){
         const newX = e.clientX - boardRect.left - offsetX;
         const newY = e.clientY - boardRect.top - offsetY;
-        item.style.left = `${Math.max(0, Math.min(newX, boardRect.width - 40))}px`;
-        item.style.top = `${Math.max(0, Math.min(newY, boardRect.height - 40))}px`;
+        item.style.left = `${Math.max(0, Math.min(newX, boardRect.width-40))}px`;
+        item.style.top = `${Math.max(0, Math.min(newY, boardRect.height-40))}px`;
       }
 
-      function onMouseUp() {
+      function onMouseUp(){
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
 
@@ -387,6 +386,7 @@ function resetCleanup() {
       document.addEventListener("mouseup", onMouseUp);
     });
 
+    classroomBoard.appendChild(item);
     itemsInPlay.push(item);
   });
 }
@@ -401,6 +401,7 @@ document.addEventListener("mousemove", e => {
   cursorGlow.style.left = `${x}px`;
   cursorGlow.style.top = `${y}px`;
 });
+
 
 
 
