@@ -87,7 +87,6 @@ generateAvatarBtn.addEventListener("click", async () => {
     avatarContainer.innerHTML = `<p style="color:red;">Error generating avatar. Try again.</p>`;
   }
 });
-
 // ===== Quiz =====
 let currentQuestion = 0;
 let userScore = 0;
@@ -130,16 +129,25 @@ renderQuestion();
 
 submitBtn.addEventListener("click", () => {
   const selected = Array.from(answersEl.children).find(b => b.classList.contains("selected"));
+  if (!selected) return;
+
   const isCorrect = selected.dataset.correct === "true";
 
+  if(isCorrect) {
+    playSfx("correct.mp3");
+    userScore++;
+    selected.classList.add("correct");
+  } else {
+    playSfx("wrong.mp3");
+    selected.classList.add("wrong");
+  }
+
+  // Highlight correct answers
   Array.from(answersEl.children).forEach(b => {
-    b.classList.remove("selected");
-    if(b.dataset.correct === "true") playSfx("correct.mp3");
-    else if(b === selected) playSfx("wrong.mp3");
+    if(b.dataset.correct === "true") b.classList.add("correct");
   });
 
-  if(isCorrect) userScore++;
-
+  // Update progress bar
   progressContainer.innerHTML = "";
   quizData.forEach((_, i) => {
     const segment = document.createElement("div");
@@ -457,3 +465,4 @@ document.addEventListener("fullscreenchange", () => {
     fullscreenBtn.textContent = "Enter Fullscreen";
   }
 });
+
