@@ -1,11 +1,10 @@
 /* ===============================
    Kabir Malhi - 1776 Project JS
+   Fully Fixed Version
    =============================== */
 
 /* ===== Light/Dark Mode ===== */
 const modeSwitch = document.getElementById('modeSwitch');
-
-// Load theme from localStorage
 modeSwitch.checked = localStorage.getItem('theme') === 'light';
 document.body.classList.toggle('light-mode', modeSwitch.checked);
 
@@ -16,9 +15,14 @@ modeSwitch.addEventListener('change', () => {
 
 /* ===== Cursor Glow ===== */
 const cursorGlow = document.getElementById('cursorGlow');
-document.addEventListener('mousemove', e => {
-  cursorGlow.style.transform = `translate(${e.clientX - 90}px, ${e.clientY - 90}px)`;
-});
+let mouseX = 0, mouseY = 0;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+function updateGlow(){
+  cursorGlow.style.transform = `translate(${mouseX - 90}px, ${mouseY - 90}px)`;
+  requestAnimationFrame(updateGlow);
+}
+updateGlow();
 
 /* ===== Image Generator ===== */
 const promptInput = document.getElementById('promptInput');
@@ -127,7 +131,6 @@ function loadQuestion() {
     answersEl.appendChild(btn);
   });
 
-  // Reset progress bar
   progressContainer.innerHTML = '';
   quizData.forEach((_, i) => {
     const seg = document.createElement('div');
@@ -226,6 +229,10 @@ function checkMemoryMatch(){
     second.card.classList.remove('flipped');
   }
   memoryFlipped = [];
+
+  if(memoryMatched === memoryCards.length){
+    setTimeout(() => alert('You matched all cards! 🎉'), 200);
+  }
 }
 
 createMemoryCards();
@@ -234,7 +241,6 @@ createMemoryCards();
 const typingInput = document.getElementById('typingInput');
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingScore = document.getElementById('typingScore');
-
 const sentences = [
   "The sun rises over the colonial town.",
   "George Washington led his troops across the river.",
@@ -251,11 +257,18 @@ function loadTypingSentence(){
   sentenceDisplay.textContent = currentSentence;
   typingInput.value = '';
   typingScore.textContent = '';
+  typingInput.style.borderColor = 'var(--border-color)';
   startTime = Date.now();
 }
 
 typingInput.addEventListener('input', () => {
-  if(typingInput.value === currentSentence){
+  const typed = typingInput.value;
+  if(currentSentence.startsWith(typed)){
+    typingInput.style.borderColor = 'var(--border-color)';
+  } else {
+    typingInput.style.borderColor = 'var(--wrong-color)';
+  }
+  if(typed === currentSentence){
     const elapsed = ((Date.now() - startTime)/1000).toFixed(2);
     typingScore.textContent = `Correct! Time: ${elapsed}s`;
     loadTypingSentence();
@@ -268,13 +281,14 @@ loadTypingSentence();
 const classroomBoard = document.getElementById('classroomBoard');
 const basket = document.getElementById('basket');
 
-// Dynamically create clutter items
+// Create clutter items dynamically
 for(let i=0;i<8;i++){
   const item = document.createElement('div');
   item.className = 'clutter-item';
   item.textContent = '📚';
-  item.style.left = Math.random()*550+'px';
-  item.style.top = Math.random()*250+'px';
+  item.style.fontSize = '28px';
+  item.style.left = `${Math.random() * 80}%`;
+  item.style.top = `${Math.random() * 80}%`;
   classroomBoard.appendChild(item);
 }
 
