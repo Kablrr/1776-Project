@@ -1,22 +1,3 @@
-// ===== Theme Toggle =====
-const body = document.body;
-const modeSwitch = document.createElement('input');
-modeSwitch.type = 'checkbox';
-modeSwitch.id = 'modeSwitch';
-const modeLabel = document.createElement('label');
-modeLabel.textContent = 'Light Mode';
-modeLabel.htmlFor = 'modeSwitch';
-const toggleWrapper = document.createElement('div');
-toggleWrapper.className = 'mode-toggle';
-toggleWrapper.appendChild(modeLabel);
-toggleWrapper.appendChild(modeSwitch);
-document.body.appendChild(toggleWrapper);
-
-modeSwitch.addEventListener('change', () => {
-  body.dataset.theme = modeSwitch.checked ? 'light' : 'dark';
-});
-body.dataset.theme = 'dark';
-
 // ===== Cursor Glow =====
 const cursorGlow = document.getElementById('cursorGlow');
 document.addEventListener('mousemove', e => {
@@ -25,7 +6,7 @@ document.addEventListener('mousemove', e => {
 });
 
 // ===== Spinner Helper =====
-function createSpinner(text='May take up to a minute to generate') {
+function createSpinner(text='May take a moment to generate...') {
   const wrapper = document.createElement('div');
   wrapper.className = 'spinner-wrapper';
   wrapper.innerHTML = `<div class="spinner"></div><div class="spinner-text">${text}</div>`;
@@ -40,6 +21,7 @@ const imageContainer = document.getElementById('imageContainer');
 generateBtn.addEventListener('click', () => {
   const userPrompt = promptInput.value.trim();
   if (!userPrompt) return alert('Enter a colonial scene!');
+
   const prompt = `Colonial American scene, 1776. ${userPrompt}. Historical realism, 18th century atmosphere, oil painting.`;
   imageContainer.innerHTML = '';
   const spinner = createSpinner();
@@ -52,8 +34,14 @@ generateBtn.addEventListener('click', () => {
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '12px';
 
-  img.onload = () => { spinner.remove(); imageContainer.appendChild(img); };
-  img.onerror = () => { spinner.remove(); alert('Failed to generate image. Try again.'); };
+  img.onload = () => {
+    spinner.remove();
+    imageContainer.appendChild(img);
+  };
+  img.onerror = () => {
+    spinner.remove();
+    alert('Failed to generate image. Try again.');
+  };
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
@@ -67,6 +55,7 @@ generateAvatarBtn.addEventListener('click', () => {
   const [gender, background, outfit, hat, accessory, hair, age, heritage] = values;
 
   const prompt = `Colonial American portrait 1776. ${age} ${gender} of ${heritage} heritage, wearing ${outfit} and ${hat}. Hairstyle: ${hair}. Accessory: ${accessory}. Background: ${background}. Oil painting style.`;
+
   avatarContainer.innerHTML = '';
   const spinner = createSpinner();
   avatarContainer.appendChild(spinner);
@@ -78,8 +67,14 @@ generateAvatarBtn.addEventListener('click', () => {
   img.style.border = '2px solid #4b2e2a';
   img.style.borderRadius = '14px';
 
-  img.onload = () => { spinner.remove(); avatarContainer.appendChild(img); };
-  img.onerror = () => { spinner.remove(); alert('Failed to generate avatar. Try again.'); };
+  img.onload = () => {
+    spinner.remove();
+    avatarContainer.appendChild(img);
+  };
+  img.onerror = () => {
+    spinner.remove();
+    alert('Failed to generate avatar. Try again.');
+  };
   img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
 });
 
@@ -89,7 +84,7 @@ const quizData = [
   {q:"Commander of Continental Army?", o:["Thomas Jefferson","Benjamin Franklin","George Washington","John Adams"], a:"George Washington"},
   {q:"Document ending Revolutionary War?", o:["Bill of Rights","Treaty of Paris","Articles of Confederation","Constitution"], a:"Treaty of Paris"},
   {q:"Which city was first capital of USA?", o:["Philadelphia","New York","Boston","Washington DC"], a:"New York"},
-  {q:"Who wrote the most of the Declaration?", o:["Jefferson","Adams","Washington","Franklin"], a:"Jefferson"},
+  {q:"Who wrote most of the Declaration?", o:["Jefferson","Adams","Washington","Franklin"], a:"Jefferson"},
   {q:"Which battle was first major battle?", o:["Bunker Hill","Lexington","Saratoga","Yorktown"], a:"Bunker Hill"},
   {q:"Who was king of Britain?", o:["George I","George II","George III","George IV"], a:"George III"},
   {q:"What year did war start?", o:["1774","1775","1776","1777"], a:"1775"},
@@ -105,15 +100,6 @@ const submitBtn = document.getElementById('submitBtn');
 const nextBtn = document.getElementById('nextBtn');
 const takeAgainBtn = document.getElementById('takeAgainBtn');
 const scoreEl = document.getElementById('score');
-
-const correctSoundQuiz = new Audio('correct.mp3');
-const wrongSoundQuiz = new Audio('wrong.mp3');
-const completeSoundQuiz = new Audio('complete.mp3');
-
-function playSound(sound) {
-  const s = sound.cloneNode();
-  s.play();
-}
 
 function initProgressBar() {
   progressContainer.innerHTML = '';
@@ -147,7 +133,7 @@ function loadQuestion() {
 
 function markProgress(isCorrect) {
   const segments = document.querySelectorAll('.progress-segment');
-  if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? getComputedStyle(body).getPropertyValue('--progress-correct') : getComputedStyle(body).getPropertyValue('--progress-wrong');
+  if (segments[currentQuestion]) segments[currentQuestion].style.backgroundColor = isCorrect ? '#4f7c4a' : '#8c3a2b';
 }
 
 submitBtn.addEventListener('click', () => {
@@ -160,8 +146,7 @@ submitBtn.addEventListener('click', () => {
     if(btn.textContent === quizData[currentQuestion].a) btn.classList.add('correct');
   });
 
-  if(isCorrect) { score++; playSound(correctSoundQuiz); }
-  else { selected.classList.add('wrong'); playSound(wrongSoundQuiz); }
+  if(!isCorrect) selected.classList.add('wrong');
 
   markProgress(isCorrect);
   submitBtn.classList.add('hidden');
@@ -182,11 +167,11 @@ function showScore(){
   takeAgainBtn.classList.remove('hidden');
   scoreEl.textContent = `Your Score: ${score} / ${quizData.length}`;
   scoreEl.classList.remove('hidden');
-  playSound(completeSoundQuiz);
 }
 
 takeAgainBtn.addEventListener('click', () => {
-  currentQuestion = 0; score = 0;
+  currentQuestion = 0;
+  score = 0;
   scoreEl.classList.add('hidden');
   takeAgainBtn.classList.add('hidden');
   initProgressBar();
@@ -196,20 +181,61 @@ takeAgainBtn.addEventListener('click', () => {
 initProgressBar();
 loadQuestion();
 
+// ===== Memory Match =====
+const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
+let memoryDeck = [...memoryEmojis, ...memoryEmojis];
+const memoryGrid = document.querySelector('#memoryGame .card-grid');
+let memoryFlipped = [], memoryMatches = 0;
+
+function shuffle(array){ return array.sort(() => Math.random() - 0.5); }
+
+function initMemoryGame() {
+  memoryGrid.innerHTML = '';
+  memoryDeck = shuffle([...memoryEmojis, ...memoryEmojis]);
+  memoryFlipped = [];
+  memoryMatches = 0;
+
+  memoryDeck.forEach(emoji => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.value = emoji;
+    card.innerHTML = `<div class="card-inner"><div class="card-front">?</div><div class="card-back">${emoji}</div></div>`;
+    card.addEventListener('click', () => flipCard(card));
+    memoryGrid.appendChild(card);
+  });
+
+  document.getElementById('memoryScore').textContent = '';
+}
+
+function flipCard(card) {
+  if (memoryFlipped.length >= 2 || card.classList.contains('matched') || card.classList.contains('flipped')) return;
+  card.classList.add('flipped');
+  memoryFlipped.push(card);
+  if(memoryFlipped.length === 2) setTimeout(checkMatch, 800);
+}
+
+function checkMatch() {
+  const [c1,c2] = memoryFlipped;
+  if(c1.dataset.value === c2.dataset.value) {
+    c1.classList.add('matched');
+    c2.classList.add('matched');
+    memoryMatches++;
+  } else {
+    c1.classList.remove('flipped');
+    c2.classList.remove('flipped');
+  }
+  memoryFlipped = [];
+  if(memoryMatches === memoryEmojis.length) document.getElementById('memoryScore').textContent = '🎉 You matched all cards! 🎉';
+}
+
+initMemoryGame();
+
 // ===== Typing Challenge =====
 const typingQuote = "Learn your lessons well in the colonial classroom.";
 const sentenceDisplay = document.getElementById('sentenceDisplay');
 const typingInput = document.getElementById('typingInput');
 const typingScore = document.getElementById('typingScore');
-const correctSoundTyping = new Audio('correct.mp3');
-
 let typingStart = null, typingTimerInterval = null;
-
-function updateTypingTimer() {
-  if(!typingStart) return;
-  const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
-  typingScore.textContent = `⌛ Time: ${elapsed}s`;
-}
 
 function loadTypingQuote() {
   sentenceDisplay.innerHTML = `<span>"${typingQuote}"</span>`;
@@ -223,25 +249,27 @@ function loadTypingQuote() {
 
 typingInput.addEventListener('input', () => {
   const typed = typingInput.value;
-  if(!typingStart) { typingStart = Date.now(); typingTimerInterval = setInterval(updateTypingTimer, 50); }
+  if(!typingStart) {
+    typingStart = Date.now();
+    typingTimerInterval = setInterval(() => {
+      const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
+      typingScore.textContent = `⌛ Time: ${elapsed}s`;
+    },50);
+  }
 
-  if(typed === typingQuote){
+  if(typed === typingQuote) {
     const elapsed = ((Date.now() - typingStart)/1000).toFixed(2);
     typingScore.textContent = `✅ Perfect! Time: ${elapsed} seconds`;
     typingInput.disabled = true;
     clearInterval(typingTimerInterval);
-    correctSoundTyping.play();
-  } else if(!typingQuote.startsWith(typed)){
-    typingScore.textContent = `❌ Typing error! Check spelling & punctuation.`;
+  } else if(!typingQuote.startsWith(typed)) {
+    typingScore.textContent = '❌ Typing error! Check spelling & punctuation.';
     typingScore.classList.add('error');
-  } else {
-    typingScore.textContent = '';
-    typingScore.classList.remove('error');
-  }
+  } else typingScore.classList.remove('error');
 });
 
 typingInput.addEventListener('blur', () => clearInterval(typingTimerInterval));
-typingInput.addEventListener('focus', () => { if(typingStart) typingTimerInterval = setInterval(updateTypingTimer, 50); });
+typingInput.addEventListener('focus', () => { if(typingStart) typingTimerInterval = setInterval(() => { const elapsed = ((Date.now() - typingStart)/1000).toFixed(2); typingScore.textContent = `⌛ Time: ${elapsed}s`; },50); });
 
 const typingResetBtn = document.createElement('button');
 typingResetBtn.textContent = 'Reset Typing';
@@ -250,98 +278,63 @@ typingResetBtn.addEventListener('click', loadTypingQuote);
 sentenceDisplay.parentNode.appendChild(typingResetBtn);
 loadTypingQuote();
 
-// ===== Memory Match =====
-const memoryEmojis = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️'];
-let memoryDeck = [...memoryEmojis, ...memoryEmojis];
-let memoryGrid = document.querySelector('#memoryGame .card-grid');
-let memoryFlipped = [], memoryMatches = 0;
-
-function shuffle(array){ return array.sort(() => Math.random()-0.5); }
-
-function initMemoryGame() {
-  memoryGrid.innerHTML = '';
-  memoryDeck = shuffle(memoryDeck);
-  memoryFlipped = [];
-  memoryMatches = 0;
-
-  memoryDeck.forEach(emoji => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.value = emoji;
-    card.innerHTML = `
-      <div class="card-inner">
-        <div class="card-front">?</div>
-        <div class="card-back">${emoji}</div>
-      </div>`;
-    card.addEventListener('click', () => flipCard(card));
-    memoryGrid.appendChild(card);
-  });
-  document.getElementById('memoryScore').textContent = '';
-}
-
-function flipCard(card){
-  if(memoryFlipped.length >= 2 || card.classList.contains('matched') || card.classList.contains('flipped')) return;
-  card.classList.add('flipped');
-  memoryFlipped.push(card);
-  if(memoryFlipped.length === 2) setTimeout(checkMatch, 800);
-}
-
-function checkMatch(){
-  const [c1,c2] = memoryFlipped;
-  if(c1.dataset.value === c2.dataset.value){ c1.classList.add('matched'); c2.classList.add('matched'); memoryMatches++; }
-  else { c1.classList.remove('flipped'); c2.classList.remove('flipped'); }
-  memoryFlipped = [];
-  if(memoryMatches === memoryEmojis.length) document.getElementById('memoryScore').textContent = '🎉 You matched all cards! 🎉';
-}
-initMemoryGame();
-
 // ===== Classroom Cleanup =====
 const cleanupBoard = document.getElementById('classroomBoard');
 const cleanupScore = document.getElementById('cleanupScore');
 const cleanupTimer = document.getElementById('cleanupTimer');
 const resetBtn = document.getElementById('resetCleanupBtn');
 const basket = document.getElementById('basket');
+const startBtn = document.getElementById('startCleanupBtn') || document.createElement('button');
 
-const startBtn = document.createElement('button');
-startBtn.textContent = 'Start Cleanup';
-startBtn.id = 'startCleanupBtn';
-cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
+if(!document.getElementById('startCleanupBtn')){
+  startBtn.textContent = 'Start Cleanup';
+  startBtn.id = 'startCleanupBtn';
+  cleanupBoard.parentNode.insertBefore(startBtn, cleanupBoard);
+}
 
 const clutterItems = ['📚','✒️','📜','🖋️','🗺️','🏮','🎩','⚔️','🖼️','🪑'];
-let startTime=0, timerInterval, gameStarted=false;
+let startTime = 0, timerInterval, gameStarted = false;
 
 function setupBoard() {
-  cleanupBoard.querySelectorAll('.clutter-item').forEach(item=>item.remove());
+  cleanupBoard.querySelectorAll('.clutter-item').forEach(item => item.remove());
   cleanupScore.textContent = '';
-  cleanupTimer.textContent = `Time: 0.00s`;
+  cleanupTimer.textContent = 'Time: 0.00s';
   clearInterval(timerInterval);
   gameStarted = false;
 
-  const basketLeft = basket.offsetLeft, basketTop = basket.offsetTop, basketWidth = basket.offsetWidth, basketHeight = basket.offsetHeight;
+  const basketRect = basket.getBoundingClientRect();
+  const boardRect = cleanupBoard.getBoundingClientRect();
 
-  clutterItems.forEach(emoji=>{
+  clutterItems.forEach(emoji => {
     const div = document.createElement('div');
     div.className = 'clutter-item';
     div.textContent = emoji;
 
     const itemSize = 40;
     let x, y;
-    do {
-      x = Math.random()*(cleanupBoard.clientWidth-itemSize);
-      y = Math.random()*(cleanupBoard.clientHeight-itemSize);
-    } while(x+itemSize>basketLeft && x<basketLeft+basketWidth && y+itemSize>basketTop && y<basketTop+basketHeight);
 
-    div.style.left = x+'px';
-    div.style.top = y+'px';
+    do {
+      x = Math.random() * (cleanupBoard.clientWidth - itemSize);
+      y = Math.random() * (cleanupBoard.clientHeight - itemSize);
+    } while (
+      x + itemSize > basket.offsetLeft &&
+      x < basket.offsetLeft + basket.offsetWidth &&
+      y + itemSize > basket.offsetTop &&
+      y < basket.offsetTop + basket.offsetHeight
+    );
+
+    div.style.left = x + 'px';
+    div.style.top = y + 'px';
     div.draggable = false;
     cleanupBoard.appendChild(div);
   });
+
   startBtn.style.display = 'inline-block';
 }
 
 function updateTimer() {
   if(!gameStarted) return;
-  const elapsed = ((Date.now()-startTime)/1000).toFixed(2);
+  const elapsed = ((Date.now() - startTime)/1000).toFixed(2);
   cleanupTimer.textContent = `Time: ${elapsed}s`;
 }
 
@@ -358,28 +351,29 @@ function startCleanupGame() {
   });
 }
 
-basket.addEventListener('dragover', e=>e.preventDefault());
-basket.addEventListener('dragenter', e=>{ e.preventDefault(); if(!gameStarted) return; basket.classList.add('drag-over'); });
-basket.addEventListener('dragleave', e=>{ e.preventDefault(); if(!gameStarted) return; basket.classList.remove('drag-over'); });
-basket.addEventListener('drop', e=>{
+basket.addEventListener('dragover', e => e.preventDefault());
+basket.addEventListener('dragenter', e => { e.preventDefault(); if(!gameStarted) return; basket.classList.add('drag-over'); });
+basket.addEventListener('dragleave', e => { e.preventDefault(); if(!gameStarted) return; basket.classList.remove('drag-over'); });
+basket.addEventListener('drop', e => {
   e.preventDefault();
   if(!gameStarted) return;
   const emoji = e.dataTransfer.getData('text/plain');
-  const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d=>d.textContent===emoji);
+  const target = Array.from(cleanupBoard.querySelectorAll('.clutter-item')).find(d => d.textContent === emoji);
   if(target) target.remove();
   basket.classList.remove('drag-over');
   checkCompletion();
 });
 
-function checkCompletion(){
+function checkCompletion() {
   const remaining = cleanupBoard.querySelectorAll('.clutter-item').length;
-  if(remaining===0){
+  if(remaining === 0) {
     clearInterval(timerInterval);
-    const totalTime = ((Date.now()-startTime)/1000).toFixed(2);
+    const totalTime = ((Date.now() - startTime)/1000).toFixed(2);
     cleanupScore.textContent = `🎉 Classroom cleaned in ${totalTime} seconds! 🎉`;
   }
 }
 
 resetBtn.addEventListener('click', setupBoard);
 startBtn.addEventListener('click', startCleanupGame);
+
 setupBoard();
